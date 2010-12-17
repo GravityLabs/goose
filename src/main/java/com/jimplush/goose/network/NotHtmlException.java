@@ -8,6 +8,6 @@ package com.jimplush.goose.network; /**
  * Thrown when we're unable to detect any HTML from this page, could be an MP3, PDF or some
  * other media type
  */
-class NotHtmlException extends Exception {
+public class NotHtmlException extends Exception {
 
 }

@@ -78,7 +78,7 @@ public class HtmlFetcher {
    * @throws MaxBytesException
    * @throws NotHtmlException
    */
-  private String getHtml(String url) throws MaxBytesException, NotHtmlException {
+  public static String getHtml(String url) throws MaxBytesException, NotHtmlException {
     HttpGet httpget = null;
     String htmlResult = null;
     HttpEntity entity = null;
@@ -88,7 +88,7 @@ public class HtmlFetcher {
       localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore);
       httpget = new HttpGet(url);
 
-      HttpResponse response = this.httpClient.execute(httpget, localContext);
+      HttpResponse response = httpClient.execute(httpget, localContext);
 
       entity = response.getEntity();
 

@@ -1,6 +1,8 @@
 package com.jimplush.goose;
 
 import com.jimplush.goose.network.HtmlFetcher;
+import com.jimplush.goose.network.MaxBytesException;
+import com.jimplush.goose.network.NotHtmlException;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
 
@@ -32,15 +34,18 @@ public class ContentExtractor {
       URL url = new URL(urlToCrawl);
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Invalid URL Passed in: "+urlToCrawl, e);
-
     }
 
     ParseWrapper parseWrapper = new ParseWrapper();
 
-    String rawHtml = HtmlFetcher.getHtml(urlToCrawl);
-
-
-
+    try {
+      String rawHtml = HtmlFetcher.getHtml(urlToCrawl);
+      logger.info(rawHtml);
+    } catch (MaxBytesException e) {
+      throw new RuntimeException(e);
+    } catch (NotHtmlException e) {
+      throw new RuntimeException(e);
+    }
 
 
     return article;
