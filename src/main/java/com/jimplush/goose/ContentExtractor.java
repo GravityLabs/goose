@@ -8,6 +8,7 @@ import com.jimplush.goose.network.NotHtmlException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,7 +46,11 @@ public class ContentExtractor {
 
       article = new Article();
 
-      article.setTitle(this.fetchTitle(doc, article));
+      article.setTitle(this.getTitle(doc, article));
+      article.setMetaDescription(this.getMetaDescription(doc));
+
+
+
 
 
     } catch (MaxBytesException e) {
@@ -77,7 +82,7 @@ public class ContentExtractor {
    * @param article
    * @return
    */
-  private String fetchTitle(Document doc, Article article) {
+  private String getTitle(Document doc, Article article) {
     String title = "";
 
     try {
@@ -153,5 +158,19 @@ public class ContentExtractor {
 
 
   }
+
+
+  /**
+   * if the article has meta description set in the source, use that
+   */
+  private String getMetaDescription(Document doc) {
+    String metaDescription = "";
+    Elements meta = doc.select("meta[name=description]");
+    if (meta.size() > 0) {
+      metaDescription = meta.first().attr("content").trim();
+    }
+    return metaDescription;
+  }
+
 
 }

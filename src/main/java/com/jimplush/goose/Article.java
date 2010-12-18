@@ -19,6 +19,11 @@ public class Article {
   private String title;
 
   /**
+   * holds the metadescription meta tag in the html doc
+   */
+  private String metaDescription;
+
+  /**
    * returns the title of the webpage
    * @return
    */
@@ -28,5 +33,13 @@ public class Article {
 
   public void setTitle(String title) {
     this.title = title;
+  }
+
+    public String getMetaDescription() {
+    return metaDescription;
+  }
+
+  public void setMetaDescription(String metaDescription) {
+    this.metaDescription = metaDescription;
   }
 }
