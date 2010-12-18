@@ -5,6 +5,7 @@ import com.jimplush.goose.cleaners.DocumentCleaner;
 import com.jimplush.goose.network.HtmlFetcher;
 import com.jimplush.goose.network.MaxBytesException;
 import com.jimplush.goose.network.NotHtmlException;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
 
@@ -79,7 +80,77 @@ public class ContentExtractor {
   private String fetchTitle(Document doc, Article article) {
     String title = "";
 
+    try {
+
+      String titleText = "";
+
+      titleText = doc.getElementsByTag("title").first().text();
+
+      boolean usedDelimeter = false;
+
+      if (titleText.contains("|")) {
+        titleText = doTitleSplits(titleText, "\\|");
+        usedDelimeter = true;
+      }
+
+      if (titleText.contains("-") && !usedDelimeter) {
+        titleText = doTitleSplits(titleText, "-");
+        usedDelimeter = true;
+      }
+      if (titleText.contains("»") && !usedDelimeter) {
+        titleText = doTitleSplits(titleText, "»");
+        usedDelimeter = true;
+      }
+
+      if (titleText.contains(":") && !usedDelimeter) {
+        titleText = doTitleSplits(titleText, ":");
+        usedDelimeter = true;
+      }
+
+      // encode unicode charz
+      title = StringEscapeUtils.escapeHtml(titleText);;
+
+      // todo this is a hack until I can fix this.. weird motely crue error with
+      // http://money.cnn.com/2010/10/25/news/companies/motley_crue_bp.fortune/index.htm?section=money_latest
+      title = title.replace("&#65533;", "");
+
+      logger.info("Page title is: " + title);
+
+    } catch (NullPointerException e) {
+      logger.error(e.toString());
+    }
     return title;
+
+  }
+
+  /**
+   * based on a delimeter in the title take the longest piece or do some custom logic based on the site
+   *
+   * @param title
+   * @param delimeter
+   * @return
+   */
+  private String doTitleSplits(String title, String delimeter) {
+
+    String largeText = "";
+    int largetTextLen = 0;
+
+    String[] titlePieces = title.split(delimeter);
+
+    // take the largest split
+    for (String p : titlePieces) {
+      if (p.length() > largetTextLen) {
+        largeText = p;
+        largetTextLen = p.length();
+      }
+    }
+
+    largeText = largeText.replace("&raquo;", "");
+    largeText = largeText.replace("»", "");
+
+
+    return largeText.trim();
+
 
   }
 

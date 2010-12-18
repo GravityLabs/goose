@@ -200,6 +200,7 @@ public class HtmlFetcher {
 
 
   private static void initClient() {
+    logger.info("Initializing HttpClient");
     HttpParams httpParams = new BasicHttpParams();
     HttpConnectionParams.setConnectionTimeout(httpParams, 10 * 1000);
     HttpConnectionParams.setSoTimeout(httpParams, 10 * 1000);
