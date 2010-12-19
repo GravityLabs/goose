@@ -2,6 +2,7 @@ package com.jimplush.goose;
 
 import com.jimplush.goose.cleaners.DefaultDocumentCleaner;
 import com.jimplush.goose.cleaners.DocumentCleaner;
+import com.jimplush.goose.images.ImageExtractor;
 import com.jimplush.goose.network.HtmlFetcher;
 import com.jimplush.goose.network.MaxBytesException;
 import com.jimplush.goose.network.NotHtmlException;
@@ -26,14 +27,25 @@ import java.util.Set;
  * Date: 12/16/10
  * a lot of work in this class is based on Arc90's readability code that does content extraction in JS
  * I wasn't able to find a good server side codebase to acheive the same so I started with their base ideas and then
- * built additional metrics on top of it.
+ * built additional metrics on top of it such as looking for clusters of english stopwords.
  */
 
 
 public class ContentExtractor {
   private static final Logger logger = Logger.getLogger(ContentExtractor.class);
 
+  // sets the default cleaner class to prep the HTML for parsing
   private DocumentCleaner documentCleaner;
+
+  private ImageExtractor imageExtractor;
+
+
+  /**
+   * set this guy to false if you don't care about getting images, otherwise you can either use the default
+   * image extractor to implement the ImageExtractor interface to build your own
+   */
+  private boolean enableImageFetching = true;
+
 
   public Article extractContent(String urlToCrawl) {
 
@@ -68,6 +80,8 @@ public class ContentExtractor {
 
       // grab siblings and remove high link density elements
       cleanupNode(article.getTopNode());
+
+      logger.info("FINAL EXTRACTION TEXT: \n"+article.getTopNode().text());
 
 
     } catch (MaxBytesException e) {
@@ -117,7 +131,7 @@ public class ContentExtractor {
       }
 
       if (titleText.contains("-") && !usedDelimeter) {
-        titleText = doTitleSplits(titleText, "-");
+        titleText = doTitleSplits(titleText, " - ");
         usedDelimeter = true;
       }
       if (titleText.contains("»") && !usedDelimeter) {
@@ -633,7 +647,6 @@ public class ContentExtractor {
     Elements nodes = node.children();
     for (Element e : nodes) {
       if (e.tagName().equals("p")) {
-        logger.info("We're not removing para nodes");
         continue;
       }
       logger.info("CLEANUP  NODE: " + e.id() + " class: " + e.attr("class"));
@@ -741,5 +754,11 @@ public class ContentExtractor {
 
   }
 
+  public boolean isEnableImageFetching() {
+    return enableImageFetching;
+  }
 
+  public void setEnableImageFetching(boolean enableImageFetching) {
+    this.enableImageFetching = enableImageFetching;
+  }
 }

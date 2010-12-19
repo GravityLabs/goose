@@ -5,6 +5,8 @@ package com.jimplush.goose; /**
 
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 
 public class GoldSitesTest extends TestCase{
@@ -12,23 +14,42 @@ public class GoldSitesTest extends TestCase{
 
   public void testHuffingtonPost()
   {
-
     ContentExtractor contentExtractor = new ContentExtractor();
-
-    // article will now contain a nice little object full of the goods we extracted
-    Article article = contentExtractor.extractContent("http://www.huffingtonpost.com/2010/08/13/federal-reserve-pursuing_n_681540.html");
-
-    assertEquals("Federal Reserve's Low Rate Policy Is A 'Dangerous Gamble,' Says Top Central Bank Official",
-            article.getTitle());
-
-    assertEquals("federal, reserve's, low, rate, policy, is, a, 'dangerous, gamble,', says, top, central, bank, official, business",
-            article.getMetaKeywords());
-
-    assertEquals("A top regional Federal Reserve official sharply criticized Friday the Fed's ongoing policy of keeping interest rates near zero -- and at record lows -- as a \"dangerous gamble.\"",
-            article.getMetaDescription());
-
+    String url = "http://www.huffingtonpost.com/2010/08/13/federal-reserve-pursuing_n_681540.html";
+    Article article = contentExtractor.extractContent(url);
+    assertEquals("Federal Reserve's Low Rate Policy Is A 'Dangerous Gamble,' Says Top Central Bank Official",article.getTitle());
+    assertEquals("federal, reserve's, low, rate, policy, is, a, 'dangerous, gamble,', says, top, central, bank, official, business",article.getMetaKeywords());
+    assertEquals("A top regional Federal Reserve official sharply criticized Friday the Fed's ongoing policy of keeping interest rates near zero -- and at record lows -- as a \"dangerous gamble.\"", article.getMetaDescription());
     assertTrue(article.getTopNode().text().startsWith("A top regional Federal Reserve official sharply"));
+
+    Element topNode = article.getTopNode();
+    Elements imgs = topNode.getElementsByTag("img");
+    for(Element e: imgs) {
+      System.out.println("IMG: "+e.attr("src"));
+    }
   }
+  public void testTechCrunch()
+  {
+    ContentExtractor contentExtractor = new ContentExtractor();
+    String url = "http://techcrunch.com/2010/08/13/gantto-takes-on-microsoft-project-with-web-based-project-management-application/";
+    Article article = contentExtractor.extractContent(url);
+    assertEquals("Gantto Takes On Microsoft Project With Web-Based Project Management Application",article.getTitle());
+    assertTrue(article.getTopNode().text().startsWith("Y Combinator-backed Gantto is launching"));
+
+  }
+
+  public void testCNN()
+  {
+    ContentExtractor contentExtractor = new ContentExtractor();
+    String url = "http://www.cnn.com/2010/POLITICS/08/13/democrats.social.security/index.html";
+    Article article = contentExtractor.extractContent(url);
+    assertEquals("Democrats to use Social Security against GOP this fall",article.getTitle());
+    assertTrue(article.getTopNode().text().startsWith("Washington (CNN) -- Democrats pledged "));
+
+  }
+
+
+
 
 
 }
