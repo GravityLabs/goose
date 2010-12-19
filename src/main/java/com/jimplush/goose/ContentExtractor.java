@@ -46,11 +46,11 @@ public class ContentExtractor {
 
       article = new Article();
 
-      article.setTitle(this.getTitle(doc, article));
-      article.setMetaDescription(this.getMetaDescription(doc));
-
-
-
+      article.setTitle(getTitle(doc, article));
+      article.setMetaDescription(getMetaDescription(doc));
+      article.setMetaKeywords(getMetaKeywords(doc));
+      article.setCanonicalLink(getCanonicalLink(doc, urlToCrawl));
+      article.setDomain(article.getCanonicalLink());
 
 
     } catch (MaxBytesException e) {
@@ -65,10 +65,11 @@ public class ContentExtractor {
 
   /**
    * todo allow for setter to override the default documentCleaner in case user wants more flexibility
+   *
    * @return
    */
   private DocumentCleaner getDocCleaner() {
-    if(this.documentCleaner == null ) {
+    if (this.documentCleaner == null) {
       return new DefaultDocumentCleaner();
     }
     return this.documentCleaner;
@@ -113,7 +114,8 @@ public class ContentExtractor {
       }
 
       // encode unicode charz
-      title = StringEscapeUtils.escapeHtml(titleText);;
+      title = StringEscapeUtils.escapeHtml(titleText);
+      ;
 
       // todo this is a hack until I can fix this.. weird motely crue error with
       // http://money.cnn.com/2010/10/25/news/companies/motley_crue_bp.fortune/index.htm?section=money_latest
@@ -170,6 +172,64 @@ public class ContentExtractor {
       metaDescription = meta.first().attr("content").trim();
     }
     return metaDescription;
+  }
+
+  /**
+   * if the article has meta keywords set in the source, use that
+   */
+  private String getMetaKeywords(Document doc) {
+    String metaKeywords = "";
+    Elements meta = doc.select("meta[name=keywords]");
+    if (meta.size() > 0) {
+      metaKeywords = meta.first().attr("content").trim();
+    }
+    return metaKeywords;
+  }
+
+  /**
+   * if the article has meta canonical link set in the url
+   */
+  private String getCanonicalLink(Document doc, String baseUrl) {
+    String canonicalUrl = "";
+    Elements meta = doc.select("link[rel=canonical]");
+    if (meta.size() > 0) {
+      canonicalUrl = meta.first().attr("href").trim();
+
+    }
+
+    // set domain based on canonicalUrl
+    URL url = null;
+    try {
+
+      if (canonicalUrl != null) {
+        if (!canonicalUrl.startsWith("http://")) {
+          url = new URL(new URL(baseUrl), canonicalUrl);
+        } else {
+          url = new URL(canonicalUrl);
+        }
+
+      } else {
+        url = new URL(baseUrl);
+      }
+
+    } catch (MalformedURLException e) {
+      logger.error(e.toString(), e);
+    }
+    return canonicalUrl;
+
+
+  }
+
+  private String getDomain(String canonicalLink) {
+    URL url = null;
+    try {
+      url = new URL(canonicalLink);
+      String domain = url.getHost();
+      return domain;
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
+
   }
 
 
