@@ -4,6 +4,9 @@ package com.jimplush.goose; /**
  */
 
 import org.apache.log4j.Logger;
+import org.jsoup.nodes.Element;
+
+import java.util.ArrayList;
 
 /**
  * This class represents the extraction of an Article from a website
@@ -41,6 +44,18 @@ public class Article {
    * http://techcrunch.com/article/testme would be techcrunch.com as the domain
    */
   private String domain;
+
+  /**
+   * this represents the jSoup element that we think is the big content dude of this page
+   * we can use this node to start grabbing text, images, etc.. around the content
+   */
+  private Element topNode;
+
+
+  /**
+   * holds a list of elements that related to youtube or vimeo movie embeds
+   */
+  private ArrayList<Element> movies;
 
   /**
    * returns the title of the webpage
@@ -84,5 +99,21 @@ public class Article {
 
   public void setDomain(String domain) {
     this.domain = domain;
+  }
+
+  public Element getTopNode() {
+    return topNode;
+  }
+
+  public void setTopNode(Element topNode) {
+    this.topNode = topNode;
+  }
+
+  public ArrayList<Element> getMovies() {
+    return movies;
+  }
+
+  public void setMovies(ArrayList<Element> movies) {
+    this.movies = movies;
   }
 }

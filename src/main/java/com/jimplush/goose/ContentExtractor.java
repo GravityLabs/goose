@@ -5,13 +5,21 @@ import com.jimplush.goose.cleaners.DocumentCleaner;
 import com.jimplush.goose.network.HtmlFetcher;
 import com.jimplush.goose.network.MaxBytesException;
 import com.jimplush.goose.network.NotHtmlException;
+import com.jimplush.goose.texthelpers.StopWords;
+import com.jimplush.goose.texthelpers.WordStats;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * User: jim plush
@@ -51,6 +59,15 @@ public class ContentExtractor {
       article.setMetaKeywords(getMetaKeywords(doc));
       article.setCanonicalLink(getCanonicalLink(doc, urlToCrawl));
       article.setDomain(article.getCanonicalLink());
+
+      // extract the content of the article
+      article.setTopNode(calculateBestNodeBasedOnClustering(doc));
+
+      // extract any movie embeds out from our main article content
+      article.setMovies(extractVideos(article.getTopNode()));
+
+      // grab siblings and remove high link density elements
+      cleanupNode(article.getTopNode());
 
 
     } catch (MaxBytesException e) {
@@ -229,6 +246,498 @@ public class ContentExtractor {
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
+
+  }
+
+  /**
+   * we're going to start looking for where the clusters of paragraphs are. We'll score a cluster based on the number of stopwords
+   * and the number of consecutive paragraphs together, which should form the cluster of text that this node is around
+   * also store on how high up the paragraphs are, comments are usually at the bottom and should get a lower score
+   *
+   * @return
+   */
+  private Element calculateBestNodeBasedOnClustering(Document doc) {
+    Element topNode = null;
+
+    // grab all the paragraph elements on the page to start to inspect the likely hood of them being good peeps
+    ArrayList<Element> nodesToCheck = getNodesToCheck(doc);
+
+    double startingBoost = 1.0;
+    int cnt = 0;
+    int i = 0;
+
+    // holds all the parents of the nodes we're checking
+    Set<Element> parentNodes = new HashSet<Element>();
+
+
+    ArrayList<Element> nodesWithText = new ArrayList<Element>();
+
+
+    for (Element node : nodesToCheck) {
+
+      String nodeText = node.text();
+      WordStats wordStats = StopWords.getStopWordCount(nodeText);
+      boolean highLinkDensity = isHighLinkDensity(node);
+
+
+      if (wordStats.getStopWordCount() > 2 && !highLinkDensity) {
+
+        nodesWithText.add(node);
+      }
+
+    }
+
+    int numberOfNodes = nodesWithText.size();
+    int negativeScoring = 0; // we shouldn't give more negatives than positives
+    // we want to give the last 20% of nodes negative scores in case they're comments
+    double bottomNodesForNegativeScore = (float) numberOfNodes * 0.25;
+
+    logger.info("About to inspect num of nodes with text: " + numberOfNodes);
+
+    for (Element node : nodesWithText) {
+
+      // add parents and grandparents to scoring
+      // only add boost to the middle paragraphs, top and bottom is usually jankz city
+      // so basically what we're doing is giving boost scores to paragraphs that appear higher up in the dom
+      // and giving lower, even negative scores to those who appear lower which could be commenty stuff
+
+      float boostScore = 0;
+
+      if (isOkToBoost(node, i)) {
+        if (cnt >= 0) {
+          boostScore = (float) ((1.0 / startingBoost) * 50);
+          startingBoost++;
+        }
+      }
+
+
+      // check for negative node values
+      if (numberOfNodes > 15) {
+        if ((numberOfNodes - i) <= bottomNodesForNegativeScore) {
+          float booster = (float) bottomNodesForNegativeScore - (float) (numberOfNodes - i);
+          boostScore = -(float) Math.pow(booster, (float) 2);
+
+          // we don't want to score too highly on the negative side.
+          float negscore = Math.abs(boostScore) + negativeScoring;
+          if (negscore > 40) {
+            boostScore = 5;
+          }
+        }
+      }
+
+
+      logger.info("Location Boost Score: " + boostScore + " on interation: " + i + "' id='" + node.parent().id() + "' class='" + node.parent().attr("class"));
+      String nodeText = node.text();
+      WordStats wordStats = StopWords.getStopWordCount(nodeText);
+      int upscore = (int) (wordStats.getStopWordCount() + boostScore);
+      updateScore(node.parent(), upscore);
+      updateScore(node.parent().parent(), upscore / 2);
+      updateNodeCount(node.parent(), 1);
+      updateNodeCount(node.parent().parent(), 1);
+
+      if (!parentNodes.contains(node.parent())) {
+        parentNodes.add(node.parent());
+      }
+
+      if (!parentNodes.contains(node.parent().parent())) {
+        parentNodes.add(node.parent().parent());
+      }
+
+      cnt++;
+      i++;
+    }
+
+
+    // now let's find the parent node who scored the highest
+
+    int topNodeScore = 0;
+    for (Element e : parentNodes) {
+
+
+      logger.info("ParentNode: score='" + e.attr("gravityScore") + "' nodeCount='" + e.attr("gravityNodes") + "' id='" + e.id() + "' class='" + e.attr("class") + "' ");
+
+      //int score = Integer.parseInt(e.attr("gravityScore")) * Integer.parseInt(e.attr("gravityNodes"));
+      int score = getScore(e);
+      if (score > topNodeScore) {
+        topNode = e;
+        topNodeScore = score;
+      }
+
+      if (topNode == null) {
+        topNode = e;
+      }
+    }
+
+    logger.info("Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id() + "' class='" + topNode.attr("class") + "' ");
+    String logText = "";
+    String targetText = "";
+    Element topPara = topNode.getElementsByTag("p").first();
+    if (topPara == null) {
+      topNode.text();
+    } else {
+      topPara.text();
+    }
+
+    if (targetText.length() >= 51) {
+      logText = targetText.substring(0, 50);
+    } else {
+      logText = targetText;
+    }
+    logger.info("TOPNODE TEXT: " + logText.trim());
+
+
+    return topNode;
+
+
+  }
+
+  /**
+   * returns a list of nodes we want to search on like paragraphs and tables
+   *
+   * @return
+   */
+  private ArrayList<Element> getNodesToCheck(Document doc) {
+    ArrayList<Element> nodesToCheck = new ArrayList<Element>();
+
+    Elements items = doc.getElementsByTag("p");
+    for (Element item : items) {
+      nodesToCheck.add(item);
+    }
+    Elements items2 = doc.getElementsByTag("pre");
+    for (Element item : items2) {
+      nodesToCheck.add(item);
+    }
+    Elements items3 = doc.getElementsByTag("td");
+    for (Element item : items3) {
+      nodesToCheck.add(item);
+    }
+    return nodesToCheck;
+
+  }
+
+  /**
+   * checks the density of links within a node, is there not much text and most of it contains linky shit?
+   * if so it's no good
+   *
+   * @param e
+   * @return
+   */
+  private static boolean isHighLinkDensity(Element e) {
+
+    Elements links = e.getElementsByTag("a");
+    String txt = e.text().trim();
+
+    if (links.size() == 0) {
+      return false;
+    }
+
+    float score = 0;
+    String text = e.text();
+    String[] words = text.split(" ");
+    float numberOfWords = words.length;
+
+
+    // let's loop through all the links and calculate the number of words that make up the links
+    StringBuilder sb = new StringBuilder();
+    for (Element link : links) {
+      sb.append(link.text());
+    }
+    String linkText = sb.toString();
+    String[] linkWords = linkText.split(" ");
+    float numberOfLinkWords = linkWords.length;
+
+    float numberOfLinks = links.size();
+
+    float linkDivisor = (float) (numberOfLinkWords / numberOfWords);
+    score = (float) linkDivisor * numberOfLinks;
+
+    String logText = "";
+    if (e.text().length() >= 51) {
+      logText = e.text().substring(0, 50);
+    } else {
+      logText = e.text();
+    }
+    logger.info("Calulated link density score as: " + score + " for node: " + logText);
+    if (score > 1) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * alot of times the first paragraph might be the caption under an image so we'll want to make sure if we're going to
+   * boost a parent node that it should be connected to other paragraphs, at least for the first n paragraphs
+   * so we'll want to make sure that the next sibling is a paragraph and has at least some substatial weight to it
+   *
+   * @param node
+   * @param i
+   * @return
+   */
+  private boolean isOkToBoost(Element node, int i) {
+
+    int stepsAway = 0;
+
+    Element sibling = node.nextElementSibling();
+    while (sibling != null) {
+
+      if (sibling.tagName().equals("p")) {
+        if (stepsAway >= 3) {
+          logger.info("Next paragraph is too far away, not boosting");
+          return false;
+        }
+
+        String paraText = sibling.text();
+        String html = sibling.outerHtml();
+        WordStats wordStats = StopWords.getStopWordCount(paraText);
+        if (wordStats.getStopWordCount() > 5) {
+          logger.info("We're gonna boost this node, seems contenty");
+          return true;
+        }
+
+      }
+
+      // increase how far away the next paragraph is from this node
+      stepsAway++;
+
+      sibling = sibling.nextElementSibling();
+    }
+
+
+    return false;
+  }
+
+
+  /**
+   * adds a score to the gravityScore Attribute we put on divs
+   * we'll get the current score then add the score we're passing in to the current
+   *
+   * @param node
+   * @param addToScore - the score to add to the node
+   */
+  private void updateScore(Element node, int addToScore) {
+    int currentScore;
+    try {
+      currentScore = Integer.parseInt(node.attr("gravityScore"));
+    } catch (NumberFormatException e) {
+      currentScore = 0;
+    }
+    int newScore = currentScore + addToScore;
+    node.attr("gravityScore", Integer.toString(newScore));
+
+  }
+
+  /**
+   * stores how many decent nodes are under a parent node
+   *
+   * @param node
+   * @param addToCount
+   */
+  private void updateNodeCount(Element node, int addToCount) {
+    int currentScore;
+    try {
+      currentScore = Integer.parseInt(node.attr("gravityNodes"));
+    } catch (NumberFormatException e) {
+      currentScore = 0;
+    }
+    int newScore = currentScore + addToCount;
+    node.attr("gravityNodes", Integer.toString(newScore));
+
+  }
+
+
+  /**
+   * returns the gravityScore as an integer from this node
+   *
+   * @param node
+   * @return
+   */
+  private int getScore(Element node) {
+    try {
+      return Integer.parseInt(node.attr("gravityScore"));
+    } catch (NumberFormatException e) {
+      return 0;
+    } catch (NullPointerException e) {
+      return 0;
+    }
+  }
+
+
+  /**
+   * pulls out videos we like
+   *
+   * @return
+   */
+  private ArrayList<Element> extractVideos(Element node) {
+    ArrayList<Element> candidates = new ArrayList<Element>();
+    ArrayList<Element> goodMovies = new ArrayList<Element>();
+    try {
+
+
+      Elements embeds = node.parent().getElementsByTag("embed");
+      for (Element el : embeds) {
+        candidates.add(el);
+      }
+      Elements objects = node.parent().getElementsByTag("object");
+      for (Element el : objects) {
+        candidates.add(el);
+      }
+
+      logger.info("extractVideos: Starting to extract videos. Found: " + candidates.size());
+
+      for (Element el : candidates) {
+
+        Attributes attrs = el.attributes();
+
+        for (Attribute a : attrs) {
+          try {
+            logger.info(a.getKey() + " : " + a.getValue());
+            if ((a.getValue().contains("youtube") || a.getValue().contains("vimeo")) && a.getKey().equals("src")) {
+              logger.info("Found video... setting");
+
+
+              logger.info("This page has a video!: " + a.getValue());
+              goodMovies.add(el);
+
+            }
+          } catch (Exception e) {
+            logger.error(e.toString());
+            e.printStackTrace();
+          }
+        }
+
+      }
+    } catch (NullPointerException e) {
+      logger.info(e.toString());
+    } catch (Exception e) {
+      logger.error(e.toString());
+    }
+    logger.info("extractVideos:  done looking videos");
+    return goodMovies;
+  }
+
+
+  /**
+   * remove any divs that looks like non-content, clusters of links, or paras with no gusto
+   *
+   * @param node
+   * @return
+   */
+  private Element cleanupNode(Element node) {
+
+    logger.info("Starting cleanup Node");
+
+    node = addSiblings(node);
+
+
+    Elements nodes = node.children();
+    for (Element e : nodes) {
+      if (e.tagName().equals("p")) {
+        logger.info("We're not removing para nodes");
+        continue;
+      }
+      logger.info("CLEANUP  NODE: " + e.id() + " class: " + e.attr("class"));
+      boolean highLinkDensity = isHighLinkDensity(e);
+      if (highLinkDensity) {
+        logger.info("REMOVING  NODE FOR LINK DENSITY: " + e.id() + " class: " + e.attr("class"));
+        e.remove();
+        continue;
+      }
+      // now check for word density
+      // grab all the paragraphs in the children and remove ones that are too small to matter
+      Elements subParagraphs = e.getElementsByTag("p");
+
+
+      for (Element p : subParagraphs) {
+        if (p.text().length() < 25) {
+          p.remove();
+        }
+      }
+
+      // now that we've removed shorty paragraphs let's make sure to exclude any first paragraphs that don't have paras as
+      // their next siblings to avoid getting img bylines
+      // first let's remove any element that now doesn't have any p tags at all
+      Elements subParagraphs2 = e.getElementsByTag("p");
+      if (subParagraphs2.size() == 0 && !e.tagName().equals("td")) {
+        logger.info("Removing node because it doesn't have any paragraphs");
+        e.remove();
+        continue;
+      }
+
+      //if this node has a decent enough gravityScore we should keep it as well, might be content
+      int topNodeScore = getScore(node);
+      int currentNodeScore = getScore(e);
+      float thresholdScore = (float) (topNodeScore * .08);
+      logger.info("topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore);
+      if (currentNodeScore < thresholdScore) {
+        if(!e.tagName().equals("td")) {
+           logger.info("Removing node due to low threshold score");
+           e.remove();
+        } else {
+          logger.info("Not removing TD node");
+        }
+
+        continue;
+      }
+
+    }
+
+    return node;
+
+  }
+
+
+  /**
+   * adds any siblings that may have a decent score to this node
+   *
+   * @param node
+   * @return
+   */
+  private Element addSiblings(Element node) {
+
+    logger.info("Starting to add siblings");
+    Element currentSibling = node.previousElementSibling();
+    while (currentSibling != null) {
+      logger.info("SIBLINGCHECK: " + debugNode(currentSibling));
+
+      if (currentSibling.tagName().equals("p")) {
+
+        node.child(0).before(currentSibling.outerHtml());
+        currentSibling = currentSibling.previousElementSibling();
+        continue;
+      }
+
+      int gravityScore = getScore(currentSibling);
+      int topNodeScore = getScore(node);
+
+      if ((float) (topNodeScore * .05) < gravityScore) {
+        logger.info("This node looks like a good sibling, adding it");
+        node.child(0).before(currentSibling.html());
+
+      }
+
+      currentSibling = currentSibling.previousElementSibling();
+
+    }
+
+
+    return node;
+
+
+  }
+
+  private String debugNode(Element e) {
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("GravityScore: '");
+    sb.append(e.attr("gravityScore"));
+    sb.append("' paraNodeCount: '");
+    sb.append(e.attr("gravityNodes"));
+    sb.append("' nodeId: '");
+    sb.append(e.id());
+    sb.append("' className: '");
+    sb.append(e.attr("class"));
+    return sb.toString();
 
   }
 
