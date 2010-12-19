@@ -18,6 +18,7 @@ public class ContentExtractorTest extends TestCase {
   public void testArticleExtraction() {
     ContentExtractor contentExtractor = new ContentExtractor();
 
+    // article will now contain a nice little object full of the goods we extracted
     Article article = contentExtractor.extractContent("http://www.huffingtonpost.com/2010/08/13/federal-reserve-pursuing_n_681540.html");
 
     assertEquals("Federal Reserve's Low Rate Policy Is A 'Dangerous Gamble,' Says Top Central Bank Official",
