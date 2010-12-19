@@ -1,8 +1,10 @@
-package com.jimplush.goose; /**
+package com.jimplush.goose;
+/**
  * User: jim plush
  * Date: 12/16/10
  */
 
+import com.jimplush.goose.images.Image;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
 
@@ -50,6 +52,19 @@ public class Article {
    * we can use this node to start grabbing text, images, etc.. around the content
    */
   private Element topNode;
+
+
+  /**
+   * if image extractor is enable this would hold the image we think is the best guess for the web page
+   */
+  private Image topImage;
+
+
+  /**
+   * holds an array of the image candidates we thought might perhaps we decent images related
+   * to the content
+   */
+  private ArrayList<String> imageCandidates = new ArrayList<String>();
 
 
   /**
@@ -115,5 +130,24 @@ public class Article {
 
   public void setMovies(ArrayList<Element> movies) {
     this.movies = movies;
+  }
+
+
+
+  public ArrayList<String> getImageCandidates() {
+    return imageCandidates;
+  }
+
+  public void setImageCandidates(ArrayList<String> imageCandidates) {
+    this.imageCandidates = imageCandidates;
+  }
+
+
+  public Image getTopImage() {
+    return topImage;
+  }
+
+  public void setTopImage(Image topImage) {
+    this.topImage = topImage;
   }
 }

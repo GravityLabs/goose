@@ -1,5 +1,6 @@
 package com.jimplush.goose.images;
 
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
@@ -10,11 +11,14 @@ import java.util.ArrayList;
  */
 public interface ImageExtractor {
 
+
+
+
   /**
    * pick the best image you can find
    * @return
    */
-  public String getBestImage();
+  public Image getBestImage(Document doc, Element topNode);
 
   /**
    * return all the image candidates we think we have

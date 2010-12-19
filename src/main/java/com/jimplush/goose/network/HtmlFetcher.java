@@ -65,7 +65,7 @@ public class HtmlFetcher {
 
 
 
-  public HttpClient getHttpClient() {
+  public static HttpClient getHttpClient() {
     return httpClient;
   }
 

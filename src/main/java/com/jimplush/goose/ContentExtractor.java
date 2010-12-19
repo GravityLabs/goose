@@ -2,6 +2,7 @@ package com.jimplush.goose;
 
 import com.jimplush.goose.cleaners.DefaultDocumentCleaner;
 import com.jimplush.goose.cleaners.DocumentCleaner;
+import com.jimplush.goose.images.BestImageGuesser;
 import com.jimplush.goose.images.ImageExtractor;
 import com.jimplush.goose.network.HtmlFetcher;
 import com.jimplush.goose.network.MaxBytesException;
@@ -9,6 +10,7 @@ import com.jimplush.goose.network.NotHtmlException;
 import com.jimplush.goose.texthelpers.StopWords;
 import com.jimplush.goose.texthelpers.WordStats;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.http.client.HttpClient;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Attributes;
@@ -28,6 +30,7 @@ import java.util.Set;
  * a lot of work in this class is based on Arc90's readability code that does content extraction in JS
  * I wasn't able to find a good server side codebase to acheive the same so I started with their base ideas and then
  * built additional metrics on top of it such as looking for clusters of english stopwords.
+ * Gravity was doing 30+ million links per day with this codebase across a series of crawling servers for a project
  */
 
 
@@ -78,6 +81,15 @@ public class ContentExtractor {
       // extract any movie embeds out from our main article content
       article.setMovies(extractVideos(article.getTopNode()));
 
+
+
+      if(isEnableImageFetching()) {
+        HttpClient httpClient = HtmlFetcher.getHttpClient();
+        imageExtractor = getImageExtractor(httpClient, urlToCrawl);
+        article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
+
+      }
+
       // grab siblings and remove high link density elements
       cleanupNode(article.getTopNode());
 
@@ -92,6 +104,17 @@ public class ContentExtractor {
 
 
     return article;
+  }
+
+
+  private ImageExtractor getImageExtractor(HttpClient httpClient, String urlToCrawl) {
+
+    if(imageExtractor == null) {
+      return new BestImageGuesser(httpClient, urlToCrawl);
+    } else {
+      return imageExtractor;
+    }
+
   }
 
   /**

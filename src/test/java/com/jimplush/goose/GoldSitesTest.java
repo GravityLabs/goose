@@ -21,13 +21,8 @@ public class GoldSitesTest extends TestCase{
     assertEquals("federal, reserve's, low, rate, policy, is, a, 'dangerous, gamble,', says, top, central, bank, official, business",article.getMetaKeywords());
     assertEquals("A top regional Federal Reserve official sharply criticized Friday the Fed's ongoing policy of keeping interest rates near zero -- and at record lows -- as a \"dangerous gamble.\"", article.getMetaDescription());
     assertTrue(article.getTopNode().text().startsWith("A top regional Federal Reserve official sharply"));
-
-    Element topNode = article.getTopNode();
-    Elements imgs = topNode.getElementsByTag("img");
-    for(Element e: imgs) {
-      System.out.println("IMG: "+e.attr("src"));
-    }
   }
+
   public void testTechCrunch()
   {
     ContentExtractor contentExtractor = new ContentExtractor();
@@ -45,6 +40,8 @@ public class GoldSitesTest extends TestCase{
     Article article = contentExtractor.extractContent(url);
     assertEquals("Democrats to use Social Security against GOP this fall",article.getTitle());
     assertTrue(article.getTopNode().text().startsWith("Washington (CNN) -- Democrats pledged "));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://i.cdn.turner.com/cnn/2010/POLITICS/08/13/democrats.social.security/story.kaine.gi.jpg"));
+
 
   }
 
