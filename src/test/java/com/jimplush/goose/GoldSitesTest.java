@@ -30,6 +30,7 @@ public class GoldSitesTest extends TestCase{
     Article article = contentExtractor.extractContent(url);
     assertEquals("Gantto Takes On Microsoft Project With Web-Based Project Management Application",article.getTitle());
     assertTrue(article.getTopNode().text().startsWith("Y Combinator-backed Gantto is launching"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://tctechcrunch.files.wordpress.com/2010/08/tour.jpg"));
 
   }
 

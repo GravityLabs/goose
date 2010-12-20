@@ -104,6 +104,8 @@ public class BestImageGuesser implements ImageExtractor {
 
     image = new Image();
 
+    this.config = config;
+
     this.targetUrl = targetUrl;
     this.linkhash = HashUtils.md5(this.targetUrl);
 

@@ -129,7 +129,7 @@ public class ContentExtractor {
   private ImageExtractor getImageExtractor(HttpClient httpClient, String urlToCrawl) {
 
     if(imageExtractor == null) {
-      BestImageGuesser bestImageGuesser = new  BestImageGuesser(config, httpClient, urlToCrawl);
+      BestImageGuesser bestImageGuesser = new  BestImageGuesser(this.config, httpClient, urlToCrawl);
       return bestImageGuesser;
     } else {
       return imageExtractor;
