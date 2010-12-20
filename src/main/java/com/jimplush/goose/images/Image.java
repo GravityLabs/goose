@@ -1,6 +1,7 @@
 package com.jimplush.goose.images;
 
 import org.apache.log4j.Logger;
+import org.jsoup.nodes.Element;
 
 /**
  * User: jim
@@ -10,6 +11,11 @@ import org.apache.log4j.Logger;
 
 public class Image {
   private static final Logger logger = Logger.getLogger(Image.class);
+
+  /**
+   * holds the Element node of the image we think is top dog
+   */
+  private Element topImageNode;
 
   /**
    * holds the src of the image
@@ -63,5 +69,13 @@ public class Image {
 
   public void setBytes(int bytes) {
     this.bytes = bytes;
+  }
+
+  public Element getTopImageNode() {
+    return topImageNode;
+  }
+
+  public void setTopImageNode(Element topImageNode) {
+    this.topImageNode = topImageNode;
   }
 }

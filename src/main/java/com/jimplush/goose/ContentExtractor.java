@@ -35,19 +35,38 @@ import java.util.Set;
 
 
 public class ContentExtractor {
+
+
+  // PRIVATE PROPERTIES BELOW
+
   private static final Logger logger = Logger.getLogger(ContentExtractor.class);
+
+  /**
+   * holds the configuration settings we want to use
+   */
+  private Configuration config;
 
   // sets the default cleaner class to prep the HTML for parsing
   private DocumentCleaner documentCleaner;
 
   private ImageExtractor imageExtractor;
 
+  public ContentExtractor()
+  {
+    this.config = new Configuration();
+  }
 
   /**
-   * set this guy to false if you don't care about getting images, otherwise you can either use the default
-   * image extractor to implement the ImageExtractor interface to build your own
+   * overloaded to accept a custom configuration object
+   * @param config
    */
-  private boolean enableImageFetching = true;
+  public ContentExtractor(Configuration config)
+  {
+     this.config = config;
+  }
+
+
+
 
 
   public Article extractContent(String urlToCrawl) {
@@ -83,7 +102,7 @@ public class ContentExtractor {
 
 
 
-      if(isEnableImageFetching()) {
+      if(config.isEnableImageFetching()) {
         HttpClient httpClient = HtmlFetcher.getHttpClient();
         imageExtractor = getImageExtractor(httpClient, urlToCrawl);
         article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
@@ -110,7 +129,8 @@ public class ContentExtractor {
   private ImageExtractor getImageExtractor(HttpClient httpClient, String urlToCrawl) {
 
     if(imageExtractor == null) {
-      return new BestImageGuesser(httpClient, urlToCrawl);
+      BestImageGuesser bestImageGuesser = new  BestImageGuesser(config, httpClient, urlToCrawl);
+      return bestImageGuesser;
     } else {
       return imageExtractor;
     }
@@ -777,11 +797,5 @@ public class ContentExtractor {
 
   }
 
-  public boolean isEnableImageFetching() {
-    return enableImageFetching;
-  }
 
-  public void setEnableImageFetching(boolean enableImageFetching) {
-    this.enableImageFetching = enableImageFetching;
-  }
 }
