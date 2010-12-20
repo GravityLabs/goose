@@ -9,6 +9,7 @@ import com.jimplush.goose.network.MaxBytesException;
 import com.jimplush.goose.network.NotHtmlException;
 import com.jimplush.goose.outputformatters.DefaultOutputFormatter;
 import com.jimplush.goose.outputformatters.OutputFormatter;
+import com.jimplush.goose.texthelpers.HashUtils;
 import com.jimplush.goose.texthelpers.StopWords;
 import com.jimplush.goose.texthelpers.WordStats;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -20,6 +21,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -52,6 +54,10 @@ public class ContentExtractor {
   private DocumentCleaner documentCleaner;
 
 
+  // the MD5 of the URL we're currently parsing
+  private String linkhash;
+
+
   // once we have our topNode then we want to format that guy for output to the user
   private OutputFormatter outputFormatter;
 
@@ -79,6 +85,7 @@ public class ContentExtractor {
 
     try {
       URL url = new URL(urlToCrawl);
+      this.linkhash = HashUtils.md5(urlToCrawl);
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Invalid URL Passed in: " + urlToCrawl, e);
     }
@@ -123,6 +130,8 @@ public class ContentExtractor {
 
 
       article.setCleanedArticleText(outputFormatter.getFormattedText());
+
+      releaseResources();
 
 
       logger.info("FINAL EXTRACTION TEXT: \n"+article.getCleanedArticleText());
@@ -818,6 +827,34 @@ public class ContentExtractor {
     sb.append("' className: '");
     sb.append(e.attr("class"));
     return sb.toString();
+
+  }
+
+  /**
+   * cleans up any temp shit we have laying around like temp images
+   * removes any image in the temp dir that starts with the linkhash of the url we just parsed
+   */
+  public void releaseResources() {
+    logger.info("STARTING TO RELEASE ALL RESOURCES");
+    File dir = new File(config.getLocalStoragePath());
+    String[] children = dir.list();
+
+    if (children == null) {
+      logger.warn("No Temp images found for linkhash: " + this.linkhash);
+    } else {
+      for (int i = 0; i < children.length; i++) {
+        // Get filename of file or directory
+        String filename = children[i];
+
+        if (filename.startsWith(this.linkhash)) {
+
+          File f = new File(dir.getAbsolutePath() + "/" + filename);
+          if (!f.delete()) {
+            logger.error("Unable to remove temp file: " + filename);
+          }
+        }
+      }
+    }
 
   }
 
