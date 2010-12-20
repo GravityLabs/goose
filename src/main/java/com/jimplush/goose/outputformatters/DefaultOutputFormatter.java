@@ -8,6 +8,7 @@ import com.jimplush.goose.texthelpers.WordStats;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.util.List;
@@ -26,6 +27,10 @@ public class DefaultOutputFormatter implements OutputFormatter {
     this.topNode = topNode;
 
     removeNodesWithNegativeScores();
+
+    convertLinksToText();
+
+    replaceTagsWithText();
 
     removeParagraphsWithFewWords();
 
@@ -55,6 +60,21 @@ public class DefaultOutputFormatter implements OutputFormatter {
   }
 
   /**
+   * cleans up and converts any nodes that should be considered text into text
+   */
+  private void convertLinksToText()
+  {
+    logger.info("Turning links to text");
+    Elements links = topNode.getElementsByTag("a");
+    for(Element item: links) {
+      if(item.getElementsByTag("img").size() == 0) {
+        TextNode tn = new TextNode(item.text(), topNode.baseUri());
+        item.replaceWith(tn);
+      }
+    }
+  }
+
+  /**
    * if there are elements inside our top node that have a negative gravity score, let's
    * give em the boot
    */
@@ -65,6 +85,31 @@ public class DefaultOutputFormatter implements OutputFormatter {
       if (score < 1) {
         item.remove();
       }
+    }
+  }
+  
+  /**
+   * replace common tags with just text so we don't have any crazy formatting issues
+   * so replace <br>, <i>, <strong>, etc.... with whatever text is inside them
+   */
+  private void replaceTagsWithText() {
+
+    Elements strongs = topNode.getElementsByTag("strong");
+    for(Element item: strongs) {
+      TextNode tn = new TextNode(item.text(), topNode.baseUri());
+      item.replaceWith(tn);
+    }
+    
+    Elements bolds = topNode.getElementsByTag("b");
+    for(Element item: bolds) {
+      TextNode tn = new TextNode(item.text(), topNode.baseUri());
+      item.replaceWith(tn);
+    }
+    
+    Elements italics = topNode.getElementsByTag("i");
+    for(Element item: italics) {
+      TextNode tn = new TextNode(item.text(), topNode.baseUri());
+      item.replaceWith(tn);
     }
   }
 
