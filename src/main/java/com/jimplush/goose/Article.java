@@ -30,6 +30,13 @@ public class Article {
 
 
   /**
+   * holds the clean text after we do strip out everything but the text and wrap it up in a nice package
+   * this is the guy you probably want, just pure text
+   */
+  private String cleanedArticleText;
+
+
+  /**
    * holds the meta keywords that would in the meta tag of the html doc
    */
   private String metaKeywords;
@@ -149,5 +156,13 @@ public class Article {
 
   public void setTopImage(Image topImage) {
     this.topImage = topImage;
+  }
+
+  public String getCleanedArticleText() {
+    return cleanedArticleText;
+  }
+
+  public void setCleanedArticleText(String cleanedArticleText) {
+    this.cleanedArticleText = cleanedArticleText;
   }
 }

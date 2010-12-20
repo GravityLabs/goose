@@ -20,7 +20,7 @@ public class GoldSitesTest extends TestCase{
     assertEquals("Federal Reserve's Low Rate Policy Is A 'Dangerous Gamble,' Says Top Central Bank Official",article.getTitle());
     assertEquals("federal, reserve's, low, rate, policy, is, a, 'dangerous, gamble,', says, top, central, bank, official, business",article.getMetaKeywords());
     assertEquals("A top regional Federal Reserve official sharply criticized Friday the Fed's ongoing policy of keeping interest rates near zero -- and at record lows -- as a \"dangerous gamble.\"", article.getMetaDescription());
-    assertTrue(article.getTopNode().text().startsWith("A top regional Federal Reserve official sharply"));
+    assertTrue(article.getCleanedArticleText().startsWith("A top regional Federal Reserve official sharply"));
   }
 
   public void testTechCrunch()

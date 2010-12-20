@@ -112,7 +112,10 @@ public class ContentExtractor {
       // grab siblings and remove high link density elements
       cleanupNode(article.getTopNode());
 
-      logger.info("FINAL EXTRACTION TEXT: \n"+article.getTopNode().text());
+      article.setCleanedArticleText(getCleanArticleText(article.getTopNode()));
+
+
+      logger.info("FINAL EXTRACTION TEXT: \n"+article.getCleanedArticleText());
 
 
     } catch (MaxBytesException e) {
@@ -795,6 +798,26 @@ public class ContentExtractor {
     sb.append(e.attr("class"));
     return sb.toString();
 
+  }
+
+  /**
+   * takes an element and turns the P tags into \n\n
+   * @param node
+   * @return
+   */
+  public static String getCleanArticleText(Element node) {
+
+    StringBuilder sb = new StringBuilder();
+
+    Elements nodes = node.getAllElements();
+    for (Element e : nodes) {
+      if (e.tagName().equals("p") || e.tagName().equals("td")) {
+        String text = StringEscapeUtils.escapeHtml(e.text()).trim();
+        sb.append(text);
+        sb.append("\n\n");
+      }
+    }
+    return sb.toString();
   }
 
 
