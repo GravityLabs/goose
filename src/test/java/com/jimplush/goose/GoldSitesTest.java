@@ -70,7 +70,7 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://a57.foxnews.com/static/managed/img/Politics/397/224/startsign.jpg"));
   }
 
-   public void testAOLNews() {
+  public void testAOLNews() {
 
     String url = "http://www.aolnews.com/nation/article/the-few-the-proud-the-marines-getting-a-makeover/19592478";
     ContentExtractor contentExtractor = new ContentExtractor();
@@ -151,5 +151,149 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://www.blogcdn.com/www.engadget.com/media/2010/08/44ni600.jpg"));
   }
 
+  public void testBoingBoing() {
+
+    String url = "http://www.boingboing.net/2010/08/18/dr-laura-criticism-o.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Dr. Laura Schlessinger is leaving radio to regain"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.boingboing.net/images/drlaura.jpg"));
+  }
+
+  public void testWired() {
+
+    String url = "http://www.wired.com/playbook/2010/08/stress-hormones-boxing/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("On November 25, 1980, professional boxing"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.wired.com/playbook/wp-content/uploads/2010/08/fight_f-660x441.jpg"));
+    assertTrue(article.getTitle().equals("Stress Hormones Could Predict Boxing Dominance"));
+  }
+
+  public void tetGigaOhm() {
+
+    String url = "http://gigaom.com/apple/apples-next-macbook-an-800-mac-for-the-masses/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("The MacBook Air is a bold move forward "));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://gigapple.files.wordpress.com/2010/10/macbook-feature.png?w=300&h=200"));
+  }
+
+  public void testMashable() {
+
+    String url = "http://mashable.com/2010/08/18/how-tonot-to-ask-someone-out-online/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Imagine, if you will, a crowded dance floor"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://mashable.com/wp-content/uploads/2010/07/love.jpg"));
+  }
+
+  public void testReadWriteWeb() {
+
+    String url = "http://www.readwriteweb.com/start/2010/08/pagely-headline.php";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("In the heart of downtown Chandler, Arizona"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://rww.readwriteweb.netdna-cdn.com/start/images/pagelyscreen_aug10.jpg"));
+  }
+
+  public void testVentureBeat() {
+
+    String url = "http://social.venturebeat.com/2010/08/18/facebook-reveals-the-details-behind-places/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Facebook just confirmed the rumors"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cdn.venturebeat.com/wp-content/uploads/2010/08/mark-zuckerberg-facebook-places.jpg"));
+  }
+
+   public void testTimeMagazine() {
+
+    String url = "http://www.time.com/time/health/article/0,8599,2011497,00.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("This month, the federal government released"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://img.timeinc.net/time/daily/2010/1008/bp_oil_spill_0817.jpg"));
+  }
+
+  public void testCnet() {
+
+    String url = "http://news.cnet.com/8301-30686_3-20014053-266.html?tag=topStories1";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("NEW YORK--Verizon Communications is prepping a new"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://i.i.com.com/cnwk.1d/i/tim//2010/08/18/Verizon_iPad_and_live_TV_610x458.JPG"));
+  }
+
+   public void testYahooNewsEvenThoughTheyFuckedUpDeliciousWeWillTestThemAnyway() {
+
+    String url = "http://news.yahoo.com/s/ap/20101030/ap_on_el_se/us_nevada_senate";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("CARSON CITY, Nev. &ndash; Nevada's dead heat Senate race converged"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://d.yimg.com/a/p/ap/20101030/capt.de99c9f6a76445fc885bb7bd00e45337-de99c9f6a76445fc885bb7bd00e45337-0.jpg?x=213&y=320&xc=1&yc=1&wc=272&hc=409&q=85&sig=P22sGCwd_PZ558JFQg79vQ--"));
+  }
+
+  public void testPolitico() {
+
+    String url = "http://www.politico.com/news/stories/1010/43352.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("If the newest Census Bureau estimates stay close to form"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://images.politico.com/global/news/100927_obama22_ap_328.jpg"));
+  }
+
+  public void testNewsweek() {
+
+    String url = "http://www.newsweek.com/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("At first glance, Kadyrov might seem"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.newsweek.com/content/newsweek/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring/_jcr_content/body/mainimage.img.jpg/1286654107500.jpg"));
+  }
+
+  public void testLifeHacker() {
+
+    String url = "http://lifehacker.com/5659837/build-a-rocket-stove-to-heat-your-home-with-wood-scraps";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("If you find yourself with lots of leftover wood"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cache.gawker.com/assets/images/lifehacker/2010/10/rocket-stove-finished.jpeg"));
+  }
+
+  public void testNinjaBlog() {
+
+    String url = "http://www.ninjatraderblog.com/im/2010/10/seo-marketing-facts-about-google-instant-and-ranking-your-website/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Many users around the world Google their queries"));
+  }
+
+  public void testNaturalHomeBlog() {
+
+    String url = "http://www.naturalhomemagazine.com/diy-projects/try-this-papier-mache-ghostly-lanterns.aspx";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Guide trick or treaters and other friendly spirits to your front"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.naturalhomemagazine.com/uploadedImages/articles/issues/2010-09-01/NH-SO10-trythis-lantern-final2_resized400X266.jpg"));
+  }
+
+   public void testSFGate() {
+
+    String url = "http://www.sfgate.com/cgi-bin/article.cgi?f=/c/a/2010/10/27/BUD61G2DBL.DTL";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Fewer homes in California and"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://imgs.sfgate.com/c/pictures/2010/10/26/ba-foreclosures2_SFCG1288130091.jpg"));
+  }
+
+  public void testSportsIllustrated() {
+
+    String url = "http://sportsillustrated.cnn.com/2010/football/ncaa/10/15/ohio-state-holmes.ap/index.html?xid=si_ncaaf";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("COLUMBUS, Ohio (AP) -- Ohio State has closed"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://i.cdn.turner.com/si/.e1d/img/4.0/global/logos/si_100x100.jpg"));
+  }
 
 }
+
