@@ -27,7 +27,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://techcrunch.com/2010/08/13/gantto-takes-on-microsoft-project-with-web-based-project-management-application/";
     Article article = contentExtractor.extractContent(url);
     assertEquals("Gantto Takes On Microsoft Project With Web-Based Project Management Application", article.getTitle());
-    assertTrue(article.getTopNode().text().startsWith("Y Combinator-backed Gantto is launching"));
+    assertTrue(article.getCleanedArticleText().startsWith("Y Combinator-backed Gantto is launching"));
     assertTrue(article.getTopImage().getImageSrc().equals("http://tctechcrunch.files.wordpress.com/2010/08/tour.jpg"));
 
   }
@@ -37,7 +37,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.cnn.com/2010/POLITICS/08/13/democrats.social.security/index.html";
     Article article = contentExtractor.extractContent(url);
     assertEquals("Democrats to use Social Security against GOP this fall", article.getTitle());
-    assertTrue(article.getTopNode().text().startsWith("Washington (CNN) -- Democrats pledged "));
+    assertTrue(article.getCleanedArticleText().startsWith("Washington (CNN) -- Democrats pledged "));
     assertTrue(article.getTopImage().getImageSrc().equals("http://i.cdn.turner.com/cnn/2010/POLITICS/08/13/democrats.social.security/story.kaine.gi.jpg"));
   }
 
