@@ -295,5 +295,44 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://i.cdn.turner.com/si/.e1d/img/4.0/global/logos/si_100x100.jpg"));
   }
 
+  // todo get this one working - I hate star magazine web designers, they put 2 html files into one
+//  public void testStarMagazine() {
+//
+//    String url = "http://www.starmagazine.com/news/17510?cid=RSS";
+//    ContentExtractor contentExtractor = new ContentExtractor();
+//    Article article = contentExtractor.extractContent(url);
+//    assertTrue(article.getCleanedArticleText().startsWith("The Real Reason Rihanna Skipped Katy's Wedding: No Cell Phone Reception!"));
+//    assertTrue(article.getTopImage().getImageSrc().equals("Rihanna has admitted the real reason she was a no show"));
+//    assertTrue(article.getTitle().equals("http://www.starmagazine.com/media/originals/Rihanna_1010_230.jpg"));
+//  }
+
+  public void testDailyBeast() {
+
+    String url = "http://www.thedailybeast.com/blogs-and-stories/2010-11-01/ted-sorensen-speechwriter-behind-jfks-best-jokes/?cid=topic:featured1";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Legendary Kennedy speechwriter Ted Sorensen passed"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.tdbimg.com/files/2010/11/01/img-article---katz-ted-sorensen_163531624950.jpg"));
+  }
+
+  public void testBloomberg() {
+
+    String url = "http://www.bloomberg.com/news/2010-11-01/china-becomes-boss-in-peru-on-50-billion-mountain-bought-for-810-million.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("The Chinese entrepreneur and the Peruvian shopkeeper"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.bloomberg.com/apps/data?pid=avimage&iid=iimODmqjtcQU"));
+  }
+
+  public void testScientificDaily() {
+
+    String url = "http://www.scientificamerican.com/article.cfm?id=bpa-semen-quality";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("The common industrial chemical bisphenol A (BPA) "));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.scientificamerican.com/media/inline/bpa-semen-quality_1.jpg"));
+    assertTrue(article.getTitle().equals("Everyday BPA Exposure Decreases Human Semen Quality"));
+  }
+
 }
 
