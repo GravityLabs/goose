@@ -7,6 +7,8 @@ import com.jimplush.goose.images.ImageExtractor;
 import com.jimplush.goose.network.HtmlFetcher;
 import com.jimplush.goose.network.MaxBytesException;
 import com.jimplush.goose.network.NotHtmlException;
+import com.jimplush.goose.outputformatters.DefaultOutputFormatter;
+import com.jimplush.goose.outputformatters.OutputFormatter;
 import com.jimplush.goose.texthelpers.StopWords;
 import com.jimplush.goose.texthelpers.WordStats;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -48,6 +50,10 @@ public class ContentExtractor {
 
   // sets the default cleaner class to prep the HTML for parsing
   private DocumentCleaner documentCleaner;
+
+
+  // once we have our topNode then we want to format that guy for output to the user
+  private OutputFormatter outputFormatter;
 
   private ImageExtractor imageExtractor;
 
@@ -112,7 +118,11 @@ public class ContentExtractor {
       // grab siblings and remove high link density elements
       cleanupNode(article.getTopNode());
 
-      article.setCleanedArticleText(getCleanArticleText(article.getTopNode()));
+      outputFormatter = getOutputFormatter();
+      outputFormatter.getFormattedElement(article.getTopNode());
+
+
+      article.setCleanedArticleText(outputFormatter.getFormattedText());
 
 
       logger.info("FINAL EXTRACTION TEXT: \n"+article.getCleanedArticleText());
@@ -126,6 +136,16 @@ public class ContentExtractor {
 
 
     return article;
+  }
+
+  // todo create a setter for this for people to override output formatter
+  private OutputFormatter getOutputFormatter() {
+      if(outputFormatter == null) {
+        return new DefaultOutputFormatter();
+      } else {
+        return outputFormatter;
+      }
+
   }
 
 
@@ -800,25 +820,6 @@ public class ContentExtractor {
 
   }
 
-  /**
-   * takes an element and turns the P tags into \n\n
-   * @param node
-   * @return
-   */
-  public static String getCleanArticleText(Element node) {
-
-    StringBuilder sb = new StringBuilder();
-
-    Elements nodes = node.getAllElements();
-    for (Element e : nodes) {
-      if (e.tagName().equals("p") || e.tagName().equals("td")) {
-        String text = StringEscapeUtils.escapeHtml(e.text()).trim();
-        sb.append(text);
-        sb.append("\n\n");
-      }
-    }
-    return sb.toString();
-  }
 
 
 }
