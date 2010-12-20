@@ -53,4 +53,15 @@ public class GoldSitesTest extends TestCase {
   }
 
 
+  public void testBusinessWeek2() {
+
+    String url = "http://www.businessweek.com/magazine/content/10_34/b4192048613870.htm";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("There's discord on Wall Street: Strategists at major American investment banks see a"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://images.businessweek.com/mz/covers/current_120x160.jpg"));
+  }
+
+
+
 }

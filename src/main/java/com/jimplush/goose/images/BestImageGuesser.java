@@ -92,8 +92,7 @@ public class BestImageGuesser implements ImageExtractor {
   Configuration config;
 
 
-
-  public BestImageGuesser( Configuration config, HttpClient httpClient, String targetUrl) {
+  public BestImageGuesser(Configuration config, HttpClient httpClient, String targetUrl) {
     this.httpClient = httpClient;
 
     StringBuilder sb = new StringBuilder();
@@ -118,22 +117,95 @@ public class BestImageGuesser implements ImageExtractor {
     if (image.getImageSrc() == null) {
       this.checkForKnownElements();
     }
-    
+
     // I'm checking for large images first because a lot of the meta tags contained thumbnail size images instead of the goods!
     // so we want to try and get the biggest image around the content area as possible.
     if (image.getImageSrc() == null) {
       this.checkForLargeImages(topNode, 0, 0);
     }
 
+    // fall back to meta tags, these can sometimes be inconsistent which is why we favor them less
+    if (image.getImageSrc() == null) {
+      this.checkForMetaTag();
+    }
+
 
     return image;
+  }
+
+  private boolean checkForMetaTag() {
+
+    if (this.checkForLinkTag()) {
+      return true;
+    }
+
+    if (this.checkForOpenGraphTag()) {
+      return true;
+    }
+
+    logger.info("unable to find meta image");
+    return false;
+
+
+  }
+
+  /**
+   * checks to see if we were able to find open graph tags on this page
+   *
+   * @return
+   */
+  private boolean checkForOpenGraphTag() {
+    try {
+      Elements meta = this.doc.select("meta[property~=og:image]");
+      for (Element item : meta) {
+        if (item.attr("content").length() < 1) {
+          return false;
+        }
+        this.image.setImageSrc(this.buildImagePath(item.attr("content")));
+        this.image.setImageExtractionType("opengraph");
+        this.image.setConfidenceScore(100);
+        this.image.setBytes(this.getBytesForImage(this.buildImagePath(item.attr("content"))));
+        logger.info("open graph tag found, using it");
+        return true;
+      }
+      return false;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  /**
+   * checks to see if we were able to find open graph tags on this page
+   *
+   * @return
+   */
+  private boolean checkForLinkTag() {
+    try {
+      Elements meta = this.doc.select("link[rel~=image_src]");
+      for (Element item : meta) {
+        if (item.attr("href").length() < 1) {
+          return false;
+        }
+        this.image.setImageSrc(this.buildImagePath(item.attr("href")));
+        this.image.setImageExtractionType("linktag");
+        this.image.setConfidenceScore(100);
+        this.image.setBytes(this.getBytesForImage(this.buildImagePath(item.attr("href"))));
+        logger.info("link tag found, using it");
+        return true;
+      }
+      return false;
+    } catch (Exception e) {
+      logger.error(e);
+      return false;
+    }
   }
 
   public ArrayList<Element> getAllImages() {
     return null;  //To change body of implemented methods use File | Settings | File Templates.
   }
-  
-  
+
+
   /**
    * although slow the best way to determine the best image is to download them and check the actual dimensions of the image when on disk
    * so we'll go through a phased approach...
@@ -155,7 +227,7 @@ public class BestImageGuesser implements ImageExtractor {
 
 
     String nodeId = this.getNodeIds(node);
-    logger.info("checkForLargeImages: Checking for large images, found: " + images.size() + " - parent depth: " + parentDepth + " sibling depth: "+siblingDepth + " for node: " + nodeId);
+    logger.info("checkForLargeImages: Checking for large images, found: " + images.size() + " - parent depth: " + parentDepth + " sibling depth: " + siblingDepth + " for node: " + nodeId);
     ArrayList<Element> goodImages;
 
     goodImages = this.filterBadNames(images);
@@ -201,11 +273,11 @@ public class BestImageGuesser implements ImageExtractor {
         // we start at the top node then recursively go up to siblings/parent/grandparent to find something good
 
         Element prevSibling = node.previousElementSibling();
-        if(prevSibling != null) {
-          logger.info("About to do a check against the sibling element, tagname: '"+prevSibling.tagName() + "' class: '"+prevSibling.attr("class")+"' id: '"+prevSibling.id() +"'");
-          siblingDepth++; 
+        if (prevSibling != null) {
+          logger.info("About to do a check against the sibling element, tagname: '" + prevSibling.tagName() + "' class: '" + prevSibling.attr("class") + "' id: '" + prevSibling.id() + "'");
+          siblingDepth++;
           this.checkForLargeImages(prevSibling, parentDepth, siblingDepth);
-        }  else {
+        } else {
           logger.info("no more sibling nodes found, time to roll up to parent node");
           parentDepth++;
           this.checkForLargeImages(node.parent(), parentDepth, siblingDepth);
@@ -280,7 +352,7 @@ public class BestImageGuesser implements ImageExtractor {
     }
     return true;
   }
-  
+
   /**
    * returns a string with debug info about this node
    *
@@ -412,7 +484,7 @@ public class BestImageGuesser implements ImageExtractor {
     return bytes;
   }
 
-/**
+  /**
    * download the images to temp disk and set their dimensions
    * <p/>
    * we're going to score the images in the order in which they appear so images higher up will have more importance,
@@ -441,7 +513,7 @@ public class BestImageGuesser implements ImageExtractor {
         String imageSource = this.buildImagePath(image.attr("src"));
 
 
-        String localSrcPath = ImageSaver.storeTempImage(this.httpClient, this.linkhash,imageSource, this.config);
+        String localSrcPath = ImageSaver.storeTempImage(this.httpClient, this.linkhash, imageSource, this.config);
         if (localSrcPath == null) {
           logger.info("unable to store this image locally: IMGSRC: " + image.attr("src") + " BUILD SRC: " + imageSource);
           continue;
@@ -459,9 +531,9 @@ public class BestImageGuesser implements ImageExtractor {
           height = imageDims.getHeight();
 
           // check for minimim depth requirements, if we're branching out wider in the dom, only get big images
-          if(depthLevel > 1) {
-            if(width < 300) {
-              logger.info("going depthlevel: "+depthLevel+ " and img was only: "+width+" wide: "+localSrcPath);
+          if (depthLevel > 1) {
+            if (width < 300) {
+              logger.info("going depthlevel: " + depthLevel + " and img was only: " + width + " wide: " + localSrcPath);
               continue;
             }
 
@@ -522,7 +594,7 @@ public class BestImageGuesser implements ImageExtractor {
   }
 
 
-/**
+  /**
    * returns true if we think this is kind of a bannery dimension
    * like 600 / 100 = 6 may be a fishy dimension for a good image
    *

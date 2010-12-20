@@ -34,58 +34,58 @@ public class DefaultOutputFormatter implements OutputFormatter {
   }
 
   /**
-     * takes an element and turns the P tags into \n\n
-     * // todo move this to an output formatter object instead of inline here
-     * @return
-     */
-    public String getFormattedText() {
+   * takes an element and turns the P tags into \n\n
+   * // todo move this to an output formatter object instead of inline here
+   *
+   * @return
+   */
+  public String getFormattedText() {
 
-      StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder();
 
-      Elements nodes = topNode.getAllElements();
-      for (Element e : nodes) {
-        if (e.tagName().equals("p") || e.tagName().equals("td")) {
-          String text = StringEscapeUtils.escapeHtml(e.text()).trim();
-          sb.append(text);
-          sb.append("\n\n");
-        }
+    Elements nodes = topNode.getAllElements();
+    for (Element e : nodes) {
+      if (e.tagName().equals("p") || e.tagName().equals("td")) {
+        String text = StringEscapeUtils.escapeHtml(e.text()).trim();
+        sb.append(text);
+        sb.append("\n\n");
       }
-      return sb.toString();
     }
+    return sb.toString();
+  }
 
   /**
    * if there are elements inside our top node that have a negative gravity score, let's
    * give em the boot
    */
-  private void removeNodesWithNegativeScores()
-  {
+  private void removeNodesWithNegativeScores() {
     Elements gravityItems = this.topNode.select("*[gravityScore]");
-    for(Element item: gravityItems) {
+    for (Element item : gravityItems) {
       int score = Integer.parseInt(item.attr("gravityScore"));
-      if(score < 1) {
+      if (score < 1) {
         item.remove();
       }
     }
   }
 
-/**
+  /**
    * remove paragraphs that have less than x number of words, would indicate that it's some sort of link
    */
   private void removeParagraphsWithFewWords() {
     logger.info("removeParagraphsWithFewWords starting...");
 
     Elements allNodes = this.topNode.getAllElements();
-    for(Element el: allNodes) {
+    for (Element el : allNodes) {
 
       try {
         // get stop words that appear in each node
 
         WordStats stopWords = StopWords.getStopWordCount(el.text());
 
-        if(stopWords.getStopWordCount() < 5 && el.getElementsByTag("object").size() == 0  && el.getElementsByTag("embed").size() == 0 ) {
+        if (stopWords.getStopWordCount() < 5 && el.getElementsByTag("object").size() == 0 && el.getElementsByTag("embed").size() == 0) {
           el.remove();
         }
-      } catch(IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
         logger.error(e.getMessage());
       }
       //}
