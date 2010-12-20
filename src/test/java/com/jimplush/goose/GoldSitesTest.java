@@ -52,7 +52,6 @@ public class GoldSitesTest extends TestCase {
 
   }
 
-
   public void testBusinessWeek2() {
 
     String url = "http://www.businessweek.com/magazine/content/10_34/b4192048613870.htm";
@@ -60,6 +59,15 @@ public class GoldSitesTest extends TestCase {
     Article article = contentExtractor.extractContent(url);
     assertTrue(article.getCleanedArticleText().startsWith("There's discord on Wall Street: Strategists at major American investment banks see a"));
     assertTrue(article.getTopImage().getImageSrc().equals("http://images.businessweek.com/mz/covers/current_120x160.jpg"));
+  }
+
+  public void testFoxNews() {
+
+    String url = "http://www.foxnews.com/politics/2010/08/14/russias-nuclear-help-iran-stirs-questions-improved-relations/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Russia's announcement that it will help Iran get nuclear fuel is raising questions"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://a57.foxnews.com/static/managed/img/Politics/397/224/startsign.jpg"));
   }
 
 

@@ -126,6 +126,7 @@ public class ContentExtractor {
 
 
       logger.info("FINAL EXTRACTION TEXT: \n"+article.getCleanedArticleText());
+      logger.info("\n\nFINAL EXTRACTION IMAGE: \n"+ article.getTopImage().getImageSrc());
 
 
     } catch (MaxBytesException e) {
