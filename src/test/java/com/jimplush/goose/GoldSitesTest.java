@@ -334,5 +334,35 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTitle().equals("Everyday BPA Exposure Decreases Human Semen Quality"));
   }
 
+  public void testSlamMagazine() {
+
+    String url = "http://www.slamonline.com/online/nba/2010/10/nba-schoolyard-rankings/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("When in doubt, rank players and add your findings"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.slamonline.com/online/wp-content/uploads/2010/10/celtics.jpg"));
+    assertTrue(article.getTitle().equals("NBA Schoolyard Rankings"));
+  }
+
+  public void testTheFrisky() {
+
+    String url = "http://www.thefrisky.com/post/246-rachel-dratch-met-her-baby-daddy-in-a-bar/?eref=RSS";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Rachel Dratch had been keeping the identity of her baby daddy "));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cdn.thefrisky.com/images/uploads/rachel_dratch_102810_m.jpg"));
+    assertTrue(article.getTitle().equals("Rachel Dratch Met Her Baby Daddy At A Bar"));
+  }
+
+  public void testUniverseToday() {
+
+    String url = "http://www.universetoday.com/76881/podcast-more-from-tony-colaprete-on-lcross/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("I had the chance to interview LCROSS"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.universetoday.com/wp-content/uploads/2009/10/lcross-impact_01_01.jpg"));
+    assertTrue(article.getTitle().equals("More From Tony Colaprete on LCROSS"));
+  }
+
 }
 
