@@ -364,5 +364,35 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTitle().equals("More From Tony Colaprete on LCROSS"));
   }
 
+  public void testValleyWag() {
+
+    String url = "http://valleywag.gawker.com/5709823/apple-has-no-idea-where-steve-jobs-is";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Does anyone know where Steve Jobs is? "));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cache.gawker.com/assets/images/gawker/2010/12/jobs.jpg"));
+    assertTrue(article.getTitle().equals("Apple Has No Idea Where Steve Jobs Is"));
+  }
+
+  public void testCNBC() {
+
+    String url = "http://www.cnbc.com/id/40491584";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("A prominent expert on Chinese works "));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://media.cnbc.com/i/CNBC/Sections/News_And_Analysis/__Story_Inserts/graphics/__ART/chinese_vase_150.jpg"));
+    assertTrue(article.getTitle().equals("Chinese Art Expert 'Skeptical' of Record-Setting Vase"));
+  }
+  public void testEspnWithFlashVideo() {
+
+    String url = "http://sports.espn.go.com/nfl/news/story?id=5971053";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("PHILADELPHIA -- Michael Vick missed practice Thursday"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://a.espncdn.com/media/motion/2010/1229/com_101229nfl_CDDAccu_DAL_PHI.jpg"));
+    assertTrue(article.getTitle().equals("Michael Vick of Philadelphia Eagles misses practice, unlikely to play vs. Dallas Cowboys"));
+  }
+
+
 }
 
