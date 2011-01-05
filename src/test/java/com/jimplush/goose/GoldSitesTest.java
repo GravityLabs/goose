@@ -393,6 +393,28 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTitle().equals("Michael Vick of Philadelphia Eagles misses practice, unlikely to play vs. Dallas Cowboys"));
   }
 
+  public void testSportingNews() {
+
+    String url = "http://www.sportingnews.com/nfl/feed/2011-01/nfl-coaches/story/raiders-cut-ties-with-cable";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("ALAMEDA, Calif. &mdash; The Oakland Raiders informed coach Tom Cable"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://dy.snimg.com/story-image/0/69/174475/14072-650-366.jpg"));
+    assertTrue(article.getTitle().equals("Raiders cut ties with Cable"));
+  }
+
+  public void testFoxSports() {
+
+    String url = "http://msn.foxsports.com/nfl/story/Tom-Cable-fired-contract-option-Oakland-Raiders-coach-010411";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("The Oakland Raiders informed coach Tom Cable"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://o.static.foxsports.com/content/fscom/img/2010/11/19/111910-NFL-Carolina-Panthers-John-Fox-PI_20101119122646_202_97.JPG"));
+    assertTrue(article.getTitle().equals("Oakland Raiders won't bring Tom Cable back as coach - NFL News"));
+  }
+
+
+
 
 }
 
