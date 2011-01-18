@@ -79,6 +79,11 @@ public class Article {
    */
   private ArrayList<Element> movies;
 
+  /*
+   * holds the original content of document
+   */
+  private String OriginalDoc;
+
   /**
    * returns the title of the webpage
    * @return
@@ -91,7 +96,15 @@ public class Article {
     this.title = title;
   }
 
-    public String getMetaDescription() {
+  public String getOriginalDoc() {
+    return OriginalDoc;
+  }
+
+  public void setOriginalDoc(String originalDoc) {
+    OriginalDoc = originalDoc;
+  }
+
+  public String getMetaDescription() {
     return metaDescription;
   }
 
