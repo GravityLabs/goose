@@ -14,7 +14,7 @@ public class Configuration {
   /**
    * this is the local storage path used to place images to inspect them
    */
-  private String localStoragePath = "/opt/goose";
+  private String localStoragePath = "/tmp/goose";
 
 
   /**
@@ -33,13 +33,13 @@ public class Configuration {
   /**
    * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
    */
-  private String imagemagickConvertPath = "/opt/local/bin/convert";
+  private String imagemagickConvertPath = "/usr/bin/convert";
 
 
   /**
    *  path to your imagemagick identify executable
    */
-  private String imagemagickIdentifyPath= "/opt/local/bin/identify";
+  private String imagemagickIdentifyPath= "/usr/bin/identify";
 
   public String getLocalStoragePath() {
     return localStoragePath;
