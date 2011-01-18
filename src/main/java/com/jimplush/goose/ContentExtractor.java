@@ -77,11 +77,11 @@ public class ContentExtractor {
      this.config = config;
   }
 
+  public Article extractContent(String urlToCrawl){
+    return extractContent(urlToCrawl, "");
+  }
 
-
-
-
-  public Article extractContent(String urlToCrawl) {
+  public Article extractContent(String urlToCrawl,String rawHtml){
 
     try {
       URL url = new URL(urlToCrawl);
@@ -93,9 +93,10 @@ public class ContentExtractor {
     ParseWrapper parseWrapper = new ParseWrapper();
     Article article;
     try {
-      String rawHtml = HtmlFetcher.getHtml(urlToCrawl);
-      Document doc = parseWrapper.parse(rawHtml, urlToCrawl);
 
+      if(rawHtml=="")
+          rawHtml = HtmlFetcher.getHtml(urlToCrawl);
+      Document doc = parseWrapper.parse(rawHtml, urlToCrawl);
       DocumentCleaner documentCleaner = getDocCleaner();
       doc = documentCleaner.clean(doc);
 
@@ -106,6 +107,7 @@ public class ContentExtractor {
       article.setMetaKeywords(getMetaKeywords(doc));
       article.setCanonicalLink(getCanonicalLink(doc, urlToCrawl));
       article.setDomain(article.getCanonicalLink());
+      article.setOriginalDoc(rawHtml);
 
       // extract the content of the article
       article.setTopNode(calculateBestNodeBasedOnClustering(doc));
@@ -147,6 +149,7 @@ public class ContentExtractor {
 
     return article;
   }
+
 
   // todo create a setter for this for people to override output formatter
   private OutputFormatter getOutputFormatter() {
