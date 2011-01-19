@@ -30,8 +30,12 @@ public class Test {
         String Reuters = "http://flpbd.it/F0wf";
         String Corriere = "http://t.co/y7Ztgri";
         String testUrl = "http://twitter.com/#!/jayrosen_nyu/status/25729475291389952";
+        String error =  "http://nyti.ms/gxLjJU";
+        String error403= "http://bit.ly/gAtQCb";
+        String error403full = "http://www.philanthrocapitalism.net/2011/01/muhammad-cronus/";
+        System.out.println("asdasdasdasdasdasd");
         Test test = new Test();
-        test.testUrl(testUrl);
+        test.testUrl(error403full);
     }
 
 }

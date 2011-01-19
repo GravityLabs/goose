@@ -241,7 +241,7 @@ public class HtmlFetcher {
 
     // set request params
     httpParams.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
-    httpParams.setParameter("http.useragent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
+    httpParams.setParameter("http.User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8");
     httpParams.setParameter("http.language.Accept-Language", "en-us");
     httpParams.setParameter("http.protocol.content-charset", "UTF-8");
     httpParams.setParameter("Accept", "application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
