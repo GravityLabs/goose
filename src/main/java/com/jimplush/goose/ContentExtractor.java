@@ -19,6 +19,7 @@ import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import java.io.File;
@@ -110,7 +111,7 @@ public class ContentExtractor {
       article.setOriginalDoc(rawHtml);
 
       // extract the content of the article
-      article.setTopNode(calculateBestNodeBasedOnClustering(doc));
+      article.setTopNode(calculateBestNode(doc));
 
       // extract any movie embeds out from our main article content
       article.setMovies(extractVideos(article.getTopNode()));
@@ -341,6 +342,30 @@ public class ContentExtractor {
     }
 
   }
+
+private Element calculateBestNode(Document doc) {
+    logger.info("CalculateBestNode BEGIN");
+    Elements itemsMeta = doc.getElementsByTag("meta");
+    for (Element item : itemsMeta) {
+        if(item.attributes().get("content").equals("blogger")){
+            logger.info("Blogger detected");
+
+            Elements elementsh3 = doc.getElementsByTag("h3");
+            for(Element itemh : elementsh3){
+                if(itemh.attributes().get("class").equals("post-title entry-title"))
+                    logger.info(itemh);
+            }
+            logger.info("Trovato tutto");
+        }
+    }
+    logger.info("CalculateBestNode END");
+    try{
+        return calculateBestNodeBasedOnClustering(doc);
+    }catch(Exception e){
+        logger.error(e.getStackTrace().toString());
+        return null;
+    }
+}
 
   /**
    * we're going to start looking for where the clusters of paragraphs are. We'll score a cluster based on the number of stopwords

@@ -30,12 +30,20 @@ public class Test {
         String Reuters = "http://flpbd.it/F0wf";
         String Corriere = "http://t.co/y7Ztgri";
         String testUrl = "http://twitter.com/#!/jayrosen_nyu/status/25729475291389952";
-        String error =  "http://nyti.ms/gxLjJU";
-        String error403= "http://bit.ly/gAtQCb";
-        String error403full = "http://www.philanthrocapitalism.net/2011/01/muhammad-cronus/";
+        String error =  "http://framethink.wordpress.com/2011/01/17/how-facebook-ships-code/";
+        String errorb = "http://lhote.blogspot.com/2011/01/blindspot.html";
+        String fuffa ="http://blog.flatlandia.eu/2010/09/nuitka-python-veloce.html";
+        String asdasd="http://yfrog.com/h33rzlj";
+        //  http://bit.ly/eMUNMD
+        //  https://www.dropbox.com/dropquest2011
+        //  https://www.dropbox.com/referrals/NTc4MTc5MDk?src=free_twitter
+        //  http://lhote.blogspot.com/2011/01/blindspot.html
+        //  http://framethink.wordpress.com/2011/01/17/how-facebook-ships-code/
+
+        // http://nyti.ms/fEVBUI   guardare per l'immagine
         System.out.println("asdasdasdasdasdasd");
         Test test = new Test();
-        test.testUrl(error403full);
+        test.testUrl(asdasd);
     }
 
 }
