@@ -5,8 +5,6 @@ package com.jimplush.goose; /**
 
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 
 public class GoldSitesTest extends TestCase {
@@ -206,7 +204,7 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://cdn.venturebeat.com/wp-content/uploads/2010/08/mark-zuckerberg-facebook-places.jpg"));
   }
 
-   public void testTimeMagazine() {
+  public void testTimeMagazine() {
 
     String url = "http://www.time.com/time/health/article/0,8599,2011497,00.html";
     ContentExtractor contentExtractor = new ContentExtractor();
@@ -224,7 +222,7 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://i.i.com.com/cnwk.1d/i/tim//2010/08/18/Verizon_iPad_and_live_TV_610x458.JPG"));
   }
 
-   public void testYahooNewsEvenThoughTheyFuckedUpDeliciousWeWillTestThemAnyway() {
+  public void testYahooNewsEvenThoughTheyFuckedUpDeliciousWeWillTestThemAnyway() {
 
     String url = "http://news.yahoo.com/s/ap/20101030/ap_on_el_se/us_nevada_senate";
     ContentExtractor contentExtractor = new ContentExtractor();
@@ -277,7 +275,7 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://www.naturalhomemagazine.com/uploadedImages/articles/issues/2010-09-01/NH-SO10-trythis-lantern-final2_resized400X266.jpg"));
   }
 
-   public void testSFGate() {
+  public void testSFGate() {
 
     String url = "http://www.sfgate.com/cgi-bin/article.cgi?f=/c/a/2010/10/27/BUD61G2DBL.DTL";
     ContentExtractor contentExtractor = new ContentExtractor();
@@ -383,6 +381,7 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://media.cnbc.com/i/CNBC/Sections/News_And_Analysis/__Story_Inserts/graphics/__ART/chinese_vase_150.jpg"));
     assertTrue(article.getTitle().equals("Chinese Art Expert 'Skeptical' of Record-Setting Vase"));
   }
+
   public void testEspnWithFlashVideo() {
 
     String url = "http://sports.espn.go.com/nfl/news/story?id=5971053";
@@ -412,7 +411,43 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTitle().equals("Oakland Raiders won't bring Tom Cable back as coach - NFL News"));
   }
 
+  public void testMSNBC() {
 
+    String url = "http://www.msnbc.msn.com/id/41207891/ns/world_news-europe/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Prime Minister Brian Cowen announced Saturday"));
+    assertTrue(article.getTitle().equals("Irish premier resigns as party leader, stays as PM"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://msnbcmedia3.msn.com/j/ap/ireland government crisis--687575559_v2.grid-6x2.jpg"));
+  }
+
+  public void testEconomist() {
+
+    String url = "http://www.economist.com/node/17956885";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("FOR beleaguered smokers, the world is an increasingly"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://media.economist.com/images/images-magazine/2011/01/22/st/20110122_stp004.jpg"));
+  }
+
+
+  public void testTheAtlantic() {
+
+    String url = "http://www.theatlantic.com/culture/archive/2011/01/how-to-stop-james-bond-from-getting-old/69695/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("If James Bond could age, he'd be well into his 90s right now"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://assets.theatlantic.com/static/mt/assets/culture_test/James%20Bond_post.jpg"));
+  }
+
+  public void testGawker() {
+
+    String url = "http://gawker.com/5740668/is-balding-the-worst-possible-thing-that-can-happen-to-a-man";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Prince William may be the glamorous figurehead of an island nation"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cache.gawkerassets.com/assets/images/7/2011/01/500x_princewilliamgood.jpg"));
+  }
 
 
 }

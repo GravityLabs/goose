@@ -63,22 +63,18 @@ public class ContentExtractor {
 
   private ImageExtractor imageExtractor;
 
-  public ContentExtractor()
-  {
+  public ContentExtractor() {
     this.config = new Configuration();
   }
 
   /**
    * overloaded to accept a custom configuration object
+   *
    * @param config
    */
-  public ContentExtractor(Configuration config)
-  {
-     this.config = config;
+  public ContentExtractor(Configuration config) {
+    this.config = config;
   }
-
-
-
 
 
   public Article extractContent(String urlToCrawl) {
@@ -114,8 +110,7 @@ public class ContentExtractor {
       article.setMovies(extractVideos(article.getTopNode()));
 
 
-
-      if(config.isEnableImageFetching()) {
+      if (config.isEnableImageFetching()) {
         HttpClient httpClient = HtmlFetcher.getHttpClient();
         imageExtractor = getImageExtractor(httpClient, urlToCrawl);
         article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
@@ -131,11 +126,14 @@ public class ContentExtractor {
 
       article.setCleanedArticleText(outputFormatter.getFormattedText());
 
+      // cleans up all the temp images that we've downloaded
       releaseResources();
 
 
-      logger.info("FINAL EXTRACTION TEXT: \n"+article.getCleanedArticleText());
-      logger.info("\n\nFINAL EXTRACTION IMAGE: \n"+ article.getTopImage().getImageSrc());
+      logger.info("FINAL EXTRACTION TEXT: \n" + article.getCleanedArticleText());
+      if (config.isEnableImageFetching()) {
+        logger.info("\n\nFINAL EXTRACTION IMAGE: \n" + article.getTopImage().getImageSrc());
+      }
 
 
     } catch (MaxBytesException e) {
@@ -150,19 +148,19 @@ public class ContentExtractor {
 
   // todo create a setter for this for people to override output formatter
   private OutputFormatter getOutputFormatter() {
-      if(outputFormatter == null) {
-        return new DefaultOutputFormatter();
-      } else {
-        return outputFormatter;
-      }
+    if (outputFormatter == null) {
+      return new DefaultOutputFormatter();
+    } else {
+      return outputFormatter;
+    }
 
   }
 
 
   private ImageExtractor getImageExtractor(HttpClient httpClient, String urlToCrawl) {
 
-    if(imageExtractor == null) {
-      BestImageGuesser bestImageGuesser = new  BestImageGuesser(this.config, httpClient, urlToCrawl);
+    if (imageExtractor == null) {
+      BestImageGuesser bestImageGuesser = new BestImageGuesser(this.config, httpClient, urlToCrawl);
       return bestImageGuesser;
     } else {
       return imageExtractor;
@@ -759,9 +757,9 @@ public class ContentExtractor {
       float thresholdScore = (float) (topNodeScore * .08);
       logger.info("topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore);
       if (currentNodeScore < thresholdScore) {
-        if(!e.tagName().equals("td")) {
-           logger.info("Removing node due to low threshold score");
-           e.remove();
+        if (!e.tagName().equals("td")) {
+          logger.info("Removing node due to low threshold score");
+          e.remove();
         } else {
           logger.info("Not removing TD node");
         }
@@ -857,7 +855,6 @@ public class ContentExtractor {
     }
 
   }
-
 
 
 }
