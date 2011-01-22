@@ -35,6 +35,8 @@ import java.util.Set;
  * I wasn't able to find a good server side codebase to acheive the same so I started with their base ideas and then
  * built additional metrics on top of it such as looking for clusters of english stopwords.
  * Gravity was doing 30+ million links per day with this codebase across a series of crawling servers for a project
+ * and it held up well. Our current port is slightly different than this one but I'm working to align them so the goose
+ * project gets the love as we continue to move forward.
  */
 
 
@@ -54,7 +56,8 @@ public class ContentExtractor {
   private DocumentCleaner documentCleaner;
 
 
-  // the MD5 of the URL we're currently parsing
+  // the MD5 of the URL we're currently parsing, used to references the images we download to the url so we
+  // can more easily clean up resources when we're done with the page.
   private String linkhash;
 
 
@@ -63,6 +66,11 @@ public class ContentExtractor {
 
   private ImageExtractor imageExtractor;
 
+
+  /**
+   * you can optionally pass in a configuration object here that will allow you to override the settings
+   * that goose comes default with
+   */
   public ContentExtractor() {
     this.config = new Configuration();
   }
@@ -137,8 +145,10 @@ public class ContentExtractor {
 
 
     } catch (MaxBytesException e) {
+      logger.error(e.toString(), e);
       throw new RuntimeException(e);
     } catch (NotHtmlException e) {
+      logger.error(e.toString(), e);
       throw new RuntimeException(e);
     }
 
