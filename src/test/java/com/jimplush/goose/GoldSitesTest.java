@@ -449,6 +449,14 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://cache.gawkerassets.com/assets/images/7/2011/01/500x_princewilliamgood.jpg"));
   }
 
+  public void testNyTimes() {
+
+    String url = "http://www.nytimes.com/2010/12/22/world/europe/22start.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("WASHINGTON &mdash; An arms control treaty paring back American"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://graphics8.nytimes.com/images/2010/12/22/world/22start-span/Start-articleInline.jpg"));
+  }
 
 }
 

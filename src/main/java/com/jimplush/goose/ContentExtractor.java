@@ -111,6 +111,7 @@ public class ContentExtractor {
       article.setCanonicalLink(getCanonicalLink(doc, urlToCrawl));
       article.setDomain(article.getCanonicalLink());
 
+
       // extract the content of the article
       article.setTopNode(calculateBestNodeBasedOnClustering(doc));
 
@@ -727,7 +728,6 @@ public class ContentExtractor {
 
     node = addSiblings(node);
 
-
     Elements nodes = node.children();
     for (Element e : nodes) {
       if (e.tagName().equals("p")) {
@@ -793,6 +793,9 @@ public class ContentExtractor {
   private Element addSiblings(Element node) {
 
     logger.info("Starting to add siblings");
+
+    int baselineScoreForSiblingParagraphs = getBaselineScoreForSiblings(node);
+
     Element currentSibling = node.previousElementSibling();
     while (currentSibling != null) {
       logger.info("SIBLINGCHECK: " + debugNode(currentSibling));
@@ -804,21 +807,67 @@ public class ContentExtractor {
         continue;
       }
 
-      int gravityScore = getScore(currentSibling);
-      int topNodeScore = getScore(node);
+      // check for a paraph embedded in a containing element
+      Element firstParagraph = currentSibling.getElementsByTag("p").first();
+      if (firstParagraph == null) {
+        currentSibling = currentSibling.previousElementSibling();
+        continue;
+      }
+      WordStats wordStats = StopWords.getStopWordCount(firstParagraph.text());
 
-      if ((float) (topNodeScore * .05) < gravityScore) {
+      int paragraphScore =   wordStats.getStopWordCount();
+
+      if ((float) (baselineScoreForSiblingParagraphs * .30) < paragraphScore) {
         logger.info("This node looks like a good sibling, adding it");
-        node.child(0).before(currentSibling.html());
-
+        node.child(0).before("<p>"+firstParagraph.text()+"<p>");
       }
 
       currentSibling = currentSibling.previousElementSibling();
+    }
+    return node;
+
+
+  }
+
+  /**
+   * we could have long articles that have tons of paragraphs so if we tried to calculate the base score against
+   * the total text score of those paragraphs it would be unfair. So we need to normalize the score based on the average scoring
+   * of the paragraphs within the top node. For example if our total score of 10 paragraphs was 1000 but each had an average value of
+   * 100 then 100 should be our base.
+   *
+   * @param topNode
+   * @return
+   */
+  private int getBaselineScoreForSiblings(Element topNode) {
+
+    int base = 100000;
+
+    int numberOfParagraphs = 0;
+    int scoreOfParagraphs = 0;
+
+    Elements nodesToCheck = topNode.getElementsByTag("p");
+
+    for (Element node : nodesToCheck) {
+
+      String nodeText = node.text();
+      WordStats wordStats = StopWords.getStopWordCount(nodeText);
+      boolean highLinkDensity = isHighLinkDensity(node);
+
+
+      if (wordStats.getStopWordCount() > 2 && !highLinkDensity) {
+
+        numberOfParagraphs++;
+        scoreOfParagraphs += wordStats.getStopWordCount();
+      }
 
     }
 
+    if (numberOfParagraphs > 0) {
+      base = scoreOfParagraphs / numberOfParagraphs;
+      logger.info("The base score for siblings to beat is: " + base + " NumOfParas: " + numberOfParagraphs + " scoreOfAll: " + scoreOfParagraphs);
+    }
 
-    return node;
+    return base;
 
 
   }
