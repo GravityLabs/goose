@@ -458,5 +458,13 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://graphics8.nytimes.com/images/2010/12/22/world/22start-span/Start-articleInline.jpg"));
   }
 
+   public void testTheVacationGals() {
+
+    String url = "http://thevacationgals.com/vacation-rental-homes-are-a-family-reunion-necessity/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Editors&rsquo; Note: We are huge proponents"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://thevacationgals.com/wp-content/uploads/2010/11/Gemmel-Family-Reunion-at-a-Vacation-Rental-Home1-300x225.jpg"));
+  }
 }
 
