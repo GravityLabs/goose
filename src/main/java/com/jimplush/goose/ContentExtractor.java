@@ -362,7 +362,7 @@ private Element calculateBestNode(Document doc) {
     try{
         return calculateBestNodeBasedOnClustering(doc);
     }catch(Exception e){
-        logger.error(e.getStackTrace().toString());
+        logger.error(e);
         return null;
     }
 }
