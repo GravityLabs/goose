@@ -540,9 +540,6 @@ public class BestImageGuesser implements ImageExtractor {
           }
 
         } catch (IOException e) {
-//          File f = new File(localSrcPath);
-//          File f2 = new File("/data/crappyimages/"+f.getName());
-//          f.renameTo(f2);
           throw e;
         }
 

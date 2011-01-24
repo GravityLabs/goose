@@ -36,6 +36,8 @@ import java.util.Set;
  * I wasn't able to find a good server side codebase to acheive the same so I started with their base ideas and then
  * built additional metrics on top of it such as looking for clusters of english stopwords.
  * Gravity was doing 30+ million links per day with this codebase across a series of crawling servers for a project
+ * and it held up well. Our current port is slightly different than this one but I'm working to align them so the goose
+ * project gets the love as we continue to move forward.
  */
 
 
@@ -55,7 +57,8 @@ public class ContentExtractor {
   private DocumentCleaner documentCleaner;
 
 
-  // the MD5 of the URL we're currently parsing
+  // the MD5 of the URL we're currently parsing, used to references the images we download to the url so we
+  // can more easily clean up resources when we're done with the page.
   private String linkhash;
 
 
@@ -64,18 +67,22 @@ public class ContentExtractor {
 
   private ImageExtractor imageExtractor;
 
-  public ContentExtractor()
-  {
+
+  /**
+   * you can optionally pass in a configuration object here that will allow you to override the settings
+   * that goose comes default with
+   */
+  public ContentExtractor() {
     this.config = new Configuration();
   }
 
   /**
    * overloaded to accept a custom configuration object
+   *
    * @param config
    */
-  public ContentExtractor(Configuration config)
-  {
-     this.config = config;
+  public ContentExtractor(Configuration config) {
+    this.config = config;
   }
 
   public Article extractContent(String urlToCrawl){
@@ -110,6 +117,7 @@ public class ContentExtractor {
       article.setDomain(article.getCanonicalLink());
       article.setOriginalDoc(rawHtml);
 
+
       // extract the content of the article
       article.setTopNode(calculateBestNode(doc));
 
@@ -117,8 +125,7 @@ public class ContentExtractor {
       article.setMovies(extractVideos(article.getTopNode()));
 
 
-
-      if(config.isEnableImageFetching()) {
+      if (config.isEnableImageFetching()) {
         HttpClient httpClient = HtmlFetcher.getHttpClient();
         imageExtractor = getImageExtractor(httpClient, urlToCrawl);
         article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
@@ -134,16 +141,21 @@ public class ContentExtractor {
 
       article.setCleanedArticleText(outputFormatter.getFormattedText());
 
+      // cleans up all the temp images that we've downloaded
       releaseResources();
 
 
-      logger.info("FINAL EXTRACTION TEXT: \n"+article.getCleanedArticleText());
-      logger.info("\n\nFINAL EXTRACTION IMAGE: \n"+ article.getTopImage().getImageSrc());
+      logger.info("FINAL EXTRACTION TEXT: \n" + article.getCleanedArticleText());
+      if (config.isEnableImageFetching()) {
+        logger.info("\n\nFINAL EXTRACTION IMAGE: \n" + article.getTopImage().getImageSrc());
+      }
 
 
     } catch (MaxBytesException e) {
+      logger.error(e.toString(), e);
       throw new RuntimeException(e);
     } catch (NotHtmlException e) {
+      logger.error(e.toString(), e);
       throw new RuntimeException(e);
     }
 
@@ -154,19 +166,19 @@ public class ContentExtractor {
 
   // todo create a setter for this for people to override output formatter
   private OutputFormatter getOutputFormatter() {
-      if(outputFormatter == null) {
-        return new DefaultOutputFormatter();
-      } else {
-        return outputFormatter;
-      }
+    if (outputFormatter == null) {
+      return new DefaultOutputFormatter();
+    } else {
+      return outputFormatter;
+    }
 
   }
 
 
   private ImageExtractor getImageExtractor(HttpClient httpClient, String urlToCrawl) {
 
-    if(imageExtractor == null) {
-      BestImageGuesser bestImageGuesser = new  BestImageGuesser(this.config, httpClient, urlToCrawl);
+    if (imageExtractor == null) {
+      BestImageGuesser bestImageGuesser = new BestImageGuesser(this.config, httpClient, urlToCrawl);
       return bestImageGuesser;
     } else {
       return imageExtractor;
@@ -747,7 +759,6 @@ private Element calculateBestNode(Document doc) {
 
     node = addSiblings(node);
 
-
     Elements nodes = node.children();
     for (Element e : nodes) {
       if (e.tagName().equals("p")) {
@@ -787,9 +798,9 @@ private Element calculateBestNode(Document doc) {
       float thresholdScore = (float) (topNodeScore * .08);
       logger.info("topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore);
       if (currentNodeScore < thresholdScore) {
-        if(!e.tagName().equals("td")) {
-           logger.info("Removing node due to low threshold score");
-           e.remove();
+        if (!e.tagName().equals("td")) {
+          logger.info("Removing node due to low threshold score");
+          e.remove();
         } else {
           logger.info("Not removing TD node");
         }
@@ -813,6 +824,9 @@ private Element calculateBestNode(Document doc) {
   private Element addSiblings(Element node) {
 
     logger.info("Starting to add siblings");
+
+    int baselineScoreForSiblingParagraphs = getBaselineScoreForSiblings(node);
+
     Element currentSibling = node.previousElementSibling();
     while (currentSibling != null) {
       logger.info("SIBLINGCHECK: " + debugNode(currentSibling));
@@ -824,21 +838,67 @@ private Element calculateBestNode(Document doc) {
         continue;
       }
 
-      int gravityScore = getScore(currentSibling);
-      int topNodeScore = getScore(node);
+      // check for a paraph embedded in a containing element
+      Element firstParagraph = currentSibling.getElementsByTag("p").first();
+      if (firstParagraph == null) {
+        currentSibling = currentSibling.previousElementSibling();
+        continue;
+      }
+      WordStats wordStats = StopWords.getStopWordCount(firstParagraph.text());
 
-      if ((float) (topNodeScore * .05) < gravityScore) {
+      int paragraphScore =   wordStats.getStopWordCount();
+
+      if ((float) (baselineScoreForSiblingParagraphs * .30) < paragraphScore) {
         logger.info("This node looks like a good sibling, adding it");
-        node.child(0).before(currentSibling.html());
-
+        node.child(0).before("<p>"+firstParagraph.text()+"<p>");
       }
 
       currentSibling = currentSibling.previousElementSibling();
+    }
+    return node;
+
+
+  }
+
+  /**
+   * we could have long articles that have tons of paragraphs so if we tried to calculate the base score against
+   * the total text score of those paragraphs it would be unfair. So we need to normalize the score based on the average scoring
+   * of the paragraphs within the top node. For example if our total score of 10 paragraphs was 1000 but each had an average value of
+   * 100 then 100 should be our base.
+   *
+   * @param topNode
+   * @return
+   */
+  private int getBaselineScoreForSiblings(Element topNode) {
+
+    int base = 100000;
+
+    int numberOfParagraphs = 0;
+    int scoreOfParagraphs = 0;
+
+    Elements nodesToCheck = topNode.getElementsByTag("p");
+
+    for (Element node : nodesToCheck) {
+
+      String nodeText = node.text();
+      WordStats wordStats = StopWords.getStopWordCount(nodeText);
+      boolean highLinkDensity = isHighLinkDensity(node);
+
+
+      if (wordStats.getStopWordCount() > 2 && !highLinkDensity) {
+
+        numberOfParagraphs++;
+        scoreOfParagraphs += wordStats.getStopWordCount();
+      }
 
     }
 
+    if (numberOfParagraphs > 0) {
+      base = scoreOfParagraphs / numberOfParagraphs;
+      logger.info("The base score for siblings to beat is: " + base + " NumOfParas: " + numberOfParagraphs + " scoreOfAll: " + scoreOfParagraphs);
+    }
 
-    return node;
+    return base;
 
 
   }
@@ -885,7 +945,6 @@ private Element calculateBestNode(Document doc) {
     }
 
   }
-
 
 
 }
