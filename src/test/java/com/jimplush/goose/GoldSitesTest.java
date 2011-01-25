@@ -466,5 +466,15 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getCleanedArticleText().startsWith("Editors&rsquo; Note: We are huge proponents"));
     assertTrue(article.getTopImage().getImageSrc().equals("http://thevacationgals.com/wp-content/uploads/2010/11/Gemmel-Family-Reunion-at-a-Vacation-Rental-Home1-300x225.jpg"));
   }
+
+  // test the extraction of videos from a page
+  public void testGettingVideosFromGraphVinyl() {
+    String url = "http://grapevinyl.com/v/84/magnetic-morning/getting-nowhere";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getMovies().get(0).attr("src").equals("http://www.youtube.com/v/dsVWVtGWoa4&hl=en_US&fs=1&color1=d6d6d6&color2=ffffff&autoplay=1&iv_load_policy=3&rel=0&showinfo=0&hd=1"));
+
+  }
+
 }
 
