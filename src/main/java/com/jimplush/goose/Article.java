@@ -8,11 +8,12 @@ import com.jimplush.goose.images.Image;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
  * This class represents the extraction of an Article from a website
- *
  */
 public class Article {
 
@@ -86,6 +87,7 @@ public class Article {
 
   /**
    * returns the title of the webpage
+   *
    * @return
    */
   public String getTitle() {
@@ -132,7 +134,16 @@ public class Article {
     return domain;
   }
 
-  public void setDomain(String domain) {
+  public void setDomain(String urlToParse) {
+    String domain = "";
+
+    URL url = null;
+    try {
+      url = new URL(urlToParse);
+      domain = url.getHost();
+    } catch (MalformedURLException e) {
+      logger.error(e.toString(), e);
+    }
     this.domain = domain;
   }
 
@@ -151,7 +162,6 @@ public class Article {
   public void setMovies(ArrayList<Element> movies) {
     this.movies = movies;
   }
-
 
 
   public ArrayList<String> getImageCandidates() {

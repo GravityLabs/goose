@@ -31,8 +31,8 @@ public class Test {
         String Reuters = "http://flpbd.it/F0wf";
         String Corriere = "http://t.co/y7Ztgri";
         String testUrl = "http://twitter.com/#!/jayrosen_nyu/status/25729475291389952";
-        String error =  "http://framethink.wordpress.com/2011/01/17/how-facebook-ships-code/";
-        String errorb = "http://lhote.blogspot.com/2011/01/blindspot.html";
+        String wordpress =  "http://framethink.wordpress.com/2011/01/17/how-facebook-ships-code/";
+        String blogspot = "http://lhote.blogspot.com/2011/01/blindspot.html";
         String fuffa ="http://blog.flatlandia.eu/2010/09/nuitka-python-veloce.html";
         String asdasd="http://www.europaquotidiano.it/dettaglio/123976/non_regge_il_polpettone_di_signorini";
         String ar1 = "http://bit.ly/hfeSGC";
@@ -47,7 +47,7 @@ public class Test {
         // http://nyti.ms/fEVBUI   guardare per l'immagine
         System.out.println("asdasdasdasdasdasd");
         Test test = new Test();
-        test.testUrl(twitterUrlExpand);
+        test.testUrl(blogspot);
     }
 
 }
