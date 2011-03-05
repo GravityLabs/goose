@@ -87,8 +87,10 @@ public class ContentExtractor {
 
   public Article extractContent(String urlToCrawl) {
 
+    urlToCrawl = getUrlToCrawl(urlToCrawl);
     try {
       URL url = new URL(urlToCrawl);
+
       this.linkhash = HashUtils.md5(urlToCrawl);
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Invalid URL Passed in: " + urlToCrawl, e);
@@ -115,34 +117,38 @@ public class ContentExtractor {
       // extract the content of the article
       article.setTopNode(calculateBestNodeBasedOnClustering(doc));
 
-      // extract any movie embeds out from our main article content
-      article.setMovies(extractVideos(article.getTopNode()));
+      if (article.getTopNode() != null) {
+
+        // extract any movie embeds out from our main article content
+        article.setMovies(extractVideos(article.getTopNode()));
 
 
-      if (config.isEnableImageFetching()) {
-        HttpClient httpClient = HtmlFetcher.getHttpClient();
-        imageExtractor = getImageExtractor(httpClient, urlToCrawl);
-        article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
+        if (config.isEnableImageFetching()) {
+          HttpClient httpClient = HtmlFetcher.getHttpClient();
+          imageExtractor = getImageExtractor(httpClient, urlToCrawl);
+          article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
+
+        }
+
+        // grab siblings and remove high link density elements
+        cleanupNode(article.getTopNode());
+
+        outputFormatter = getOutputFormatter();
+        outputFormatter.getFormattedElement(article.getTopNode());
+
+
+        article.setCleanedArticleText(outputFormatter.getFormattedText());
+
+
+        logger.info("FINAL EXTRACTION TEXT: \n" + article.getCleanedArticleText());
+        if (config.isEnableImageFetching()) {
+          logger.info("\n\nFINAL EXTRACTION IMAGE: \n" + article.getTopImage().getImageSrc());
+        }
 
       }
-
-      // grab siblings and remove high link density elements
-      cleanupNode(article.getTopNode());
-
-      outputFormatter = getOutputFormatter();
-      outputFormatter.getFormattedElement(article.getTopNode());
-
-
-      article.setCleanedArticleText(outputFormatter.getFormattedText());
 
       // cleans up all the temp images that we've downloaded
       releaseResources();
-
-
-      logger.info("FINAL EXTRACTION TEXT: \n" + article.getCleanedArticleText());
-      if (config.isEnableImageFetching()) {
-        logger.info("\n\nFINAL EXTRACTION IMAGE: \n" + article.getTopImage().getImageSrc());
-      }
 
 
     } catch (MaxBytesException e) {
@@ -156,6 +162,18 @@ public class ContentExtractor {
 
     return article;
   }
+
+  // used for gawker type ajax sites with pound sites
+  private String getUrlToCrawl(String urlToCrawl) {
+    String finalURL = urlToCrawl;
+    if (urlToCrawl.contains("#!")) {
+      finalURL = urlToCrawl.replace("#!", "?_escaped_fragment_=");
+    }
+    logger.info("Crawling URL: " + finalURL);
+
+    return finalURL;
+  }
+
 
   // todo create a setter for this for people to override output formatter
   private OutputFormatter getOutputFormatter() {
@@ -306,7 +324,7 @@ public class ContentExtractor {
    * if the article has meta canonical link set in the url
    */
   private String getCanonicalLink(Document doc, String baseUrl) {
-    String canonicalUrl = "";
+    String canonicalUrl = baseUrl;
     Elements meta = doc.select("link[rel=canonical]");
     if (meta.size() > 0) {
       canonicalUrl = meta.first().attr("href").trim();
@@ -466,23 +484,26 @@ public class ContentExtractor {
         topNode = e;
       }
     }
-
-    logger.info("Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id() + "' class='" + topNode.attr("class") + "' ");
-    String logText = "";
-    String targetText = "";
-    Element topPara = topNode.getElementsByTag("p").first();
-    if (topPara == null) {
-      topNode.text();
+    if (topNode == null) {
+      logger.info("ARTICLE NOT ABLE TO BE EXTRACTED!, WE HAZ FAILED YOU LORD VADAR");
     } else {
-      topPara.text();
-    }
+      String logText = "";
+      String targetText = "";
+      Element topPara = topNode.getElementsByTag("p").first();
+      if (topPara == null) {
+        topNode.text();
+      } else {
+        topPara.text();
+      }
 
-    if (targetText.length() >= 51) {
-      logText = targetText.substring(0, 50);
-    } else {
-      logText = targetText;
+      if (targetText.length() >= 51) {
+        logText = targetText.substring(0, 50);
+      } else {
+        logText = targetText;
+      }
+      logger.info("TOPNODE TEXT: " + logText.trim());
+      logger.info("Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id() + "' class='" + topNode.attr("class") + "' ");
     }
-    logger.info("TOPNODE TEXT: " + logText.trim());
 
 
     return topNode;
@@ -815,11 +836,11 @@ public class ContentExtractor {
       }
       WordStats wordStats = StopWords.getStopWordCount(firstParagraph.text());
 
-      int paragraphScore =   wordStats.getStopWordCount();
+      int paragraphScore = wordStats.getStopWordCount();
 
       if ((float) (baselineScoreForSiblingParagraphs * .30) < paragraphScore) {
         logger.info("This node looks like a good sibling, adding it");
-        node.child(0).before("<p>"+firstParagraph.text()+"<p>");
+        node.child(0).before("<p>" + firstParagraph.text() + "<p>");
       }
 
       currentSibling = currentSibling.previousElementSibling();

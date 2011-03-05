@@ -50,12 +50,13 @@ public class DefaultOutputFormatter implements OutputFormatter {
 
     Elements nodes = topNode.getAllElements();
     for (Element e : nodes) {
-      if (e.tagName().equals("p") || e.tagName().equals("td")) {
+      if (e.tagName().equals("p")) {
         String text = StringEscapeUtils.escapeHtml(e.text()).trim();
         sb.append(text);
         sb.append("\n\n");
       }
     }
+
     return sb.toString();
   }
 

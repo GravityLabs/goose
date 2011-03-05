@@ -133,7 +133,7 @@ public class GoldSitesTest extends TestCase {
 
   public void testGizmodo() {
 
-    String url = "http://gizmodo.com/5616256/xbox-kinect-gets-its-fight-club";
+    String url = "http://gizmodo.com/#!5616256/xbox-kinect-gets-its-fight-club";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
     assertTrue(article.getCleanedArticleText().startsWith("You love to punch your arms through the air"));
@@ -224,11 +224,11 @@ public class GoldSitesTest extends TestCase {
 
   public void testYahooNewsEvenThoughTheyFuckedUpDeliciousWeWillTestThemAnyway() {
 
-    String url = "http://news.yahoo.com/s/ap/20101030/ap_on_el_se/us_nevada_senate";
+    String url = "http://news.yahoo.com/s/ap/20110305/ap_on_re_af/af_libya";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("CARSON CITY, Nev. &ndash; Nevada's dead heat Senate race converged"));
-    assertTrue(article.getTopImage().getImageSrc().equals("http://d.yimg.com/a/p/ap/20101030/capt.de99c9f6a76445fc885bb7bd00e45337-de99c9f6a76445fc885bb7bd00e45337-0.jpg?x=213&y=320&xc=1&yc=1&wc=272&hc=409&q=85&sig=P22sGCwd_PZ558JFQg79vQ--"));
+    assertTrue(article.getCleanedArticleText().startsWith("TRIPOLI, Libya &ndash; Moammar Gadhafi"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://d.yimg.com/a/p/ap/20110305/capt.20433579e6a949189ddb65a8c260183c-20433579e6a949189ddb65a8c260183c-0.jpg?x=213&y=142&xc=1&yc=1&wc=410&hc=273&q=85&sig=i4WKbNKMgqenVsxU3NCbOg--"));
   }
 
   public void testPolitico() {
@@ -251,7 +251,7 @@ public class GoldSitesTest extends TestCase {
 
   public void testLifeHacker() {
 
-    String url = "http://lifehacker.com/5659837/build-a-rocket-stove-to-heat-your-home-with-wood-scraps";
+    String url = "http://lifehacker.com/#!5659837/build-a-rocket-stove-to-heat-your-home-with-wood-scraps";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
     assertTrue(article.getCleanedArticleText().startsWith("If you find yourself with lots of leftover wood"));
@@ -362,15 +362,6 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTitle().equals("More From Tony Colaprete on LCROSS"));
   }
 
-  public void testValleyWag() {
-
-    String url = "http://valleywag.gawker.com/5709823/apple-has-no-idea-where-steve-jobs-is";
-    ContentExtractor contentExtractor = new ContentExtractor();
-    Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("Does anyone know where Steve Jobs is? "));
-    assertTrue(article.getTopImage().getImageSrc().equals("http://cache.gawker.com/assets/images/gawker/2010/12/jobs.jpg"));
-    assertTrue(article.getTitle().equals("Apple Has No Idea Where Steve Jobs Is"));
-  }
 
   public void testCNBC() {
 
@@ -442,11 +433,11 @@ public class GoldSitesTest extends TestCase {
 
   public void testGawker() {
 
-    String url = "http://gawker.com/5740668/is-balding-the-worst-possible-thing-that-can-happen-to-a-man";
+    String url = "http://gawker.com/#!5777023/charlie-sheen-is-going-to-haiti-with-sean-penn";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("Prince William may be the glamorous figurehead of an island nation"));
-    assertTrue(article.getTopImage().getImageSrc().equals("http://cache.gawkerassets.com/assets/images/7/2011/01/500x_princewilliamgood.jpg"));
+    assertTrue(article.getCleanedArticleText().startsWith("With a backlash brewing against the incessant media"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cache.gawkerassets.com/assets/images/7/2011/03/medium_0304_pennsheen.jpg"));
   }
 
   public void testNyTimes() {
@@ -458,7 +449,7 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://graphics8.nytimes.com/images/2010/12/22/world/22start-span/Start-articleInline.jpg"));
   }
 
-   public void testTheVacationGals() {
+  public void testTheVacationGals() {
 
     String url = "http://thevacationgals.com/vacation-rental-homes-are-a-family-reunion-necessity/";
     ContentExtractor contentExtractor = new ContentExtractor();
@@ -475,6 +466,52 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getMovies().get(0).attr("src").equals("http://www.youtube.com/v/dsVWVtGWoa4&hl=en_US&fs=1&color1=d6d6d6&color2=ffffff&autoplay=1&iv_load_policy=3&rel=0&showinfo=0&hd=1"));
 
   }
+
+
+  public void testShockYa() {
+
+    String url = "http://www.shockya.com/news/2011/01/30/daily-shock-jonathan-knight-of-new-kids-on-the-block-publicly-reveals-hes-gay/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("New Kids On The Block singer Jonathan Knight has publicly"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.shockya.com/news/wp-content/uploads/jonathan_knight_new_kids_gay.jpg"));
+  }
+
+
+  public void testLiveStrong() {
+
+    String url = "http://www.livestrong.com/article/395538-how-to-decrease-the-rates-of-obesity-in-children/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Childhood obesity increases a young person"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://photos.demandstudios.com/getty/article/184/46/87576279_XS.jpg"));
+  }
+
+  public void testLiveStrong2() {
+    String url = "http://www.livestrong.com/article/396152-do-resistance-bands-work-for-strength-training/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Resistance bands or tubes are named because"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://photos.demandstudios.com/getty/article/142/66/86504893_XS.jpg"));
+  }
+
+  public void testCracked() {
+    String url = "http://www.cracked.com/article_19029_6-things-social-networking-sites-need-to-stop-doing.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Social networking is here to stay"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://i.crackedcdn.com/phpimages/article/2/1/5/45215.jpg?v=1"));
+  }
+
+//    public void testEhow() {
+//
+//    String url = "http://www.ehow.com/how_7189063_calculate-greenhouse-heating.html";
+//    ContentExtractor contentExtractor = new ContentExtractor();
+//    Article article = contentExtractor.extractContent(url);
+//    assertTrue(article.getCleanedArticleText().startsWith("With a heated greenhouse, you can"));
+//    assertTrue(article.getTitle().equals("How to Calculate Greenhouse Heating"));
+//    assertTrue(article.getTopImage().getImageSrc().equals("http://i.ehow.com/images/a07/hb/tg/trap-heat-greenhouse-800X800.jpg"));
+//  }
 
 }
 
