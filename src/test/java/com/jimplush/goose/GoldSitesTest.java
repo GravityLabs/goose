@@ -503,6 +503,14 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://i.crackedcdn.com/phpimages/article/2/1/5/45215.jpg?v=1"));
   }
 
+    public void testTrailsCom() {
+    String url = "http://www.trails.com/facts_41596_hot-spots-citrus-county-florida.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Snorkel and view artificial reefs or chase"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cdn-www.trails.com/imagecache/articles/295x195/hot-spots-citrus-county-florida-295x195.png"));
+  }
+
 //    public void testEhow() {
 //
 //    String url = "http://www.ehow.com/how_7189063_calculate-greenhouse-heating.html";

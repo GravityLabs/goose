@@ -131,7 +131,9 @@ public class ContentExtractor {
         }
 
         // grab siblings and remove high link density elements
+
         cleanupNode(article.getTopNode());
+
 
         outputFormatter = getOutputFormatter();
         outputFormatter.getFormattedElement(article.getTopNode());
@@ -829,18 +831,23 @@ public class ContentExtractor {
       }
 
       // check for a paraph embedded in a containing element
-      Element firstParagraph = currentSibling.getElementsByTag("p").first();
-      if (firstParagraph == null) {
+      int insertedSiblings = 0;
+      Elements potentialParagraphs = currentSibling.getElementsByTag("p");
+      if (potentialParagraphs.first() == null) {
         currentSibling = currentSibling.previousElementSibling();
         continue;
       }
-      WordStats wordStats = StopWords.getStopWordCount(firstParagraph.text());
+      for (Element firstParagraph : potentialParagraphs) {
+        WordStats wordStats = StopWords.getStopWordCount(firstParagraph.text());
 
-      int paragraphScore = wordStats.getStopWordCount();
+        int paragraphScore = wordStats.getStopWordCount();
 
-      if ((float) (baselineScoreForSiblingParagraphs * .30) < paragraphScore) {
-        logger.info("This node looks like a good sibling, adding it");
-        node.child(0).before("<p>" + firstParagraph.text() + "<p>");
+        if ((float) (baselineScoreForSiblingParagraphs * .30) < paragraphScore) {
+          logger.info("This node looks like a good sibling, adding it");
+          node.child(insertedSiblings).before("<p>" + firstParagraph.text() + "<p>");
+          insertedSiblings++;
+        }
+
       }
 
       currentSibling = currentSibling.previousElementSibling();

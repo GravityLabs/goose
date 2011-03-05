@@ -66,103 +66,109 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
     docToClean = removeNodesViaRegEx(docToClean, "[^-]twitter");
 
     // turn any divs that aren't used as true layout items with block level elements inside them into paragraph tags
-    docToClean = convertDivsToParagraphs(docToClean);
+    docToClean = convertDivsToParagraphs(docToClean, "div");
+    docToClean = convertDivsToParagraphs(docToClean, "span");
+
 
     return docToClean;
   }
 
-  private Document convertDivsToParagraphs(Document doc) {
+  private Document convertDivsToParagraphs(Document doc, String domType) {
 
 
     logger.info("Starting to replace bad divs...");
     int badDivs = 0;
     int convertedTextNodes = 0;
-    Elements divs = doc.getElementsByTag("div");
+    Elements divs = doc.getElementsByTag(domType);
     for (Element div : divs) {
 
+      try {
 
-      Pattern pattern = Pattern.compile(this.divToPElementsRe);
-      Matcher matcher = pattern.matcher(div.html().toLowerCase());
-      boolean matches = matcher.find();
-      if (matches == false) {
-        Document newDoc = new Document(doc.baseUri());
-        Element newNode = newDoc.createElement("p");
+        Pattern pattern = Pattern.compile(this.divToPElementsRe);
+        Matcher matcher = pattern.matcher(div.html().toLowerCase());
+        boolean matches = matcher.find();
+        if (matches == false) {
+          Document newDoc = new Document(doc.baseUri());
+          Element newNode = newDoc.createElement("p");
 
-        newNode.append(div.html());
-        div.replaceWith(newNode);
-        badDivs++;
+          newNode.append(div.html());
+          div.replaceWith(newNode);
+          badDivs++;
 
-      } else {
-        // Try to convert any div with just text inside it to a paragraph so it can be counted as text, otherwise it would be ignored
-        // example <div>This is some text in a div</div> should be <div><p>this is some text in a div</p></div>
-        //db(div.childNodes().size() + " childnodes");
+        } else {
+          // Try to convert any div with just text inside it to a paragraph so it can be counted as text, otherwise it would be ignored
+          // example <div>This is some text in a div</div> should be <div><p>this is some text in a div</p></div>
+          //db(div.childNodes().size() + " childnodes");
 
-        //create a master text node to hold all the child node texts so that  links that were replaced with text notes
-        //don't become their own paragraphs
+          //create a master text node to hold all the child node texts so that  links that were replaced with text notes
+          //don't become their own paragraphs
 
-        StringBuilder replacementText = new StringBuilder();
+          StringBuilder replacementText = new StringBuilder();
 
-        ArrayList<Node> nodesToRemove = new ArrayList<Node>();
+          ArrayList<Node> nodesToRemove = new ArrayList<Node>();
 
-        //cleanTags(div);
-
-
-        for (Node kid : div.childNodes()) {
-
-          if (kid.nodeName().equals("#text")) {
+          //cleanTags(div);
 
 
-            Node childNode = kid;
-            TextNode txtNode = (TextNode) kid;
-            String text = txtNode.attr("text");
-            //clean up text from tabs and newlines
-            text = text.replaceAll("\n", "\n\n");
-            text = text.replaceAll("\t", "");
-            text = text.replaceAll("^\\s+$", "");
+          for (Node kid : div.childNodes()) {
 
-            if (text.length() > 1) {
-
-              // check for siblings that might be links that we want to include in our new node
-              Node previousSib = kid.previousSibling();
+            if (kid.nodeName().equals("#text")) {
 
 
-              logger.info("PARENT CLASS: " + div.className() + " NODENAME: " + kid.nodeName());
-              logger.info("TEXTREPLACE: '" + text.replace("\n", "").replace("<br>", "") + "'");
+              Node childNode = kid;
+              TextNode txtNode = (TextNode) kid;
+              String text = txtNode.attr("text");
+              //clean up text from tabs and newlines
+              text = text.replaceAll("\n", "\n\n");
+              text = text.replaceAll("\t", "");
+              text = text.replaceAll("^\\s+$", "");
 
-              if (previousSib != null) {
-                if (previousSib.nodeName().equals("a")) {
-                  text = previousSib.outerHtml() + text;
-                  logger.info("SIBLING NODENAME ADDITION: " + previousSib.nodeName() + " TEXT: " + previousSib.outerHtml());
+              if (text.length() > 1) {
+
+                // check for siblings that might be links that we want to include in our new node
+                Node previousSib = kid.previousSibling();
+
+
+                logger.info("PARENT CLASS: " + div.className() + " NODENAME: " + kid.nodeName());
+                logger.info("TEXTREPLACE: '" + text.replace("\n", "").replace("<br>", "") + "'");
+
+                if (previousSib != null) {
+                  if (previousSib.nodeName().equals("a")) {
+                    text = previousSib.outerHtml() + text;
+                    logger.info("SIBLING NODENAME ADDITION: " + previousSib.nodeName() + " TEXT: " + previousSib.outerHtml());
+                  }
                 }
+
+                replacementText.append(text);
+                nodesToRemove.add(kid);
+
+                convertedTextNodes++;
               }
 
-              replacementText.append(text);
-              nodesToRemove.add(kid);
-
-              convertedTextNodes++;
             }
 
+
+          }
+
+          // replace div's text with the new master replacement text node that containts the sum of all the little text nodes
+          //div.appendChild(replacementTextNode);
+
+          Document newDoc = new Document(doc.baseUri());
+          Element newPara = newDoc.createElement("p");
+          newPara.html(replacementText.toString());
+
+          div.appendChild(newPara);
+          newDoc = null;
+
+
+          for (Node n : nodesToRemove) {
+            n.remove();
           }
 
 
         }
-
-        // replace div's text with the new master replacement text node that containts the sum of all the little text nodes
-        //div.appendChild(replacementTextNode);
-
-        Document newDoc = new Document(doc.baseUri());
-        Element newPara = newDoc.createElement("p");
-        newPara.html(replacementText.toString());
-
-        div.appendChild(newPara);
-        newDoc = null;
-
-
-        for (Node n : nodesToRemove) {
-          n.remove();
-        }
-
-
+      } catch (NullPointerException e) {
+        logger.info(e.toString());
       }
 
     }
