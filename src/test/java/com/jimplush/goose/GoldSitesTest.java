@@ -503,7 +503,7 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://i.crackedcdn.com/phpimages/article/2/1/5/45215.jpg?v=1"));
   }
 
-    public void testTrailsCom() {
+  public void testTrailsCom() {
     String url = "http://www.trails.com/facts_41596_hot-spots-citrus-county-florida.html";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
@@ -511,15 +511,47 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://cdn-www.trails.com/imagecache/articles/295x195/hot-spots-citrus-county-florida-295x195.png"));
   }
 
-//    public void testEhow() {
-//
-//    String url = "http://www.ehow.com/how_7189063_calculate-greenhouse-heating.html";
-//    ContentExtractor contentExtractor = new ContentExtractor();
-//    Article article = contentExtractor.extractContent(url);
-//    assertTrue(article.getCleanedArticleText().startsWith("With a heated greenhouse, you can"));
-//    assertTrue(article.getTitle().equals("How to Calculate Greenhouse Heating"));
-//    assertTrue(article.getTopImage().getImageSrc().equals("http://i.ehow.com/images/a07/hb/tg/trap-heat-greenhouse-800X800.jpg"));
-//  }
+  public void testTrailsCom2() {
+    String url = "http://www.trails.com/facts_12408_history-alpine-skis.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Derived from the old Norse word"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cdn-www.trails.com/imagecache/articles/295x195/history-alpine-skis-295x195.png"));
+  }
+
+  public void testEhow() {
+    String url = "http://www.ehow.com/how_7734109_make-white-spaghetti.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Heat the oil in the"));
+    assertTrue(article.getTitle().equals("How to Make White Spaghetti"));
+  }
+
+
+  public void testGolfLink() {
+    String url = "http://www.golflink.com/how_1496_eat-cheap-las-vegas.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Las Vegas, while noted for its glitz"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cdn-www.golflink.com/Cms/images/GlobalPhoto/Articles/2011/2/17/1496/fotolia4152707XS-main_Full.jpg"));
+  }
+
+   public void testAnswerBag() {
+    String url = "http://www.answerbag.com/q_view/2438372";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("You're reading True or false"));
+
+  }
+
+   public void testAnswerBag2() {
+    String url = "http://www.answerbag.com/q_view/2445112";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("You're reading Can chamomille"));
+
+  }
+
 
 }
 

@@ -40,8 +40,8 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
     StringBuilder sb = new StringBuilder();
     // create negative elements
-    sb.append("^side$|combx|retweet|menucontainer|navbar|comment|contact|foot|footer|footnote|cnn_strycaptiontxt|links|meta|scroll|shoutbox|sponsor");
-    sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2");
+    sb.append("^side$|combx|retweet|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta|scroll|shoutbox|sponsor");
+    sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers");
     sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text");
     regExRemoveNodes = sb.toString();
 

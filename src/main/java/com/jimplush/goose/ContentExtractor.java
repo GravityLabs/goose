@@ -105,6 +105,7 @@ public class ContentExtractor {
       DocumentCleaner documentCleaner = getDocCleaner();
       doc = documentCleaner.clean(doc);
 
+
       article = new Article();
 
       article.setTitle(getTitle(doc, article));
@@ -131,7 +132,6 @@ public class ContentExtractor {
         }
 
         // grab siblings and remove high link density elements
-
         cleanupNode(article.getTopNode());
 
 
