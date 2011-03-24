@@ -10,7 +10,8 @@ public interface OutputFormatter {
 
   public Element getFormattedElement(Element topNode);
 
-
   public String getFormattedText();
+  
+  public String getUnescapedFormattedText();
 
 }

@@ -164,6 +164,46 @@ public class ContentExtractor {
 
     return article;
   }
+  
+  /** 
+   * Same as extractContent, but here we're interested in extracting only the 
+   * main article text from a given HTML string.
+   * 
+   * @return
+   * 		Content as a string
+   */
+  public String extractContentFromHtmlString(String rawHtml){
+	// This is a actually a hack, because I couldn't reason a better way to refactor
+	// extractContent method so it would support this functionality. 
+	// (this whole library is a hack so why bother)
+
+	ParseWrapper parseWrapper = new ParseWrapper();
+	Article article;
+   
+	Document doc = parseWrapper.parse(rawHtml);
+	
+	DocumentCleaner documentCleaner = getDocCleaner();
+	doc = documentCleaner.clean(doc);
+	
+	article = new Article();
+	
+	// extract the content of the article
+	article.setTopNode(calculateBestNodeBasedOnClustering(doc));
+	
+	if (article.getTopNode() != null) {
+	
+	  // grab siblings and remove high link density elements
+	  cleanupNode(article.getTopNode());
+	
+	  outputFormatter = getOutputFormatter();
+	  outputFormatter.getFormattedElement(article.getTopNode());
+	
+	  article.setCleanedArticleText(outputFormatter.getUnescapedFormattedText());
+	    
+	}
+
+    return article.getCleanedArticleText();
+  }
 
   // used for gawker type ajax sites with pound sites
   private String getUrlToCrawl(String urlToCrawl) {

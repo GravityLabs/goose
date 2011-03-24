@@ -38,6 +38,20 @@ public class ParseWrapper {
     this.status = "Done";
     return doc;
   }
+  
+  public Document parse(String html){
+	  
+    this.status = "Started";
+    this.startTime = now();
+    Document doc;
+    try {
+      doc = Jsoup.parse(html);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    this.status = "Done";
+    return doc;
+  }
 
 
   public static String now() {

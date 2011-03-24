@@ -59,6 +59,26 @@ public class DefaultOutputFormatter implements OutputFormatter {
 
     return sb.toString();
   }
+  
+  /**
+   * Same as getFormattedText but we don't escape HTML 
+   * */
+  public String getUnescapedFormattedText(){
+
+    StringBuilder sb = new StringBuilder();
+
+    Elements nodes = topNode.getAllElements();
+    for (Element e : nodes) {
+      if (e.tagName().equals("p")) {
+       
+        sb.append(e.text());
+        sb.append("\n\n");
+      }
+    }
+
+    return sb.toString();
+	  
+  }
 
   /**
    * cleans up and converts any nodes that should be considered text into text
