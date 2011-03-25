@@ -200,9 +200,13 @@ public class ContentExtractor {
 	
 	  article.setCleanedArticleText(outputFormatter.getUnescapedFormattedText());
 	    
+	  return article.getCleanedArticleText();
+	}
+	else{
+	  return "";
+		
 	}
 
-    return article.getCleanedArticleText();
   }
 
   // used for gawker type ajax sites with pound sites
