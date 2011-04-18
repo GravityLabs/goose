@@ -64,7 +64,6 @@ public class HtmlFetcher {
   }
 
 
-
   public static HttpClient getHttpClient() {
     return httpClient;
   }
@@ -107,9 +106,12 @@ public class HtmlFetcher {
             encodingType = "UTF-8";
           }
         } catch (Exception e) {
-          logger.info("Unable to get charset for: " + url);
+          if (logger.isDebugEnabled()) {
+            logger.debug("Unable to get charset for: " + url);
+            logger.debug("Encoding Type is: " + encodingType);
+          }
         }
-        logger.info("Encoding Type is: " + encodingType);
+
         try {
           htmlResult = HtmlFetcher.convertStreamToString(instream, 15728640, encodingType).trim();
         } finally {
@@ -133,7 +135,7 @@ public class HtmlFetcher {
 
     } catch (SocketTimeoutException e) {
       logger.error(e.toString());
-    }  catch (Exception e) {
+    } catch (Exception e) {
       logger.error("FAILURE FOR LINK: " + url + " " + e.toString());
       return null;
     } finally {
@@ -156,9 +158,13 @@ public class HtmlFetcher {
 
     }
 
-    logger.info("starting...");
+    if (logger.isDebugEnabled()) {
+      logger.debug("starting...");
+    }
     if (htmlResult == null || htmlResult.length() < 1) {
-      logger.info("HTMLRESULT is empty or null");
+      if (logger.isDebugEnabled()) {
+        logger.debug("HTMLRESULT is empty or null");
+      }
       throw new NotHtmlException();
     }
 
@@ -200,7 +206,9 @@ public class HtmlFetcher {
 
 
   private static void initClient() {
-    logger.info("Initializing HttpClient");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Initializing HttpClient");
+    }
     HttpParams httpParams = new BasicHttpParams();
     HttpConnectionParams.setConnectionTimeout(httpParams, 10 * 1000);
     HttpConnectionParams.setSoTimeout(httpParams, 10 * 1000);
@@ -263,12 +271,13 @@ public class HtmlFetcher {
   }
 
   /**
-  * reads bytes off the string and returns a string
-  * @param is
-  * @param maxBytes The max bytes that we want to read from the input stream
-  * @return String
-  */
- public static String convertStreamToString(InputStream is, int maxBytes, String encodingType) throws MaxBytesException {
+   * reads bytes off the string and returns a string
+   *
+   * @param is
+   * @param maxBytes The max bytes that we want to read from the input stream
+   * @return String
+   */
+  public static String convertStreamToString(InputStream is, int maxBytes, String encodingType) throws MaxBytesException {
 
     char[] buf = new char[2048];
     Reader r = null;
@@ -278,7 +287,7 @@ public class HtmlFetcher {
       int bytesRead = 2048;
       while (true) {
 
-        if(bytesRead >= maxBytes) {
+        if (bytesRead >= maxBytes) {
           throw new MaxBytesException();
         }
 
@@ -292,16 +301,21 @@ public class HtmlFetcher {
       return s.toString();
 
     } catch (SocketTimeoutException e) {
-      logger.warn(e.toString() + " "+e.getMessage());
+      logger.warn(e.toString() + " " + e.getMessage());
     } catch (UnsupportedEncodingException e) {
-      logger.warn(e.toString() + " Encoding: "+encodingType);
+      logger.warn(e.toString() + " Encoding: " + encodingType);
 
     } catch (IOException e) {
-      logger.warn(e.toString() + " "+e.getMessage());
+      logger.warn(e.toString() + " " + e.getMessage());
     } finally {
-      if(r != null) { try { r.close(); } catch(Exception e ) {  } }
+      if (r != null) {
+        try {
+          r.close();
+        } catch (Exception e) {
+        }
+      }
     }
     return null;
 
- }
+  }
 }

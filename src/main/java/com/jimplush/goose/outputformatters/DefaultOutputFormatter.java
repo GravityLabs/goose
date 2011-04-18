@@ -11,8 +11,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
-import java.util.List;
-
 /**
  * this class will be responsible for taking our top node and stripping out junk we don't want
  * and getting it ready for how we want it presented to the user
@@ -63,12 +61,13 @@ public class DefaultOutputFormatter implements OutputFormatter {
   /**
    * cleans up and converts any nodes that should be considered text into text
    */
-  private void convertLinksToText()
-  {
-    logger.info("Turning links to text");
+  private void convertLinksToText() {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Turning links to text");
+    }
     Elements links = topNode.getElementsByTag("a");
-    for(Element item: links) {
-      if(item.getElementsByTag("img").size() == 0) {
+    for (Element item : links) {
+      if (item.getElementsByTag("img").size() == 0) {
         TextNode tn = new TextNode(item.text(), topNode.baseUri());
         item.replaceWith(tn);
       }
@@ -88,7 +87,7 @@ public class DefaultOutputFormatter implements OutputFormatter {
       }
     }
   }
-  
+
   /**
    * replace common tags with just text so we don't have any crazy formatting issues
    * so replace <br>, <i>, <strong>, etc.... with whatever text is inside them
@@ -96,19 +95,19 @@ public class DefaultOutputFormatter implements OutputFormatter {
   private void replaceTagsWithText() {
 
     Elements strongs = topNode.getElementsByTag("strong");
-    for(Element item: strongs) {
+    for (Element item : strongs) {
       TextNode tn = new TextNode(item.text(), topNode.baseUri());
       item.replaceWith(tn);
     }
-    
+
     Elements bolds = topNode.getElementsByTag("b");
-    for(Element item: bolds) {
+    for (Element item : bolds) {
       TextNode tn = new TextNode(item.text(), topNode.baseUri());
       item.replaceWith(tn);
     }
-    
+
     Elements italics = topNode.getElementsByTag("i");
-    for(Element item: italics) {
+    for (Element item : italics) {
       TextNode tn = new TextNode(item.text(), topNode.baseUri());
       item.replaceWith(tn);
     }
@@ -118,7 +117,9 @@ public class DefaultOutputFormatter implements OutputFormatter {
    * remove paragraphs that have less than x number of words, would indicate that it's some sort of link
    */
   private void removeParagraphsWithFewWords() {
-    logger.info("removeParagraphsWithFewWords starting...");
+    if (logger.isDebugEnabled()) {
+      logger.debug("removeParagraphsWithFewWords starting...");
+    }
 
     Elements allNodes = this.topNode.getAllElements();
     for (Element el : allNodes) {

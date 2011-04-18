@@ -142,9 +142,14 @@ public class ContentExtractor {
         article.setCleanedArticleText(outputFormatter.getFormattedText());
 
 
-        logger.info("FINAL EXTRACTION TEXT: \n" + article.getCleanedArticleText());
+        if (logger.isDebugEnabled()) {
+          logger.debug("FINAL EXTRACTION TEXT: \n" + article.getCleanedArticleText());
+        }
+
         if (config.isEnableImageFetching()) {
-          logger.info("\n\nFINAL EXTRACTION IMAGE: \n" + article.getTopImage().getImageSrc());
+          if (logger.isDebugEnabled()) {
+            logger.debug("\n\nFINAL EXTRACTION IMAGE: \n" + article.getTopImage().getImageSrc());
+          }
         }
 
       }
@@ -171,7 +176,10 @@ public class ContentExtractor {
     if (urlToCrawl.contains("#!")) {
       finalURL = urlToCrawl.replace("#!", "?_escaped_fragment_=");
     }
-    logger.info("Crawling URL: " + finalURL);
+
+    if (logger.isInfoEnabled()) {
+      logger.info("Goose is about to crawl URL: " + finalURL);
+    }
 
     return finalURL;
   }
@@ -257,7 +265,9 @@ public class ContentExtractor {
       // http://money.cnn.com/2010/10/25/news/companies/motley_crue_bp.fortune/index.htm?section=money_latest
       title = title.replace("&#65533;", "");
 
-      logger.info("Page title is: " + title);
+      if (logger.isDebugEnabled()) {
+        logger.debug("Page title is: " + title);
+      }
 
     } catch (NullPointerException e) {
       logger.error(e.toString());
@@ -411,7 +421,9 @@ public class ContentExtractor {
     // we want to give the last 20% of nodes negative scores in case they're comments
     double bottomNodesForNegativeScore = (float) numberOfNodes * 0.25;
 
-    logger.info("About to inspect num of nodes with text: " + numberOfNodes);
+    if (logger.isDebugEnabled()) {
+      logger.debug("About to inspect num of nodes with text: " + numberOfNodes);
+    }
 
     for (Element node : nodesWithText) {
 
@@ -444,8 +456,9 @@ public class ContentExtractor {
         }
       }
 
-
-      logger.info("Location Boost Score: " + boostScore + " on interation: " + i + "' id='" + node.parent().id() + "' class='" + node.parent().attr("class"));
+      if (logger.isDebugEnabled()) {
+        logger.debug("Location Boost Score: " + boostScore + " on interation: " + i + "' id='" + node.parent().id() + "' class='" + node.parent().attr("class"));
+      }
       String nodeText = node.text();
       WordStats wordStats = StopWords.getStopWordCount(nodeText);
       int upscore = (int) (wordStats.getStopWordCount() + boostScore);
@@ -472,9 +485,9 @@ public class ContentExtractor {
     int topNodeScore = 0;
     for (Element e : parentNodes) {
 
-
-      logger.info("ParentNode: score='" + e.attr("gravityScore") + "' nodeCount='" + e.attr("gravityNodes") + "' id='" + e.id() + "' class='" + e.attr("class") + "' ");
-
+      if (logger.isDebugEnabled()) {
+        logger.debug("ParentNode: score='" + e.attr("gravityScore") + "' nodeCount='" + e.attr("gravityNodes") + "' id='" + e.id() + "' class='" + e.attr("class") + "' ");
+      }
       //int score = Integer.parseInt(e.attr("gravityScore")) * Integer.parseInt(e.attr("gravityNodes"));
       int score = getScore(e);
       if (score > topNodeScore) {
@@ -487,7 +500,9 @@ public class ContentExtractor {
       }
     }
     if (topNode == null) {
-      logger.info("ARTICLE NOT ABLE TO BE EXTRACTED!, WE HAZ FAILED YOU LORD VADAR");
+      if (logger.isDebugEnabled()) {
+        logger.debug("ARTICLE NOT ABLE TO BE EXTRACTED!, WE HAZ FAILED YOU LORD VADAR");
+      }
     } else {
       String logText = "";
       String targetText = "";
@@ -503,8 +518,10 @@ public class ContentExtractor {
       } else {
         logText = targetText;
       }
-      logger.info("TOPNODE TEXT: " + logText.trim());
-      logger.info("Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id() + "' class='" + topNode.attr("class") + "' ");
+      if (logger.isDebugEnabled()) {
+        logger.debug("TOPNODE TEXT: " + logText.trim());
+        logger.debug("Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id() + "' class='" + topNode.attr("class") + "' ");
+      }
     }
 
 
@@ -579,7 +596,9 @@ public class ContentExtractor {
     } else {
       logText = e.text();
     }
-    logger.info("Calulated link density score as: " + score + " for node: " + logText);
+    if (logger.isDebugEnabled()) {
+      logger.debug("Calulated link density score as: " + score + " for node: " + logText);
+    }
     if (score > 1) {
       return true;
     }
@@ -605,7 +624,9 @@ public class ContentExtractor {
 
       if (sibling.tagName().equals("p")) {
         if (stepsAway >= 3) {
-          logger.info("Next paragraph is too far away, not boosting");
+          if (logger.isDebugEnabled()) {
+            logger.debug("Next paragraph is too far away, not boosting");
+          }
           return false;
         }
 
@@ -613,7 +634,9 @@ public class ContentExtractor {
         String html = sibling.outerHtml();
         WordStats wordStats = StopWords.getStopWordCount(paraText);
         if (wordStats.getStopWordCount() > 5) {
-          logger.info("We're gonna boost this node, seems contenty");
+          if (logger.isDebugEnabled()) {
+            logger.debug("We're gonna boost this node, seems contenty");
+          }
           return true;
         }
 
@@ -704,8 +727,9 @@ public class ContentExtractor {
       for (Element el : objects) {
         candidates.add(el);
       }
-
-      logger.info("extractVideos: Starting to extract videos. Found: " + candidates.size());
+      if (logger.isDebugEnabled()) {
+        logger.debug("extractVideos: Starting to extract videos. Found: " + candidates.size());
+      }
 
       for (Element el : candidates) {
 
@@ -713,12 +737,14 @@ public class ContentExtractor {
 
         for (Attribute a : attrs) {
           try {
-            logger.info(a.getKey() + " : " + a.getValue());
+            if (logger.isDebugEnabled()) {
+              logger.debug(a.getKey() + " : " + a.getValue());
+            }
             if ((a.getValue().contains("youtube") || a.getValue().contains("vimeo")) && a.getKey().equals("src")) {
-              logger.info("Found video... setting");
-
-
-              logger.info("This page has a video!: " + a.getValue());
+              if (logger.isDebugEnabled()) {
+                logger.debug("Found video... setting");
+                logger.debug("This page has a video!: " + a.getValue());
+              }
               goodMovies.add(el);
 
             }
@@ -730,11 +756,13 @@ public class ContentExtractor {
 
       }
     } catch (NullPointerException e) {
-      logger.info(e.toString());
+      logger.error(e.toString(), e);
     } catch (Exception e) {
-      logger.error(e.toString());
+      logger.error(e.toString(), e);
     }
-    logger.info("extractVideos:  done looking videos");
+    if (logger.isDebugEnabled()) {
+      logger.debug("extractVideos:  done looking videos");
+    }
     return goodMovies;
   }
 
@@ -746,8 +774,9 @@ public class ContentExtractor {
    * @return
    */
   private Element cleanupNode(Element node) {
-
-    logger.info("Starting cleanup Node");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Starting cleanup Node");
+    }
 
     node = addSiblings(node);
 
@@ -756,10 +785,14 @@ public class ContentExtractor {
       if (e.tagName().equals("p")) {
         continue;
       }
-      logger.info("CLEANUP  NODE: " + e.id() + " class: " + e.attr("class"));
+      if (logger.isDebugEnabled()) {
+        logger.debug("CLEANUP  NODE: " + e.id() + " class: " + e.attr("class"));
+      }
       boolean highLinkDensity = isHighLinkDensity(e);
       if (highLinkDensity) {
-        logger.info("REMOVING  NODE FOR LINK DENSITY: " + e.id() + " class: " + e.attr("class"));
+        if (logger.isDebugEnabled()) {
+          logger.debug("REMOVING  NODE FOR LINK DENSITY: " + e.id() + " class: " + e.attr("class"));
+        }
         e.remove();
         continue;
       }
@@ -779,7 +812,9 @@ public class ContentExtractor {
       // first let's remove any element that now doesn't have any p tags at all
       Elements subParagraphs2 = e.getElementsByTag("p");
       if (subParagraphs2.size() == 0 && !e.tagName().equals("td")) {
-        logger.info("Removing node because it doesn't have any paragraphs");
+        if (logger.isDebugEnabled()) {
+          logger.debug("Removing node because it doesn't have any paragraphs");
+        }
         e.remove();
         continue;
       }
@@ -788,13 +823,19 @@ public class ContentExtractor {
       int topNodeScore = getScore(node);
       int currentNodeScore = getScore(e);
       float thresholdScore = (float) (topNodeScore * .08);
-      logger.info("topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore);
+      if (logger.isDebugEnabled()) {
+        logger.debug("topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore);
+      }
       if (currentNodeScore < thresholdScore) {
         if (!e.tagName().equals("td")) {
-          logger.info("Removing node due to low threshold score");
+          if (logger.isDebugEnabled()) {
+            logger.debug("Removing node due to low threshold score");
+          }
           e.remove();
         } else {
-          logger.info("Not removing TD node");
+          if (logger.isDebugEnabled()) {
+            logger.debug("Not removing TD node");
+          }
         }
 
         continue;
@@ -814,14 +855,16 @@ public class ContentExtractor {
    * @return
    */
   private Element addSiblings(Element node) {
-
-    logger.info("Starting to add siblings");
-
+    if (logger.isDebugEnabled()) {
+      logger.debug("Starting to add siblings");
+    }
     int baselineScoreForSiblingParagraphs = getBaselineScoreForSiblings(node);
 
     Element currentSibling = node.previousElementSibling();
     while (currentSibling != null) {
-      logger.info("SIBLINGCHECK: " + debugNode(currentSibling));
+      if (logger.isDebugEnabled()) {
+        logger.debug("SIBLINGCHECK: " + debugNode(currentSibling));
+      }
 
       if (currentSibling.tagName().equals("p")) {
 
@@ -843,7 +886,9 @@ public class ContentExtractor {
         int paragraphScore = wordStats.getStopWordCount();
 
         if ((float) (baselineScoreForSiblingParagraphs * .30) < paragraphScore) {
-          logger.info("This node looks like a good sibling, adding it");
+          if (logger.isDebugEnabled()) {
+            logger.debug("This node looks like a good sibling, adding it");
+          }
           node.child(insertedSiblings).before("<p>" + firstParagraph.text() + "<p>");
           insertedSiblings++;
         }
@@ -892,7 +937,9 @@ public class ContentExtractor {
 
     if (numberOfParagraphs > 0) {
       base = scoreOfParagraphs / numberOfParagraphs;
-      logger.info("The base score for siblings to beat is: " + base + " NumOfParas: " + numberOfParagraphs + " scoreOfAll: " + scoreOfParagraphs);
+      if (logger.isDebugEnabled()) {
+        logger.debug("The base score for siblings to beat is: " + base + " NumOfParas: " + numberOfParagraphs + " scoreOfAll: " + scoreOfParagraphs);
+      }
     }
 
     return base;
@@ -920,7 +967,9 @@ public class ContentExtractor {
    * removes any image in the temp dir that starts with the linkhash of the url we just parsed
    */
   public void releaseResources() {
-    logger.info("STARTING TO RELEASE ALL RESOURCES");
+    if (logger.isDebugEnabled()) {
+      logger.debug("STARTING TO RELEASE ALL RESOURCES");
+    }
     File dir = new File(config.getLocalStoragePath());
     String[] children = dir.list();
 

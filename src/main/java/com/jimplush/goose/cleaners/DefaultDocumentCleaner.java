@@ -51,7 +51,9 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
   public Document clean(Document doc) {
 
-    logger.info("Starting cleaning phase with DefaultDocumentCleaner");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Starting cleaning phase with DefaultDocumentCleaner");
+    }
     Document docToClean = doc;
     docToClean = cleanEmTags(docToClean);
     docToClean = removeDropCaps(docToClean);
@@ -75,8 +77,9 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
   private Document convertDivsToParagraphs(Document doc, String domType) {
 
-
-    logger.info("Starting to replace bad divs...");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Starting to replace bad divs...");
+    }
     int badDivs = 0;
     int convertedTextNodes = 0;
     Elements divs = doc.getElementsByTag(domType);
@@ -129,13 +132,17 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
                 Node previousSib = kid.previousSibling();
 
 
-                logger.info("PARENT CLASS: " + div.className() + " NODENAME: " + kid.nodeName());
-                logger.info("TEXTREPLACE: '" + text.replace("\n", "").replace("<br>", "") + "'");
+                if (logger.isDebugEnabled()) {
+                  logger.debug("PARENT CLASS: " + div.className() + " NODENAME: " + kid.nodeName());
+                  logger.debug("TEXTREPLACE: '" + text.replace("\n", "").replace("<br>", "") + "'");
+                }
 
                 if (previousSib != null) {
                   if (previousSib.nodeName().equals("a")) {
                     text = previousSib.outerHtml() + text;
-                    logger.info("SIBLING NODENAME ADDITION: " + previousSib.nodeName() + " TEXT: " + previousSib.outerHtml());
+                    if (logger.isDebugEnabled()) {
+                      logger.debug("SIBLING NODENAME ADDITION: " + previousSib.nodeName() + " TEXT: " + previousSib.outerHtml());
+                    }
                   }
                 }
 
@@ -168,12 +175,14 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
         }
       } catch (NullPointerException e) {
-        logger.info(e.toString());
+        logger.error(e.toString());
       }
 
     }
 
-    logger.info("Found " + divs.size() + " total divs with " + badDivs + " bad divs replaced and " + convertedTextNodes + " textnodes converted inside divs");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Found " + divs.size() + " total divs with " + badDivs + " bad divs replaced and " + convertedTextNodes + " textnodes converted inside divs");
+    }
 
 
     return doc;
@@ -181,15 +190,20 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
   private Document removeScriptsAndStyles(Document doc) {
 
-    logger.info("Starting to remove script tags");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Starting to remove script tags");
+    }
     Elements scripts = doc.getElementsByTag("script");
     for (Element item : scripts) {
       item.remove();
     }
-    logger.info("Removed: " + scripts.size() + " script tags");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Removed: " + scripts.size() + " script tags");
+    }
 
-
-    logger.info("Removing Style Tags");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Removing Style Tags");
+    }
     Elements styles = doc.getElementsByTag("style");
     for (Element style : styles) {
       style.remove();
@@ -205,7 +219,9 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
    */
   private Document cleanEmTags(Document doc) {
     Elements ems = doc.getElementsByTag("em");
-    logger.info("Cleaning " + ems.size() + " EM tags");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Cleaning " + ems.size() + " EM tags");
+    }
     for (Element node : ems) {
       // replace the node with a div node
       Elements images = node.getElementsByTag("img");
@@ -224,7 +240,9 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
    */
   private Document removeDropCaps(Document doc) {
     Elements items = doc.select("span[class~=(dropcap|drop_cap)]");
-    logger.info("Cleaning " + items.size() + " dropcap tags");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Cleaning " + items.size() + " dropcap tags");
+    }
     for (Element item : items) {
       TextNode tn = new TextNode(item.text(), doc.baseUri());
       item.replaceWith(tn);
@@ -236,28 +254,44 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
   private Document cleanBadTags(Document doc) {
 
     Elements naughtyList = doc.select("[id~=(" + this.regExRemoveNodes + ")]");
-    logger.info(naughtyList.size() + " naughty ID elements found");
+    if (logger.isDebugEnabled()) {
+      logger.debug(naughtyList.size() + " naughty ID elements found");
+    }
     for (Element node : naughtyList) {
-      logger.info("Cleaning: Removing node with class: id: " + node.id());
+      if (logger.isDebugEnabled()) {
+        logger.debug("Cleaning: Removing node with class: id: " + node.id());
+      }
       node.remove();
     }
     Elements naughtyList2 = doc.select("[id~=(" + this.regExRemoveNodes + ")]");
-    logger.info(naughtyList2.size() + " naughty ID elements found after removal");
+    if (logger.isDebugEnabled()) {
+      logger.debug(naughtyList2.size() + " naughty ID elements found after removal");
+    }
 
     Elements naughtyList3 = doc.select("[class~=(" + this.regExRemoveNodes + ")]");
-    logger.info(naughtyList3.size() + " naughty CLASS elements found");
+    if (logger.isDebugEnabled()) {
+      logger.debug(naughtyList3.size() + " naughty CLASS elements found");
+    }
     for (Element node : naughtyList3) {
-      logger.info("clean: Removing node with class: " + node.className());
+      if (logger.isDebugEnabled()) {
+        logger.debug("clean: Removing node with class: " + node.className());
+      }
       node.remove();
     }
     Elements naughtyList4 = doc.select("[class~=(" + this.regExRemoveNodes + ")]");
-    logger.info(naughtyList4.size() + " naughty CLASS elements found after removal");
+    if (logger.isDebugEnabled()) {
+      logger.debug(naughtyList4.size() + " naughty CLASS elements found after removal");
+    }
 
     // starmagazine puts shit on name tags instead of class or id
     Elements naughtyList5 = doc.select("[name~=(" + this.regExRemoveNodes + ")]");
-    logger.info(naughtyList5.size() + " naughty Name elements found");
+    if (logger.isDebugEnabled()) {
+      logger.debug(naughtyList5.size() + " naughty Name elements found");
+    }
     for (Element node : naughtyList5) {
-      logger.info("clean: Removing node with class: " + node.attr("class") + " id: " + node.id() + " name: " + node.attr("name"));
+      if (logger.isDebugEnabled()) {
+        logger.debug("clean: Removing node with class: " + node.attr("class") + " id: " + node.id() + " name: " + node.attr("name"));
+      }
       node.remove();
     }
 
@@ -274,13 +308,17 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
     try {
 
       Elements naughtyList = doc.getElementsByAttributeValueMatching("id", pattern);
-      logger.info("regExRemoveNodes: " + naughtyList.size() + " ID elements found against pattern: " + pattern);
+      if (logger.isDebugEnabled()) {
+        logger.debug("regExRemoveNodes: " + naughtyList.size() + " ID elements found against pattern: " + pattern);
+      }
       for (Element node : naughtyList) {
         node.remove();
       }
 
       Elements naughtyList3 = doc.getElementsByAttributeValueMatching("class", pattern);
-      logger.info("regExRemoveNodes: " + naughtyList3.size() + " CLASS elements found against pattern: " + pattern);
+      if (logger.isDebugEnabled()) {
+        logger.debug("regExRemoveNodes: " + naughtyList3.size() + " CLASS elements found against pattern: " + pattern);
+      }
       for (Element node : naughtyList3) {
         node.remove();
       }

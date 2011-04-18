@@ -1,19 +1,7 @@
 package com.jimplush.goose.images;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Random;
 import com.jimplush.goose.Configuration;
 import com.jimplush.goose.network.HtmlFetcher;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -26,36 +14,40 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
+import java.io.*;
+import java.util.Random;
+
 
 /**
  * This class will be responsible for storing images to disk
- * @author Jim Plush
  *
+ * @author Jim Plush
  */
 public class ImageSaver {
 
   private static Logger logger = Logger.getLogger(ImageSaver.class);
 
 
-  private static String getFileExtension(Configuration config, String fileName) throws IOException, SecretGifException
-  {
+  private static String getFileExtension(Configuration config, String fileName) throws IOException, SecretGifException {
     String fileExtension = "";
     String mimeType;
     try {
-      
+
       ImageDetails imageDims = ImageUtils.getImageDimensions(config.getImagemagickIdentifyPath(), fileName);
       mimeType = imageDims.getMimeType();
-      
-      if(mimeType.equals("GIF")) {
-        logger.info("SNEAKY GIF! "+fileName);
+
+      if (mimeType.equals("GIF")) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("SNEAKY GIF! " + fileName);
+        }
         throw new SecretGifException();
       }
-      if(mimeType.equals("JPEG")) {
+      if (mimeType.equals("JPEG")) {
         fileExtension = ".jpg";
-      } else if(mimeType.equals("PNG")) {
+      } else if (mimeType.equals("PNG")) {
         fileExtension = ".png";
       } else {
-        throw new IOException("BAD MIME TYPE: "+mimeType+" FILENAME:"+fileName);
+        throw new IOException("BAD MIME TYPE: " + mimeType + " FILENAME:" + fileName);
       }
 
     } catch (SecretGifException e) {
@@ -64,25 +56,24 @@ public class ImageSaver {
     } catch (FileNotFoundException e) {
       logger.error(e.getMessage());
     } catch (IOException e) {
-      logger.info(e.getMessage());
+      logger.error(e.getMessage());
       throw e;
- 
+
     } finally {
-      
+
     }
 
     return fileExtension;
   }
 
 
-
   /**
    * stores an image to disk and returns the path where the file was written
+   *
    * @param imageSrc
    * @return
    */
-  public static String storeTempImage(HttpClient httpClient, String linkhash, String imageSrc, Configuration config) throws SecretGifException
-  {
+  public static String storeTempImage(HttpClient httpClient, String linkhash, String imageSrc, Configuration config) throws SecretGifException {
 
     String localSrcPath = null;
     HttpGet httpget = null;
@@ -90,8 +81,10 @@ public class ImageSaver {
 
     try {
 
-      imageSrc = imageSrc.replace(" ", "%20");     
-      logger.info("Starting to download image: "+imageSrc);
+      imageSrc = imageSrc.replace(" ", "%20");
+      if (logger.isDebugEnabled()) {
+        logger.debug("Starting to download image: " + imageSrc);
+      }
 
       HttpContext localContext = new BasicHttpContext();
       localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore);
@@ -99,9 +92,9 @@ public class ImageSaver {
       httpget = new HttpGet(imageSrc);
 
       response = httpClient.execute(httpget, localContext);
-      
+
       String respStatus = response.getStatusLine().toString();
-      if(!respStatus.contains("200")) {
+      if (!respStatus.contains("200")) {
         return null;
       }
 
@@ -110,8 +103,8 @@ public class ImageSaver {
       String fileExtension = "";
       try {
         Header contentType = entity.getContentType();
-      } catch(Exception e) {
-        logger.info(e.getMessage());
+      } catch (Exception e) {
+        logger.error(e.getMessage());
 
       }
 
@@ -121,14 +114,16 @@ public class ImageSaver {
 
       localSrcPath = config.getLocalStoragePath() + "/" + linkhash + "_" + randInt;
 
-      logger.info("Storing image locally: "+localSrcPath);
-      if (entity != null) { 
+      if (logger.isDebugEnabled()) {
+        logger.debug("Storing image locally: " + localSrcPath);
+      }
+      if (entity != null) {
         InputStream instream = entity.getContent();
         OutputStream outstream = new FileOutputStream(localSrcPath);
         try {
           try {
             IOUtils.copy(instream, outstream);
-          } catch(Exception e) {
+          } catch (Exception e) {
             throw e;
           } finally {
             entity.consumeContent();
@@ -138,35 +133,41 @@ public class ImageSaver {
 
           // get mime type and store the image extension based on that shiz
           fileExtension = ImageSaver.getFileExtension(config, localSrcPath);
-          if(fileExtension == "" || fileExtension == null) {
-            logger.info("EMPTY FILE EXTENSION: "+localSrcPath);
+          if (fileExtension == "" || fileExtension == null) {
+            if (logger.isDebugEnabled()) {
+              logger.debug("EMPTY FILE EXTENSION: " + localSrcPath);
+            }
             return null;
           }
           File f = new File(localSrcPath);
-          if(f.length() < config.getMinBytesForImages()) {
-            logger.info("TOO SMALL AN IMAGE: "+localSrcPath+ " bytes: "+f.length());
+          if (f.length() < config.getMinBytesForImages()) {
+            if (logger.isDebugEnabled()) {
+              logger.debug("TOO SMALL AN IMAGE: " + localSrcPath + " bytes: " + f.length());
+            }
             return null;
           }
 
-          File newFile = new File(localSrcPath+fileExtension);
+          File newFile = new File(localSrcPath + fileExtension);
           f.renameTo(newFile);
-          localSrcPath = localSrcPath+fileExtension;
+          localSrcPath = localSrcPath + fileExtension;
 
-          logger.info("Image successfully Written to Disk");
+          if (logger.isDebugEnabled()) {
+            logger.debug("Image successfully Written to Disk");
+          }
 
-        } catch(IOException e) {
-          logger.info(e);
-        } catch(SecretGifException e) {
+        } catch (IOException e) {
+          logger.error(e);
+        } catch (SecretGifException e) {
           throw e;
-        } catch(Exception e) {
+        } catch (Exception e) {
           logger.error(e.getMessage());
-        } 
+        }
 
       }
 
-    } catch(IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       logger.warn(e.getMessage());
-    } catch(SecretGifException e) {
+    } catch (SecretGifException e) {
       raise(e);
     } catch (ClientProtocolException e) {
 
@@ -186,8 +187,6 @@ public class ImageSaver {
     return localSrcPath;
   }
 
-
-  
 
   private static void raise(SecretGifException e) {
     // TODO Auto-generated method stub
