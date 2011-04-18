@@ -568,6 +568,27 @@ public class GoldSitesTest extends TestCase {
      assertTrue(article.getTopImage().getImageSrc().equals("http://m.wsj.net/video/20110418/041811marketshub2/041811marketshub2_512x288.jpg"));
    }
 
+  public void testBuzznet() {
+      String url = "http://wevegotyoucovered.buzznet.com/user/journal/8048821/buzznet-talks-bamboozle-festival-founder/";
+      ContentExtractor contentExtractor = new ContentExtractor();
+      Article article = contentExtractor.extractContent(url);
+      assertTrue(article.getCleanedArticleText().startsWith("Bamboozle approaches! The three day music megafest"));
+      assertTrue(article.getTopImage().getImageSrc().equals("http://cdn.buzznet.com/assets/imgx/1/4/0/6/1/1/9/1/orig-14061191.jpg"));
+    }
+
+
+  public void testTheSuperFicial() {
+      String url = "http://www.thesuperficial.com/teen-mom-leah-divorce-corey-04-2011";
+      ContentExtractor contentExtractor = new ContentExtractor();
+      Article article = contentExtractor.extractContent(url);
+      assertTrue(article.getCleanedArticleText().startsWith("Christ, did they all get implants?"));
+      assertTrue(article.getTopImage().getImageSrc().equals("http://cdn03.cdn.thesuperficial.com/wp-content/uploads/2011/04/0418-teen-mom-leah-messer-divorce-14-480x720.jpg"));
+    }
+
+
+
+
+
 
 }
 
