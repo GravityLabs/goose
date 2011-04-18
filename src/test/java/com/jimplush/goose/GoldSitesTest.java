@@ -552,6 +552,22 @@ public class GoldSitesTest extends TestCase {
 
   }
 
+  public void testTimeMagazine2() {
+    String url = "http://www.time.com/time/specials/packages/article/0,28804,2065531_2065534,00.html";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("The traditional Passover song"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://img.timeinc.net/time/photoessays/2011/top10_passover/scallions.jpg"));
+  }
+
+  public void testWSJ2() {
+     String url = "http://online.wsj.com/article/SB10001424052748704004004576270433180029082.html?mod=WSJ_hp_LEFTTopStories";
+     ContentExtractor contentExtractor = new ContentExtractor();
+     Article article = contentExtractor.extractContent(url);
+     assertTrue(article.getCleanedArticleText().startsWith("NEW YORK&mdash;U.S. stocks were on track"));
+     assertTrue(article.getTopImage().getImageSrc().equals("http://m.wsj.net/video/20110418/041811marketshub2/041811marketshub2_512x288.jpg"));
+   }
+
 
 }
 
