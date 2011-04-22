@@ -97,7 +97,7 @@ public class ContentExtractor {
     }
 
     ParseWrapper parseWrapper = new ParseWrapper();
-    Article article;
+    Article article = null;
     try {
       String rawHtml = HtmlFetcher.getHtml(urlToCrawl);
       Document doc = parseWrapper.parse(rawHtml, urlToCrawl);
@@ -160,10 +160,8 @@ public class ContentExtractor {
 
     } catch (MaxBytesException e) {
       logger.error(e.toString(), e);
-      throw new RuntimeException(e);
     } catch (NotHtmlException e) {
       logger.error("URL: "+urlToCrawl+ " did not contain valid HTML to parse, exiting. " +e.toString());
-      throw new RuntimeException(e);
     }
 
 
