@@ -162,7 +162,7 @@ public class ContentExtractor {
       logger.error(e.toString(), e);
       throw new RuntimeException(e);
     } catch (NotHtmlException e) {
-      logger.error(e.toString(), e);
+      logger.error("URL: "+urlToCrawl+ " did not contain valid HTML to parse, exiting. " +e.toString());
       throw new RuntimeException(e);
     }
 
