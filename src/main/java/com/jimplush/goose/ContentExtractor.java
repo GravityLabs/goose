@@ -992,7 +992,7 @@ public class ContentExtractor {
     String[] children = dir.list();
 
     if (children == null) {
-      logger.warn("No Temp images found for linkhash: " + this.linkhash);
+      logger.debug("No Temp images found for linkhash: " + this.linkhash);
     } else {
       for (int i = 0; i < children.length; i++) {
         // Get filename of file or directory
