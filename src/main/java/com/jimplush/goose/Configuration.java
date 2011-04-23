@@ -17,7 +17,9 @@
  */
 package com.jimplush.goose;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: jim
@@ -25,7 +27,7 @@ import org.apache.log4j.Logger;
  */
 
 public class Configuration {
-  private static final Logger logger = Logger.getLogger(Configuration.class);
+  private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
 
   /**

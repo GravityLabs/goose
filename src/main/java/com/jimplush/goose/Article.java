@@ -22,8 +22,9 @@ package com.jimplush.goose;
  */
 
 import com.jimplush.goose.images.Image;
-import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
  */
 public class Article {
 
-  private static final Logger logger = Logger.getLogger(Article.class);
+  private static final Logger logger = LoggerFactory.getLogger(Article.class);
 
   /**
    * Holds the title of the webpage

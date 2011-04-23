@@ -43,8 +43,8 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.SocketException;
@@ -61,7 +61,8 @@ import java.util.List;
 
 
 public class HtmlFetcher {
-  private static final Logger logger = Logger.getLogger(HtmlFetcher.class);
+
+  private static final Logger logger = LoggerFactory.getLogger(HtmlFetcher.class);
 
   /**
    * holds a reference to our override cookie store, we don't want to store

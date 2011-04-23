@@ -18,12 +18,13 @@
 
 package com.jimplush.goose.cleaners;
 
-import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -39,7 +40,8 @@ import java.util.regex.Pattern;
  */
 
 public class DefaultDocumentCleaner implements DocumentCleaner {
-  private static final Logger logger = Logger.getLogger(DefaultDocumentCleaner.class);
+
+  private static final Logger logger = LoggerFactory.getLogger(DefaultDocumentCleaner.class);
 
   /**
    * this regex is used to remove undesirable nodes from our doc

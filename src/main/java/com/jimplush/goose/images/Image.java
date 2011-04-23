@@ -17,8 +17,9 @@
  */
 package com.jimplush.goose.images;
 
-import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: Jim Plush
@@ -27,7 +28,7 @@ import org.jsoup.nodes.Element;
 
 
 public class Image {
-  private static final Logger logger = Logger.getLogger(Image.class);
+  private static final Logger logger = LoggerFactory.getLogger(Image.class);
 
   /**
    * holds the Element node of the image we think is top dog

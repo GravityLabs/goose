@@ -31,7 +31,8 @@ import com.jimplush.goose.texthelpers.StopWords;
 import com.jimplush.goose.texthelpers.WordStats;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.client.HttpClient;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
@@ -62,7 +63,7 @@ public class ContentExtractor {
 
   // PRIVATE PROPERTIES BELOW
 
-  private static final Logger logger = Logger.getLogger(ContentExtractor.class);
+  private static final Logger logger = LoggerFactory.getLogger(ContentExtractor.class);
 
   /**
    * holds the configuration settings we want to use

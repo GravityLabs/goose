@@ -1,7 +1,7 @@
 package com.jimplush.goose;
 
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+
 
 import java.util.ArrayList;
 
@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 
 public class ContentExtractorTest extends TestCase {
-  private static final Logger logger = Logger.getLogger(ContentExtractorTest.class);
 
 
   public void testArticleExtraction() {

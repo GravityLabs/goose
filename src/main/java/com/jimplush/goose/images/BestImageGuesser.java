@@ -28,10 +28,11 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +56,9 @@ import java.util.regex.Pattern;
  * We'll weight the images in descending order depending on how high up they are compared to the top node content
  */
 public class BestImageGuesser implements ImageExtractor {
-  private static final Logger logger = Logger.getLogger(BestImageGuesser.class);
+
+  private static final Logger logger = LoggerFactory.getLogger(BestImageGuesser.class);
+
 
   /**
    * holds an httpclient connection object for doing head requests to get image sizes
@@ -220,7 +223,7 @@ public class BestImageGuesser implements ImageExtractor {
       }
       return false;
     } catch (Exception e) {
-      logger.error(e);
+      logger.error(e.toString(), e);
       return false;
     }
   }

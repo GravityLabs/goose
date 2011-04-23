@@ -4,11 +4,9 @@ package com.jimplush.goose; /**
  */
 
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
 
 
 public class GoldSitesTest extends TestCase {
-  private static final Logger logger = Logger.getLogger(GoldSitesTest.class);
 
   public void testHuffingtonPost() {
     ContentExtractor contentExtractor = new ContentExtractor();

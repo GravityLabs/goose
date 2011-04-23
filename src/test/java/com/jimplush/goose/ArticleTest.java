@@ -1,7 +1,7 @@
 package com.jimplush.goose;
 
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+
 
 /**
  * User: jim
@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
  */
 
 public class ArticleTest extends TestCase {
-  private static final Logger logger = Logger.getLogger(ArticleTest.class);
+
 
   public void testArticle()
   {

@@ -29,7 +29,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Random;
@@ -42,7 +43,7 @@ import java.util.Random;
  */
 public class ImageSaver {
 
-  private static Logger logger = Logger.getLogger(ImageSaver.class);
+  private static final Logger logger = LoggerFactory.getLogger(ImageSaver.class);
 
 
   private static String getFileExtension(Configuration config, String fileName) throws IOException, SecretGifException {
@@ -173,7 +174,7 @@ public class ImageSaver {
           }
 
         } catch (IOException e) {
-          logger.error(e);
+          logger.error(e.toString(), e);
         } catch (SecretGifException e) {
           throw e;
         } catch (Exception e) {

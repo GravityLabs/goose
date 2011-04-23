@@ -23,17 +23,18 @@ package com.jimplush.goose.outputformatters; /**
 import com.jimplush.goose.texthelpers.StopWords;
 import com.jimplush.goose.texthelpers.WordStats;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * this class will be responsible for taking our top node and stripping out junk we don't want
  * and getting it ready for how we want it presented to the user
  */
 public class DefaultOutputFormatter implements OutputFormatter {
-  private static final Logger logger = Logger.getLogger(DefaultOutputFormatter.class);
+  private static final Logger logger = LoggerFactory.getLogger(DefaultOutputFormatter.class);
 
   private Element topNode;
 

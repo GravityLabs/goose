@@ -4,10 +4,9 @@ package com.jimplush.goose; /**
  */
 
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+
 
 public class ConfigurationTest extends TestCase {
-  private static final Logger logger = Logger.getLogger(ContentExtractorTest.class);
 
 
   public void testConfigurationWorksWhenPassed() {
