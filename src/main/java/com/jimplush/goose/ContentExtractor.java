@@ -179,7 +179,9 @@ public class ContentExtractor {
     } catch (MaxBytesException e) {
       logger.error(e.toString(), e);
     } catch (NotHtmlException e) {
-      logger.error("URL: "+urlToCrawl+ " did not contain valid HTML to parse, exiting. " +e.toString());
+      logger.error("URL: " + urlToCrawl + " did not contain valid HTML to parse, exiting. " + e.toString());
+    } catch (Exception e) {
+      logger.error("General Exception occured on url: " + urlToCrawl + " " + e.toString());
     }
 
 
