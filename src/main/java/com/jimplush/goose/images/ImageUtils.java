@@ -1,3 +1,20 @@
+/**
+ * Licensed to Gravity.com under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Gravity.com licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.jimplush.goose.images;
 
 import org.apache.log4j.Logger;
@@ -18,6 +35,7 @@ public class ImageUtils {
     static Logger logger = Logger.getLogger(ImageUtils.class);
 
     /**
+     * User: Jim Plush
      * gets the image dimensions for an image file, pass in the path to the image who's dimensions you want to get
      * this will use imageMagick since the Java IO and imaging shit SUCKS for getting mime types and file info for jpg and png files
      *
