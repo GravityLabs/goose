@@ -53,13 +53,13 @@ public class Configuration {
   /**
    * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
    */
-  private String imagemagickConvertPath = "/opt/local/bin/convert";
+  private String imagemagickConvertPath = "/usr/local/bin/convert";
 
 
   /**
    *  path to your imagemagick identify executable
    */
-  private String imagemagickIdentifyPath= "/opt/local/bin/identify";
+  private String imagemagickIdentifyPath= "/usr/local/bin/identify";
 
   public String getLocalStoragePath() {
     return localStoragePath;
