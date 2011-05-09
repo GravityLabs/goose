@@ -63,7 +63,7 @@ public class GoldSitesTest extends TestCase {
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
     assertTrue(article.getCleanedArticleText().startsWith("Russia's announcement that it will help Iran get nuclear fuel is raising questions"));
-    assertTrue(article.getTopImage().getImageSrc().equals("http://a57.foxnews.com/static/managed/img/Politics/397/224/startsign.jpg"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://a57.foxnews.com/static/managed/img/Politics/396/223/startsign.jpg"));
   }
 
   public void testAOLNews() {
@@ -220,13 +220,13 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://i.i.com.com/cnwk.1d/i/tim//2010/08/18/Verizon_iPad_and_live_TV_610x458.JPG"));
   }
 
-  public void testYahooNewsEvenThoughTheyFuckedUpDeliciousWeWillTestThemAnyway() {
+  public void testYahooNews() {
 
     String url = "http://news.yahoo.com/s/ap/20110305/ap_on_re_af/af_libya";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("TRIPOLI, Libya &ndash; Moammar Gadhafi"));
-    assertTrue(article.getTopImage().getImageSrc().equals("http://d.yimg.com/a/p/ap/20110305/capt.20433579e6a949189ddb65a8c260183c-20433579e6a949189ddb65a8c260183c-0.jpg?x=213&y=142&xc=1&yc=1&wc=410&hc=273&q=85&sig=i4WKbNKMgqenVsxU3NCbOg--"));
+    assertTrue(article.getCleanedArticleText().startsWith("TRIPOLI, Libya &ndash; Government forces in tanks rolled into"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://d.yimg.com/a/p/ap/20110305/capt.23c7d780d8d84bc4a8c77af11ecba277-23c7d780d8d84bc4a8c77af11ecba277-0.jpg?x=213&y=147&xc=1&yc=1&wc=409&hc=282&q=85&sig=qp9z58_DJcUzniy1pu6ykw--"));
   }
 
   public void testPolitico() {
@@ -243,7 +243,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.newsweek.com/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring.html";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("At first glance, Kadyrov might seem"));
+    assertTrue(article.getCleanedArticleText().startsWith("The video shows a gun barrel jutting from the rear"));
     assertTrue(article.getTopImage().getImageSrc().equals("http://www.newsweek.com/content/newsweek/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring/_jcr_content/body/mainimage.img.jpg/1286654107500.jpg"));
   }
 
@@ -284,11 +284,12 @@ public class GoldSitesTest extends TestCase {
 
   public void testSportsIllustrated() {
 
-    String url = "http://sportsillustrated.cnn.com/2010/football/ncaa/10/15/ohio-state-holmes.ap/index.html?xid=si_ncaaf";
+    String url = "http://sportsillustrated.cnn.com/2011/writers/peter_king/05/08/mmqb/index.html?sct=nfl_t11_a0";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("COLUMBUS, Ohio (AP) -- Ohio State has closed"));
-    assertTrue(article.getTopImage().getImageSrc().equals("http://i.cdn.turner.com/si/.e1d/img/4.0/global/logos/si_100x100.jpg"));
+    System.out.println(article.getCleanedArticleText());
+    assertTrue(article.getCleanedArticleText().startsWith("Many of you have written or tweeted to ask whether I'll be covering more"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://i2.cdn.turner.com/si/2011/writers/peter_king/05/08/mmqb/jake-locker.jpg"));
   }
 
   // todo get this one working - I hate star magazine web designers, they put 2 html files into one
@@ -335,7 +336,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.slamonline.com/online/nba/2010/10/nba-schoolyard-rankings/";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("When in doubt, rank players and add your findings"));
+    assertTrue(article.getCleanedArticleText().startsWith("There are literally dozens of ways to predetermine"));
     assertTrue(article.getTopImage().getImageSrc().equals("http://www.slamonline.com/online/wp-content/uploads/2010/10/celtics.jpg"));
     assertTrue(article.getTitle().equals("NBA Schoolyard Rankings"));
   }
@@ -426,7 +427,7 @@ public class GoldSitesTest extends TestCase {
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
     assertTrue(article.getCleanedArticleText().startsWith("If James Bond could age, he'd be well into his 90s right now"));
-    assertTrue(article.getTopImage().getImageSrc().equals("http://assets.theatlantic.com/static/mt/assets/culture_test/James%20Bond_post.jpg"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cdn.theatlantic.com/static/mt/assets/culture_test/James%20Bond_post.jpg"));
   }
 
   public void testGawker() {
@@ -454,15 +455,6 @@ public class GoldSitesTest extends TestCase {
     Article article = contentExtractor.extractContent(url);
     assertTrue(article.getCleanedArticleText().startsWith("Editors&rsquo; Note: We are huge proponents"));
     assertTrue(article.getTopImage().getImageSrc().equals("http://thevacationgals.com/wp-content/uploads/2010/11/Gemmel-Family-Reunion-at-a-Vacation-Rental-Home1-300x225.jpg"));
-  }
-
-  // test the extraction of videos from a page
-  public void testGettingVideosFromGraphVinyl() {
-    String url = "http://grapevinyl.com/v/84/magnetic-morning/getting-nowhere";
-    ContentExtractor contentExtractor = new ContentExtractor();
-    Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getMovies().get(0).attr("src").equals("http://www.youtube.com/v/dsVWVtGWoa4&hl=en_US&fs=1&color1=d6d6d6&color2=ffffff&autoplay=1&iv_load_policy=3&rel=0&showinfo=0&hd=1"));
-
   }
 
 
@@ -498,7 +490,7 @@ public class GoldSitesTest extends TestCase {
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
     assertTrue(article.getCleanedArticleText().startsWith("Social networking is here to stay"));
-    assertTrue(article.getTopImage().getImageSrc().equals("http://i.crackedcdn.com/phpimages/article/2/1/5/45215.jpg?v=1"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://i-beta.crackedcdn.com/phpimages/article/2/1/5/45215.jpg?v=1"));
   }
 
   public void testTrailsCom() {
@@ -521,7 +513,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.ehow.com/how_7734109_make-white-spaghetti.html";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("Heat the oil in the"));
+    assertTrue(article.getCleanedArticleText().startsWith("For a filling and tasty dinner that doesn't require"));
     assertTrue(article.getTitle().equals("How to Make White Spaghetti"));
   }
 
@@ -534,22 +526,6 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://cdn-www.golflink.com/Cms/images/GlobalPhoto/Articles/2011/2/17/1496/fotolia4152707XS-main_Full.jpg"));
   }
 
-   public void testAnswerBag() {
-    String url = "http://www.answerbag.com/q_view/2438372";
-    ContentExtractor contentExtractor = new ContentExtractor();
-    Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("You're reading True or false"));
-
-  }
-
-   public void testAnswerBag2() {
-    String url = "http://www.answerbag.com/q_view/2445112";
-    ContentExtractor contentExtractor = new ContentExtractor();
-    Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("You're reading Can chamomille"));
-
-  }
-
   public void testTimeMagazine2() {
     String url = "http://www.time.com/time/specials/packages/article/0,28804,2065531_2065534,00.html";
     ContentExtractor contentExtractor = new ContentExtractor();
@@ -559,33 +535,60 @@ public class GoldSitesTest extends TestCase {
   }
 
   public void testWSJ2() {
-     String url = "http://online.wsj.com/article/SB10001424052748704004004576270433180029082.html?mod=WSJ_hp_LEFTTopStories";
-     ContentExtractor contentExtractor = new ContentExtractor();
-     Article article = contentExtractor.extractContent(url);
-     assertTrue(article.getCleanedArticleText().startsWith("NEW YORK&mdash;U.S. stocks were on track"));
-     assertTrue(article.getTopImage().getImageSrc().equals("http://m.wsj.net/video/20110418/041811marketshub2/041811marketshub2_512x288.jpg"));
-   }
+    String url = "http://online.wsj.com/article/SB10001424052748704004004576270433180029082.html?mod=WSJ_hp_LEFTTopStories";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Stocks recorded their biggest decline in more than a month"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://m.wsj.net/video/20110418/041811hubpmmarkets2/041811hubpmmarkets2_512x288.jpg"));
+  }
 
   public void testBuzznet() {
-      String url = "http://wevegotyoucovered.buzznet.com/user/journal/8048821/buzznet-talks-bamboozle-festival-founder/";
-      ContentExtractor contentExtractor = new ContentExtractor();
-      Article article = contentExtractor.extractContent(url);
-      assertTrue(article.getCleanedArticleText().startsWith("Bamboozle approaches! The three day music megafest"));
-      assertTrue(article.getTopImage().getImageSrc().equals("http://cdn.buzznet.com/assets/imgx/1/4/0/6/1/1/9/1/orig-14061191.jpg"));
-    }
+    String url = "http://wevegotyoucovered.buzznet.com/user/journal/8048821/buzznet-talks-bamboozle-festival-founder/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Bamboozle approaches! The three day music megafest"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cdn.buzznet.com/assets/imgx/1/4/0/6/1/1/9/1/orig-14061191.jpg"));
+  }
 
 
   public void testTheSuperFicial() {
-      String url = "http://www.thesuperficial.com/teen-mom-leah-divorce-corey-04-2011";
-      ContentExtractor contentExtractor = new ContentExtractor();
-      Article article = contentExtractor.extractContent(url);
-      assertTrue(article.getCleanedArticleText().startsWith("Christ, did they all get implants?"));
-      assertTrue(article.getTopImage().getImageSrc().equals("http://cdn03.cdn.thesuperficial.com/wp-content/uploads/2011/04/0418-teen-mom-leah-messer-divorce-14-480x720.jpg"));
-    }
+    String url = "http://www.thesuperficial.com/teen-mom-leah-divorce-corey-04-2011";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Christ, did they all get implants?"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://cdn03.cdn.thesuperficial.com/wp-content/uploads/2011/04/0418-teen-mom-leah-messer-divorce-14-480x720.jpg"));
+  }
 
+  public void testScribd() {
+    String url = "http://www.scribd.com/doc/49951733/CNBC-Warren-Buffett-Transcript-March-2-2011";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("This is a transcript of his"));
+  }
 
+  public void testScribd2() {
+    String url = "http://www.scribd.com/doc/23433951/10-Trends-to-Watch-2010";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("#1 AUGMENTED REALITYAugmented reality"));
+  }
 
+  public void testDogster() {
+    String url = "http://blogs.dogster.com/dog-training/dogs-understand-intimacy/2011/05/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Children and the elderly are the two populations"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.theotherendoftheleash.com/theotherendoftheleash/uploads/2010/02/monkey-hugs-dog.jpg"));
+  }
 
+  // todo we're mssing the first actual paragraph
+  public void testCatster() {
+    String url = "http://blogs.catster.com/kitty-news-network/2011/05/03/survey-cat-owners-prefer-the-adoption-option/";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("A recent survey reveals that people looking"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://b1.cdnsters.com/kitty-news-network/files/2011/05/thomas-and-dahlia-300x225.jpg"));
+  }
 
 
 }
