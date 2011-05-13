@@ -55,6 +55,9 @@ import java.util.Set;
  * Gravity was doing 30+ million links per day with this codebase across a series of crawling servers for a project
  * and it held up well. Our current port is slightly different than this one but I'm working to align them so the goose
  * project gets the love as we continue to move forward.
+ *
+ * Cougar: God dammit, Mustang! This is Ghost Rider 117. This bogey is all over me. He's got missile lock on me. Do I have permission to fire?
+ * Stinger: Do not fire until fired upon...
  */
 
 
@@ -103,7 +106,29 @@ public class ContentExtractor {
   }
 
 
+  /**
+   * @param urlToCrawl - The url you want to extract the text from
+   * @param html       - if you already have the raw html handy you can pass it here to avoid a network call
+   * @return
+   */
+  public Article extractContent(String urlToCrawl, String html) {
+
+    return performExtraction(urlToCrawl, html);
+
+
+  }
+
+  /**
+   * @param urlToCrawl - The url you want to extract the text from, makes a network call
+   * @return
+   */
   public Article extractContent(String urlToCrawl) {
+    String html = null;
+    return performExtraction(urlToCrawl, html);
+  }
+
+
+  public Article performExtraction(String urlToCrawl, String rawHtml) {
 
     urlToCrawl = getUrlToCrawl(urlToCrawl);
     try {
@@ -117,7 +142,11 @@ public class ContentExtractor {
     ParseWrapper parseWrapper = new ParseWrapper();
     Article article = null;
     try {
-      String rawHtml = HtmlFetcher.getHtml(urlToCrawl);
+
+      if (rawHtml == null) {
+        rawHtml = HtmlFetcher.getHtml(urlToCrawl);
+      }
+
       Document doc = parseWrapper.parse(rawHtml, urlToCrawl);
 
       DocumentCleaner documentCleaner = getDocCleaner();
@@ -195,8 +224,8 @@ public class ContentExtractor {
       finalURL = urlToCrawl.replace("#!", "?_escaped_fragment_=");
     }
 
-    if (logger.isInfoEnabled()) {
-      logger.info("Goose is about to crawl URL: " + finalURL);
+    if (logger.isDebugEnabled()) {
+      logger.debug("Goose Extraction: " + finalURL);
     }
 
     return finalURL;
