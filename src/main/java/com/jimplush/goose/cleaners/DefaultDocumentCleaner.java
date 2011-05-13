@@ -151,7 +151,6 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
                 // check for siblings that might be links that we want to include in our new node
                 Node previousSib = kid.previousSibling();
 
-
                 if (logger.isDebugEnabled()) {
                   logger.debug("PARENT CLASS: " + div.className() + " NODENAME: " + kid.nodeName());
                   logger.debug("TEXTREPLACE: '" + text.replace("\n", "").replace("<br>", "") + "'");
@@ -184,7 +183,9 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
           Element newPara = newDoc.createElement("p");
           newPara.html(replacementText.toString());
 
-          div.appendChild(newPara);
+
+          div.childNode(0).before(newPara.outerHtml());
+
           newDoc = null;
 
 
@@ -203,6 +204,8 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
     if (logger.isDebugEnabled()) {
       logger.debug("Found " + divs.size() + " total divs with " + badDivs + " bad divs replaced and " + convertedTextNodes + " textnodes converted inside divs");
     }
+
+
 
 
     return doc;

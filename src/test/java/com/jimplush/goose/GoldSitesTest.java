@@ -561,16 +561,20 @@ public class GoldSitesTest extends TestCase {
 
   public void testScribd() {
     String url = "http://www.scribd.com/doc/49951733/CNBC-Warren-Buffett-Transcript-March-2-2011";
-    ContentExtractor contentExtractor = new ContentExtractor();
+     Configuration config = new Configuration();
+    config.setEnableImageFetching(false);
+    ContentExtractor contentExtractor = new ContentExtractor(config);
     Article article = contentExtractor.extractContent(url);
     assertTrue(article.getCleanedArticleText().startsWith("This is a transcript of his"));
   }
 
   public void testScribd2() {
     String url = "http://www.scribd.com/doc/23433951/10-Trends-to-Watch-2010";
-    ContentExtractor contentExtractor = new ContentExtractor();
+     Configuration config = new Configuration();
+    config.setEnableImageFetching(false);
+    ContentExtractor contentExtractor = new ContentExtractor(config);
     Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("#1 AUGMENTED REALITYAugmented reality"));
+    assertTrue(article.getCleanedArticleText().startsWith("t is hard to believe another year has come"));
   }
 
   public void testDogster() {
@@ -586,8 +590,28 @@ public class GoldSitesTest extends TestCase {
     String url = "http://blogs.catster.com/kitty-news-network/2011/05/03/survey-cat-owners-prefer-the-adoption-option/";
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
-    assertTrue(article.getCleanedArticleText().startsWith("A recent survey reveals that people looking"));
+    assertTrue(article.getCleanedArticleText().startsWith("There&rsquo;s good news in the air for shelter"));
     assertTrue(article.getTopImage().getImageSrc().equals("http://b1.cdnsters.com/kitty-news-network/files/2011/05/thomas-and-dahlia-300x225.jpg"));
+  }
+
+  public void testScribd3() {
+    String url = "http://www.scribd.com/doc/21795768/1-What-is-NLS-NLS-Stands-for-National-Language";
+    Configuration config = new Configuration();
+    config.setEnableImageFetching(false);
+    ContentExtractor contentExtractor = new ContentExtractor(config);
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Oracle Applications, it basically means the ability to run"));
+
+  }
+
+  public void testScribd4() {
+    String url = "http://www.scribd.com/doc/52584146/Microfinance-and-Poverty-Reduction?in_collection=2987942";
+    Configuration config = new Configuration();
+    config.setEnableImageFetching(false);
+    ContentExtractor contentExtractor = new ContentExtractor(config);
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Microfinance and Poverty Reduction Susan Johnson and Ben Rogaly"));
+
   }
 
 

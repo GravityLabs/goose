@@ -86,9 +86,10 @@ public class StopWords {
 
   public static String  sanitizeWord(String str) {
     str = str.toLowerCase();
-    str = str.replaceAll(PATTERN_PUNCTUATION, "");
-    str = str.replaceAll(PATTERN_APOS, "");
-    str = str.replaceAll(PATTERN_QUOTATIONS, "");
+//    str = str.replaceAll(PATTERN_PUNCTUATION, "");
+//    str = str.replaceAll(PATTERN_APOS, "");
+//    str = str.replaceAll(PATTERN_QUOTATIONS, "");
+    str = str.replaceAll("\\W", "");
     return str;
   }
 
