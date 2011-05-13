@@ -20,6 +20,7 @@ package com.jimplush.goose.images;
 import com.jimplush.goose.Configuration;
 import com.jimplush.goose.network.HtmlFetcher;
 import com.jimplush.goose.texthelpers.HashUtils;
+import com.jimplush.goose.texthelpers.string;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -61,6 +62,20 @@ public class BestImageGuesser implements ImageExtractor {
 
 
   /**
+   * this lists all the known bad button names that we have
+   */
+  private static final Matcher matchBadImageNames;
+  private static final String NODE_ID_FORMAT = "tag: %s class: %s ID: %s";
+
+  static {
+    StringBuilder sb = new StringBuilder();
+    // create negative elements
+    sb.append(".html|.gif|.ico|button|twitter.jpg|facebook.jpg|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com");
+    sb.append("|mediaplex.com|adsatt|view.atdmt");
+    matchBadImageNames = Pattern.compile(sb.toString()).matcher(string.empty);
+  }
+
+  /**
    * holds an httpclient connection object for doing head requests to get image sizes
    */
   HttpClient httpClient;
@@ -69,12 +84,6 @@ public class BestImageGuesser implements ImageExtractor {
    * holds the document that we're extracting the image from
    */
   Document doc;
-
-
-  /**
-   * this lists all the known bad button names that we have
-   */
-  String regExBadImageNames;
 
 
   /**
@@ -184,10 +193,11 @@ public class BestImageGuesser implements ImageExtractor {
         if (item.attr("content").length() < 1) {
           return false;
         }
-        this.image.setImageSrc(this.buildImagePath(item.attr("content")));
+        String imagePath = this.buildImagePath(item.attr("content"));
+        this.image.setImageSrc(imagePath);
         this.image.setImageExtractionType("opengraph");
         this.image.setConfidenceScore(100);
-        this.image.setBytes(this.getBytesForImage(this.buildImagePath(item.attr("content"))));
+        this.image.setBytes(this.getBytesForImage(imagePath));
         if (logger.isDebugEnabled()) {
           logger.debug("open graph tag found, using it");
         }
@@ -245,12 +255,9 @@ public class BestImageGuesser implements ImageExtractor {
    * @param node
    */
   private void checkForLargeImages(Element node, int parentDepth, int siblingDepth) {
-    Elements images = null;
-    try {
-      images = node.select("img");
-    } catch (NullPointerException e) {
-      return;
-    }
+    if (node == null) return;
+
+    Elements images = node.select("img");
 
 
     String nodeId = this.getNodeIds(node);
@@ -389,14 +396,14 @@ public class BestImageGuesser implements ImageExtractor {
    * @return
    */
   private boolean isOkImageFileName(Element imageNode) {
-    if (imageNode.attr("src").length() == 0) {
+    String imgSrc = imageNode.attr("src");
+    if (string.isNullOrEmpty(imgSrc)) {
       return false;
     }
-    Pattern semiBad = Pattern.compile(this.regExBadImageNames);
-    Matcher matcher = semiBad.matcher(imageNode.attr("src"));
-    if (matcher.find()) {
+    matchBadImageNames.reset(imgSrc);
+    if (matchBadImageNames.find()) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Found bad filename for image: " + imageNode.attr("src"));
+        logger.debug("Found bad filename for image: " + imgSrc);
       }
       return false;
     }
@@ -410,12 +417,12 @@ public class BestImageGuesser implements ImageExtractor {
    * @return
    */
   private String getNodeIds(Element node) {
-    String stuff = "";
-    stuff = "tag: " + node.tagName() + " class: " + node.className() + " ID: " + node.id();
+    String stuff = String.format(NODE_ID_FORMAT, node.tagName(), node.className(), node.id());
     return stuff;
   }
 
 
+  private static final String[] knownIds = {"yn-story-related-media", "cnn_strylccimg300cntr", "big_photo"};
   /**
    * in here we check for known image contains from sites we've checked out like yahoo, techcrunch, etc... that have
    * known  places to look for good images.
@@ -427,7 +434,6 @@ public class BestImageGuesser implements ImageExtractor {
     if (logger.isDebugEnabled()) {
       logger.debug("Checking for known images from large sites");
     }
-    String[] knownIds = {"yn-story-related-media", "cnn_strylccimg300cntr", "big_photo"};
 
     for (String knownName : knownIds) {
       try {
@@ -456,10 +462,11 @@ public class BestImageGuesser implements ImageExtractor {
     }
 
     if (knownImage != null) {
-      this.image.setImageSrc(this.buildImagePath(knownImage.attr("src")));
+      String knownImgSrc = knownImage.attr("src");
+      this.image.setImageSrc(this.buildImagePath(knownImgSrc));
       this.image.setImageExtractionType("known");
       this.image.setConfidenceScore(90);
-      this.image.setBytes(this.getBytesForImage(knownImage.attr("src")));
+      this.image.setBytes(this.getBytesForImage(knownImgSrc));
     } else {
       if (logger.isDebugEnabled()) {
         logger.debug("No known images found");

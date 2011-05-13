@@ -18,6 +18,7 @@
 
 package com.jimplush.goose.cleaners;
 
+import com.jimplush.goose.texthelpers.ReplaceSequence;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -47,16 +48,26 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
    * this regex is used to remove undesirable nodes from our doc
    * indicate that something maybe isn't content but more of a comment, footer or some other undesirable node
    */
-  private static String regExRemoveNodes;
+  private static final String regExRemoveNodes;
 
   /**
    * regex to detect if there are block level elements inside of a div element
    */
-  private static String divToPElementsRe;
+  private static final Matcher divToPElementsMatcher;
+
+  private static final ReplaceSequence tabsAndNewLinesReplcesments;
+
+  private static final Pattern captionPattern = Pattern.compile("^caption$");
+  private static final Pattern googlePattern = Pattern.compile(" google ");
+  private static final Pattern entriesPattern = Pattern.compile("^[^entry-]more.*$");
+  private static final Pattern facebookPattern = Pattern.compile("[^-]facebook");
+  private static final Pattern twitterPattern = Pattern.compile("[^-]twitter");
 
   static {
 
-    divToPElementsRe = "<(a|blockquote|dl|div|img|ol|p|pre|table|ul)";
+    String divToPElementsRe = "<(a|blockquote|dl|div|img|ol|p|pre|table|ul)";
+    Pattern divToPElementsP = Pattern.compile(divToPElementsRe);
+    divToPElementsMatcher = divToPElementsP.matcher(" ");
 
     StringBuilder sb = new StringBuilder();
     // create negative elements
@@ -64,8 +75,8 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
     sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers");
     sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text");
     regExRemoveNodes = sb.toString();
-
-
+    
+    tabsAndNewLinesReplcesments = ReplaceSequence.create("\n", "\n\n").append("\t").append("^\\s+$");
   }
 
 
@@ -79,13 +90,13 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
     docToClean = removeDropCaps(docToClean);
     docToClean = removeScriptsAndStyles(docToClean);
     docToClean = cleanBadTags(docToClean);
-    docToClean = removeNodesViaRegEx(docToClean, "^caption$");
-    docToClean = removeNodesViaRegEx(docToClean, " google ");
-    docToClean = removeNodesViaRegEx(docToClean, "^[^entry-]more.*$");
+    docToClean = removeNodesViaRegEx(docToClean, captionPattern);
+    docToClean = removeNodesViaRegEx(docToClean, googlePattern);
+    docToClean = removeNodesViaRegEx(docToClean, entriesPattern);
 
     // remove twitter and facebook nodes, mashable has f'd up class names for this
-    docToClean = removeNodesViaRegEx(docToClean, "[^-]facebook");
-    docToClean = removeNodesViaRegEx(docToClean, "[^-]twitter");
+    docToClean = removeNodesViaRegEx(docToClean, facebookPattern);
+    docToClean = removeNodesViaRegEx(docToClean, twitterPattern);
 
     // turn any divs that aren't used as true layout items with block level elements inside them into paragraph tags
     docToClean = convertDivsToParagraphs(docToClean, "div");
@@ -107,9 +118,8 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
       try {
 
-        Pattern pattern = Pattern.compile(this.divToPElementsRe);
-        Matcher matcher = pattern.matcher(div.html().toLowerCase());
-        boolean matches = matcher.find();
+        divToPElementsMatcher.reset(div.html().toLowerCase());
+        boolean matches = divToPElementsMatcher.find();
         if (matches == false) {
           Document newDoc = new Document(doc.baseUri());
           Element newNode = newDoc.createElement("p");
@@ -137,14 +147,10 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
             if (kid.nodeName().equals("#text")) {
 
-
-              Node childNode = kid;
               TextNode txtNode = (TextNode) kid;
               String text = txtNode.attr("text");
               //clean up text from tabs and newlines
-              text = text.replaceAll("\n", "\n\n");
-              text = text.replaceAll("\t", "");
-              text = text.replaceAll("^\\s+$", "");
+              text = tabsAndNewLinesReplcesments.replaceAll(text);
 
               if (text.length() > 1) {
 
@@ -276,7 +282,8 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
   private Document cleanBadTags(Document doc) {
 
-    Elements naughtyList = doc.select("[id~=(" + this.regExRemoveNodes + ")]");
+    String qNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]";
+    Elements naughtyList = doc.select(qNaughtyIDs);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList.size() + " naughty ID elements found");
     }
@@ -286,12 +293,13 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       }
       node.remove();
     }
-    Elements naughtyList2 = doc.select("[id~=(" + this.regExRemoveNodes + ")]");
+    Elements naughtyList2 = doc.select(qNaughtyIDs);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList2.size() + " naughty ID elements found after removal");
     }
 
-    Elements naughtyList3 = doc.select("[class~=(" + this.regExRemoveNodes + ")]");
+    String qNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]";
+    Elements naughtyList3 = doc.select(qNaughtyClasses);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList3.size() + " naughty CLASS elements found");
     }
@@ -301,13 +309,13 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       }
       node.remove();
     }
-    Elements naughtyList4 = doc.select("[class~=(" + this.regExRemoveNodes + ")]");
+    Elements naughtyList4 = doc.select(qNaughtyClasses);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList4.size() + " naughty CLASS elements found after removal");
     }
 
     // starmagazine puts shit on name tags instead of class or id
-    Elements naughtyList5 = doc.select("[name~=(" + this.regExRemoveNodes + ")]");
+    Elements naughtyList5 = doc.select("[name~=(" + regExRemoveNodes + ")]");
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList5.size() + " naughty Name elements found");
     }
@@ -327,7 +335,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
    *
    * @param pattern
    */
-  private Document removeNodesViaRegEx(Document doc, String pattern) {
+  private Document removeNodesViaRegEx(Document doc, Pattern pattern) {
     try {
 
       Elements naughtyList = doc.getElementsByAttributeValueMatching("id", pattern);
