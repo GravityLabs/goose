@@ -59,7 +59,7 @@ public class ReplaceSequence {
    * @return a new instance
    */
   public static ReplaceSequence create(String firstPattern, String replaceWith) {
-    ReplaceSequence result = new ReplaceSequence(generateMatcher(firstPattern, replaceWith));
+    ReplaceSequence result = new ReplaceSequence(StringReplacement.compile(firstPattern, replaceWith));
     return result;
   }
 
@@ -79,7 +79,7 @@ public class ReplaceSequence {
    * @return this instance of itself for use in a builder pattern
    */
   public ReplaceSequence append(String pattern, String replaceWith) {
-    replacements.add(generateMatcher(pattern, replaceWith));
+    replacements.add(StringReplacement.compile(pattern, replaceWith));
     return this;
   }
 
@@ -89,42 +89,20 @@ public class ReplaceSequence {
    * @return the resulting {@link String} after all replacements have been applied
    */
   public String replaceAll(String input) {
-    for (ReplacePair rp : replacements) {
-      Matcher m = rp.matcher;
-      m.reset(input);
-      StringBuffer sb = new StringBuffer();
-      while (m.find()) {
-        m.appendReplacement(sb, rp.replaceWith);
-      }
-      m.appendTail(sb);
-      input = sb.toString();
+    for (StringReplacement rp : replacements) {
+      input = rp.replaceAll(input);
     }
 
     return input;
   }
 
   // shhhhh... it's private!
-  private List<ReplacePair> replacements = new ArrayList<ReplacePair>();
+  private List<StringReplacement> replacements = new ArrayList<StringReplacement>();
 
-  private ReplaceSequence(ReplacePair pair) {
+  private ReplaceSequence(StringReplacement pair) {
     replacements.add(pair);
   }
 
-  private static ReplacePair generateMatcher(String pattern, String replaceWith) {
-    if (string.isNullOrEmpty(pattern)) throw new IllegalArgumentException("Patterns must not be null or empty!");
-    Matcher m = Pattern.compile(pattern).matcher(string.empty);
-    return new ReplacePair(m, replaceWith);
-  }
-
-  static class ReplacePair {
-    private Matcher matcher;
-    private String replaceWith;
-
-    ReplacePair(Matcher matcher, String replaceWith) {
-      this.matcher = matcher;
-      this.replaceWith = replaceWith;
-    }
-  }
 }
 
 

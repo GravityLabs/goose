@@ -1,4 +1,5 @@
-package com.jimplush.goose.texthelpers; /**
+package com.jimplush.goose.texthelpers;
+/**
  * Created by IntelliJ IDEA.
  * User: robbie
  * Date: 5/13/11

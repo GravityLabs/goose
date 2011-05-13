@@ -19,6 +19,7 @@
 package com.jimplush.goose.cleaners;
 
 import com.jimplush.goose.texthelpers.ReplaceSequence;
+import com.jimplush.goose.texthelpers.string;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -49,6 +50,9 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
    * indicate that something maybe isn't content but more of a comment, footer or some other undesirable node
    */
   private static final String regExRemoveNodes;
+  private static final String queryNaughtyIDs;
+  private static final String queryNaughtyClasses;
+  private static final String queryNaughtyNames;
 
   /**
    * regex to detect if there are block level elements inside of a div element
@@ -56,7 +60,6 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
   private static final Matcher divToPElementsMatcher;
 
   private static final ReplaceSequence tabsAndNewLinesReplcesments;
-
   private static final Pattern captionPattern = Pattern.compile("^caption$");
   private static final Pattern googlePattern = Pattern.compile(" google ");
   private static final Pattern entriesPattern = Pattern.compile("^[^entry-]more.*$");
@@ -67,7 +70,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
     String divToPElementsRe = "<(a|blockquote|dl|div|img|ol|p|pre|table|ul)";
     Pattern divToPElementsP = Pattern.compile(divToPElementsRe);
-    divToPElementsMatcher = divToPElementsP.matcher(" ");
+    divToPElementsMatcher = divToPElementsP.matcher(string.empty);
 
     StringBuilder sb = new StringBuilder();
     // create negative elements
@@ -75,7 +78,10 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
     sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers");
     sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text");
     regExRemoveNodes = sb.toString();
-    
+    queryNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]";
+    queryNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]";
+    queryNaughtyNames = "[name~=(" + regExRemoveNodes + ")]";
+
     tabsAndNewLinesReplcesments = ReplaceSequence.create("\n", "\n\n").append("\t").append("^\\s+$");
   }
 
@@ -281,9 +287,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
 
   private Document cleanBadTags(Document doc) {
-
-    String qNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]";
-    Elements naughtyList = doc.select(qNaughtyIDs);
+    Elements naughtyList = doc.select(queryNaughtyIDs);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList.size() + " naughty ID elements found");
     }
@@ -293,13 +297,12 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       }
       node.remove();
     }
-    Elements naughtyList2 = doc.select(qNaughtyIDs);
+    Elements naughtyList2 = doc.select(queryNaughtyIDs);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList2.size() + " naughty ID elements found after removal");
     }
 
-    String qNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]";
-    Elements naughtyList3 = doc.select(qNaughtyClasses);
+    Elements naughtyList3 = doc.select(queryNaughtyClasses);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList3.size() + " naughty CLASS elements found");
     }
@@ -309,13 +312,13 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       }
       node.remove();
     }
-    Elements naughtyList4 = doc.select(qNaughtyClasses);
+    Elements naughtyList4 = doc.select(queryNaughtyClasses);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList4.size() + " naughty CLASS elements found after removal");
     }
 
     // starmagazine puts shit on name tags instead of class or id
-    Elements naughtyList5 = doc.select("[name~=(" + regExRemoveNodes + ")]");
+    Elements naughtyList5 = doc.select(queryNaughtyNames);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList5.size() + " naughty Name elements found");
     }

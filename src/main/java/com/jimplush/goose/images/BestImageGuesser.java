@@ -124,12 +124,6 @@ public class BestImageGuesser implements ImageExtractor {
   public BestImageGuesser(Configuration config, HttpClient httpClient, String targetUrl) {
     this.httpClient = httpClient;
 
-    StringBuilder sb = new StringBuilder();
-    // create negative elements
-    sb.append(".html|.gif|.ico|button|twitter.jpg|facebook.jpg|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com");
-    sb.append("|mediaplex.com|adsatt|view.atdmt");
-    this.regExBadImageNames = sb.toString();
-
     image = new Image();
 
     this.config = config;

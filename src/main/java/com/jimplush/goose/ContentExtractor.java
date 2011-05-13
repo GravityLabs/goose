@@ -26,9 +26,7 @@ import com.jimplush.goose.network.MaxBytesException;
 import com.jimplush.goose.network.NotHtmlException;
 import com.jimplush.goose.outputformatters.DefaultOutputFormatter;
 import com.jimplush.goose.outputformatters.OutputFormatter;
-import com.jimplush.goose.texthelpers.HashUtils;
-import com.jimplush.goose.texthelpers.StopWords;
-import com.jimplush.goose.texthelpers.WordStats;
+import com.jimplush.goose.texthelpers.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.client.HttpClient;
 import org.slf4j.Logger;
@@ -65,6 +63,18 @@ public class ContentExtractor {
 
   private static final Logger logger = LoggerFactory.getLogger(ContentExtractor.class);
 
+  private static final StringReplacement MOTLEY_REPLACEMENT = StringReplacement.compile("&#65533;", string.empty);
+
+  private static final StringReplacement ESCAPED_FRAGMENT_REPLACEMENT = StringReplacement.compile("#!", "?_escaped_fragment_=");
+
+  private static final ReplaceSequence TITLE_REPLACEMENTS = ReplaceSequence.create("&raquo;").append("»");
+  private static final StringSplitter PIPE_SPLITTER = new StringSplitter("\\|");
+  private static final StringSplitter DASH_SPLITTER = new StringSplitter(" - ");
+  private static final StringSplitter ARROWS_SPLITTER = new StringSplitter("»");
+  private static final StringSplitter COLON_SPLITTER = new StringSplitter(":");
+  private static final StringSplitter SPACE_SPLITTER = new StringSplitter(" ");
+
+
   /**
    * holds the configuration settings we want to use
    */
@@ -72,16 +82,11 @@ public class ContentExtractor {
 
   // sets the default cleaner class to prep the HTML for parsing
   private DocumentCleaner documentCleaner;
-
-
   // the MD5 of the URL we're currently parsing, used to references the images we download to the url so we
   // can more easily clean up resources when we're done with the page.
   private String linkhash;
-
-
   // once we have our topNode then we want to format that guy for output to the user
   private OutputFormatter outputFormatter;
-
   private ImageExtractor imageExtractor;
 
 
@@ -126,7 +131,7 @@ public class ContentExtractor {
 
       article = new Article();
 
-      article.setTitle(getTitle(doc, article));
+      article.setTitle(getTitle(doc));
       article.setMetaDescription(getMetaDescription(doc));
       article.setMetaKeywords(getMetaKeywords(doc));
       article.setCanonicalLink(getCanonicalLink(doc, urlToCrawl));
@@ -190,9 +195,11 @@ public class ContentExtractor {
 
   // used for gawker type ajax sites with pound sites
   private String getUrlToCrawl(String urlToCrawl) {
-    String finalURL = urlToCrawl;
+    String finalURL;
     if (urlToCrawl.contains("#!")) {
-      finalURL = urlToCrawl.replace("#!", "?_escaped_fragment_=");
+      finalURL = ESCAPED_FRAGMENT_REPLACEMENT.replaceAll(urlToCrawl);
+    } else {
+      finalURL = urlToCrawl;
     }
 
     if (logger.isInfoEnabled()) {
@@ -241,47 +248,48 @@ public class ContentExtractor {
    * attemps to grab titles from the html pages, lots of sites use different delimiters
    * for titles so we'll try and do our best guess.
    *
+   *
    * @param doc
-   * @param article
    * @return
    */
-  private String getTitle(Document doc, Article article) {
-    String title = "";
+  private String getTitle(Document doc) {
+    String title = string.empty;
 
     try {
 
-      String titleText = "";
+      Elements titleElem = doc.getElementsByTag("title");
+      if (titleElem == null || titleElem.isEmpty()) return string.empty;
 
-      titleText = doc.getElementsByTag("title").first().text();
+      String titleText = titleElem.first().text();
+
+      if (string.isNullOrEmpty(titleText)) return string.empty;
 
       boolean usedDelimeter = false;
 
       if (titleText.contains("|")) {
-        titleText = doTitleSplits(titleText, "\\|");
+        titleText = doTitleSplits(titleText, PIPE_SPLITTER);
         usedDelimeter = true;
       }
 
-      if (titleText.contains("-") && !usedDelimeter) {
-        titleText = doTitleSplits(titleText, " - ");
+      if (!usedDelimeter && titleText.contains("-")) {
+        titleText = doTitleSplits(titleText, DASH_SPLITTER);
         usedDelimeter = true;
       }
-      if (titleText.contains("»") && !usedDelimeter) {
-        titleText = doTitleSplits(titleText, "»");
+      if (!usedDelimeter && titleText.contains("»")) {
+        titleText = doTitleSplits(titleText, ARROWS_SPLITTER);
         usedDelimeter = true;
       }
 
-      if (titleText.contains(":") && !usedDelimeter) {
-        titleText = doTitleSplits(titleText, ":");
-        usedDelimeter = true;
+      if (!usedDelimeter && titleText.contains(":")) {
+        titleText = doTitleSplits(titleText, COLON_SPLITTER);
       }
 
       // encode unicode charz
       title = StringEscapeUtils.escapeHtml(titleText);
-      ;
 
       // todo this is a hack until I can fix this.. weird motely crue error with
       // http://money.cnn.com/2010/10/25/news/companies/motley_crue_bp.fortune/index.htm?section=money_latest
-      title = title.replace("&#65533;", "");
+      title = MOTLEY_REPLACEMENT.replaceAll(title);
 
       if (logger.isDebugEnabled()) {
         logger.debug("Page title is: " + title);
@@ -298,31 +306,33 @@ public class ContentExtractor {
    * based on a delimeter in the title take the longest piece or do some custom logic based on the site
    *
    * @param title
-   * @param delimeter
+   * @param splitter
    * @return
    */
-  private String doTitleSplits(String title, String delimeter) {
-
-    String largeText = "";
+  private String doTitleSplits(String title, StringSplitter splitter) {
     int largetTextLen = 0;
+    int largeTextIndex = 0;
 
-    String[] titlePieces = title.split(delimeter);
+    String[] titlePieces = splitter.split(title);
 
     // take the largest split
-    for (String p : titlePieces) {
-      if (p.length() > largetTextLen) {
-        largeText = p;
-        largetTextLen = p.length();
+    for (int i = 0; i < titlePieces.length; i++) {
+      String current = titlePieces[i];
+      if (current.length() > largetTextLen) {
+        largeTextIndex = i;
       }
     }
 
-    largeText = largeText.replace("&raquo;", "");
-    largeText = largeText.replace("»", "");
+    return TITLE_REPLACEMENTS.replaceAll(titlePieces[largeTextIndex]).trim();
+  }
 
-
-    return largeText.trim();
-
-
+  private String getMetaContent(Document doc, String metaName) {
+    Elements meta = doc.select(metaName);
+    if (meta.size() > 0) {
+      String content = meta.first().attr("content");
+      return string.isNullOrEmpty(content) ? string.empty : content.trim();
+    }
+    return string.empty;
   }
 
 
@@ -330,37 +340,29 @@ public class ContentExtractor {
    * if the article has meta description set in the source, use that
    */
   private String getMetaDescription(Document doc) {
-    String metaDescription = "";
-    Elements meta = doc.select("meta[name=description]");
-    if (meta.size() > 0) {
-      metaDescription = meta.first().attr("content").trim();
-    }
-    return metaDescription;
+    return getMetaContent(doc, "meta[name=description]");
   }
 
   /**
    * if the article has meta keywords set in the source, use that
    */
   private String getMetaKeywords(Document doc) {
-    String metaKeywords = "";
-    Elements meta = doc.select("meta[name=keywords]");
-    if (meta.size() > 0) {
-      metaKeywords = meta.first().attr("content").trim();
-    }
-    return metaKeywords;
+    return getMetaContent(doc, "meta[name=keywords]");
   }
 
   /**
    * if the article has meta canonical link set in the url
    */
   private String getCanonicalLink(Document doc, String baseUrl) {
-    String canonicalUrl = baseUrl;
     Elements meta = doc.select("link[rel=canonical]");
     if (meta.size() > 0) {
-      canonicalUrl = meta.first().attr("href").trim();
-
+      String href = meta.first().attr("href");
+      return string.isNullOrEmpty(href) ? string.empty : href.trim();
+    } else {
+      return baseUrl;
     }
 
+/*    Not sure what this is for
     // set domain based on canonicalUrl
     URL url = null;
     try {
@@ -378,22 +380,15 @@ public class ContentExtractor {
 
     } catch (MalformedURLException e) {
       logger.error(e.toString(), e);
-    }
-    return canonicalUrl;
-
-
+    }*/
   }
 
   private String getDomain(String canonicalLink) {
-    URL url = null;
     try {
-      url = new URL(canonicalLink);
-      String domain = url.getHost();
-      return domain;
+      return new URL(canonicalLink).getHost();
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   /**
@@ -452,7 +447,7 @@ public class ContentExtractor {
 
       float boostScore = 0;
 
-      if (isOkToBoost(node, i)) {
+      if (isOkToBoost(node)) {
         if (cnt >= 0) {
           boostScore = (float) ((1.0 / startingBoost) * 50);
           startingBoost++;
@@ -517,26 +512,25 @@ public class ContentExtractor {
         topNode = e;
       }
     }
-    if (topNode == null) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("ARTICLE NOT ABLE TO BE EXTRACTED!, WE HAZ FAILED YOU LORD VADAR");
-      }
-    } else {
-      String logText = "";
-      String targetText = "";
-      Element topPara = topNode.getElementsByTag("p").first();
-      if (topPara == null) {
-        topNode.text();
-      } else {
-        topPara.text();
-      }
 
-      if (targetText.length() >= 51) {
-        logText = targetText.substring(0, 50);
+    if (logger.isDebugEnabled()) {
+      if (topNode == null) {
+        logger.debug("ARTICLE NOT ABLE TO BE EXTRACTED!, WE HAZ FAILED YOU LORD VADAR");
       } else {
-        logText = targetText;
-      }
-      if (logger.isDebugEnabled()) {
+        String logText;
+        String targetText = "";
+        Element topPara = topNode.getElementsByTag("p").first();
+        if (topPara == null) {
+          topNode.text();
+        } else {
+          topPara.text();
+        }
+
+        if (targetText.length() >= 51) {
+          logText = targetText.substring(0, 50);
+        } else {
+          logText = targetText;
+        }
         logger.debug("TOPNODE TEXT: " + logText.trim());
         logger.debug("Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id() + "' class='" + topNode.attr("class") + "' ");
       }
@@ -582,15 +576,14 @@ public class ContentExtractor {
   private static boolean isHighLinkDensity(Element e) {
 
     Elements links = e.getElementsByTag("a");
-    String txt = e.text().trim();
+    String txt = e.text().trim(); // <-- Is this called for a desired side effect?
 
     if (links.size() == 0) {
       return false;
     }
 
-    float score = 0;
     String text = e.text();
-    String[] words = text.split(" ");
+    String[] words = SPACE_SPLITTER.split(text);
     float numberOfWords = words.length;
 
 
@@ -600,15 +593,15 @@ public class ContentExtractor {
       sb.append(link.text());
     }
     String linkText = sb.toString();
-    String[] linkWords = linkText.split(" ");
+    String[] linkWords = SPACE_SPLITTER.split(linkText);
     float numberOfLinkWords = linkWords.length;
 
     float numberOfLinks = links.size();
 
-    float linkDivisor = (float) (numberOfLinkWords / numberOfWords);
-    score = (float) linkDivisor * numberOfLinks;
+    float linkDivisor = numberOfLinkWords / numberOfWords;
+    float score = linkDivisor * numberOfLinks;
 
-    String logText = "";
+    String logText;
     if (e.text().length() >= 51) {
       logText = e.text().substring(0, 50);
     } else {
@@ -629,11 +622,11 @@ public class ContentExtractor {
    * boost a parent node that it should be connected to other paragraphs, at least for the first n paragraphs
    * so we'll want to make sure that the next sibling is a paragraph and has at least some substatial weight to it
    *
+   *
    * @param node
-   * @param i
    * @return
    */
-  private boolean isOkToBoost(Element node, int i) {
+  private boolean isOkToBoost(Element node) {
 
     int stepsAway = 0;
 
@@ -649,7 +642,7 @@ public class ContentExtractor {
         }
 
         String paraText = sibling.text();
-        String html = sibling.outerHtml();
+        sibling.outerHtml(); // <-- is this called to induce desired side effects?
         WordStats wordStats = StopWords.getStopWordCount(paraText);
         if (wordStats.getStopWordCount() > 5) {
           if (logger.isDebugEnabled()) {
@@ -716,11 +709,12 @@ public class ContentExtractor {
    * @return
    */
   private int getScore(Element node) {
+    if (node == null) return 0;
     try {
-      return Integer.parseInt(node.attr("gravityScore"));
+      String grvScoreString = node.attr("gravityScore");
+      if (string.isNullOrEmpty(grvScoreString)) return 0;
+      return Integer.parseInt(grvScoreString);
     } catch (NumberFormatException e) {
-      return 0;
-    } catch (NullPointerException e) {
       return 0;
     }
   }
