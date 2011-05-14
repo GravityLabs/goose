@@ -348,6 +348,7 @@ public class ContentExtractor {
     for (int i = 0; i < titlePieces.length; i++) {
       String current = titlePieces[i];
       if (current.length() > largetTextLen) {
+        largetTextLen = current.length();
         largeTextIndex = i;
       }
     }
