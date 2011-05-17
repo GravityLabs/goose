@@ -216,6 +216,7 @@ public class ContentExtractor {
       logger.error("URL: " + urlToCrawl + " did not contain valid HTML to parse, exiting. " + e.toString());
     } catch (Exception e) {
       logger.error("General Exception occured on url: " + urlToCrawl + " " + e.toString());
+//      throw new RuntimeException(e);
     }
 
 
@@ -580,18 +581,9 @@ public class ContentExtractor {
   private ArrayList<Element> getNodesToCheck(Document doc) {
     ArrayList<Element> nodesToCheck = new ArrayList<Element>();
 
-    Elements items = doc.getElementsByTag("p");
-    for (Element item : items) {
-      nodesToCheck.add(item);
-    }
-    Elements items2 = doc.getElementsByTag("pre");
-    for (Element item : items2) {
-      nodesToCheck.add(item);
-    }
-    Elements items3 = doc.getElementsByTag("td");
-    for (Element item : items3) {
-      nodesToCheck.add(item);
-    }
+    nodesToCheck.addAll(doc.getElementsByTag("p"));
+    nodesToCheck.addAll(doc.getElementsByTag("pre"));
+    nodesToCheck.addAll(doc.getElementsByTag("td"));
     return nodesToCheck;
 
   }
@@ -606,13 +598,12 @@ public class ContentExtractor {
   private static boolean isHighLinkDensity(Element e) {
 
     Elements links = e.getElementsByTag("a");
-    String txt = e.text().trim(); // <-- Is this called for a desired side effect?
 
     if (links.size() == 0) {
       return false;
     }
 
-    String text = e.text();
+    String text = e.text().trim();
     String[] words = SPACE_SPLITTER.split(text);
     float numberOfWords = words.length;
 
@@ -631,13 +622,13 @@ public class ContentExtractor {
     float linkDivisor = numberOfLinkWords / numberOfWords;
     float score = linkDivisor * numberOfLinks;
 
-    String logText;
-    if (e.text().length() >= 51) {
-      logText = e.text().substring(0, 50);
-    } else {
-      logText = e.text();
-    }
     if (logger.isDebugEnabled()) {
+      String logText;
+      if (e.text().length() >= 51) {
+        logText = e.text().substring(0, 50);
+      } else {
+        logText = e.text();
+      }
       logger.debug("Calulated link density score as: " + score + " for node: " + logText);
     }
     if (score > 1) {
@@ -672,7 +663,6 @@ public class ContentExtractor {
         }
 
         String paraText = sibling.text();
-        sibling.outerHtml(); // <-- is this called to induce desired side effects?
         WordStats wordStats = StopWords.getStopWordCount(paraText);
         if (wordStats.getStopWordCount() > 5) {
           if (logger.isDebugEnabled()) {

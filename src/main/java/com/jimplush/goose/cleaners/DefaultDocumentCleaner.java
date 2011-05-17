@@ -125,8 +125,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       try {
 
         divToPElementsMatcher.reset(div.html().toLowerCase());
-        boolean matches = divToPElementsMatcher.find();
-        if (matches == false) {
+        if (divToPElementsMatcher.find() == false) {
           Document newDoc = new Document(doc.baseUri());
           Element newNode = newDoc.createElement("p");
 
@@ -155,6 +154,8 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
               TextNode txtNode = (TextNode) kid;
               String text = txtNode.attr("text");
+              if (string.isNullOrEmpty(text)) continue;
+              
               //clean up text from tabs and newlines
               text = tabsAndNewLinesReplcesments.replaceAll(text);
 
@@ -170,7 +171,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
                 if (previousSib != null) {
                   if (previousSib.nodeName().equals("a")) {
-                    text = previousSib.outerHtml() + text;
+                    replacementText.append(previousSib.outerHtml());
                     if (logger.isDebugEnabled()) {
                       logger.debug("SIBLING NODENAME ADDITION: " + previousSib.nodeName() + " TEXT: " + previousSib.outerHtml());
                     }
@@ -297,8 +298,8 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       }
       node.remove();
     }
-    Elements naughtyList2 = doc.select(queryNaughtyIDs);
     if (logger.isDebugEnabled()) {
+      Elements naughtyList2 = doc.select(queryNaughtyIDs);
       logger.debug(naughtyList2.size() + " naughty ID elements found after removal");
     }
 
@@ -312,8 +313,8 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       }
       node.remove();
     }
-    Elements naughtyList4 = doc.select(queryNaughtyClasses);
     if (logger.isDebugEnabled()) {
+      Elements naughtyList4 = doc.select(queryNaughtyClasses);
       logger.debug(naughtyList4.size() + " naughty CLASS elements found after removal");
     }
 

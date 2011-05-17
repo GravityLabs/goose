@@ -22,9 +22,6 @@ import java.util.*;
 
 public class StopWords {
   private static final Set<String> STOP_WORDS;
-  public static String PATTERN_PUNCTUATION = "[[\\d|\\p{Punct}]&&[^'\"]]*";
-  public static String PATTERN_APOS = "'s|s'";
-  public static String PATTERN_QUOTATIONS = "'|\"";
 
   static {
     String elements[] = {"a's", "able", "about", "above", "according", "accordingly", "across", "actually",
@@ -84,33 +81,30 @@ public class StopWords {
     STOP_WORDS = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(elements)));
   }
 
-  public static String  sanitizeWord(String str) {
-    str = str.toLowerCase();
-//    str = str.replaceAll(PATTERN_PUNCTUATION, "");
-//    str = str.replaceAll(PATTERN_APOS, "");
-//    str = str.replaceAll(PATTERN_QUOTATIONS, "");
-    str = str.replaceAll("\\W", "");
-    return str;
+  // the confusing pattern below is basically just match any non-word character excluding white-space.
+  private static final StringReplacement PUNCTUATION = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty);
+
+  public static String removePunctuation(String str) {
+    return PUNCTUATION.replaceAll(str);
   }
 
 
   public static WordStats getStopWordCount(String content) {
+    if (string.isNullOrEmpty(content)) return WordStats.EMPTY;
 
     WordStats ws = new WordStats();
 
-    String[] words = content.split(" ");
-
-
-    // sanitize each word in the array
-    for (int i = 0; i < words.length; i++) {
-      words[i] = sanitizeWord(words[i]);
-    }
+    String strippedInput = removePunctuation(content);
+    String[] words = string.SPACE_SPLITTER.split(strippedInput);
 
     // stem each word in the array if it is not null or a stop word
     List<String> stopWords = new ArrayList<String>();
     for (int i = 0; i < words.length; i++) {
-      if (words[i] != null && words[i].length() > 0 && STOP_WORDS.contains(words[i]))
-        stopWords.add(words[i]);
+      String word = words[i];
+      if (string.isNullOrEmpty(word)) continue;
+      String wordLower = word.toLowerCase();
+      if (STOP_WORDS.contains(wordLower))
+        stopWords.add(wordLower);
     }
 
     ws.setWordCount(words.length);

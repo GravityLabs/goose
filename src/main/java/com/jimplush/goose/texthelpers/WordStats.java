@@ -27,6 +27,7 @@ import java.util.List;
  */
 public class WordStats {
 
+  public static final WordStats EMPTY = new WordStats();
 
   /**
    * total number of stopwords or good words that we can calculate
