@@ -35,10 +35,11 @@ import java.util.Calendar;
  */
 public class ParseWrapper {
 
+  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
   public String status = "notStarted";
 
   public String url;
-
   public String startTime;
 
 
@@ -59,8 +60,7 @@ public class ParseWrapper {
 
   public static String now() {
     Calendar cal = Calendar.getInstance();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    return sdf.format(cal.getTime());
+    return DATE_FORMAT.format(cal.getTime());
 
   }
 

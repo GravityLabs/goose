@@ -398,7 +398,7 @@ public class GoldSitesTest extends TestCase {
     ContentExtractor contentExtractor = new ContentExtractor();
     Article article = contentExtractor.extractContent(url);
     assertTrue(article.getCleanedArticleText().startsWith("The Oakland Raiders informed coach Tom Cable"));
-    assertTrue(article.getTitle().equals("Oakland Raiders won't bring Tom Cable back as coach - NFL News"));
+    assertEquals("Oakland Raiders won't bring Tom Cable back as coach - NFL News", article.getTitle());
   }
 
   public void testMSNBC() {
