@@ -18,7 +18,8 @@ public class PerformanceTester {
    * testing the performance of the extraction algos only
    * current best time on local macbook
    * run this 3 times and take the best time
-   * 32329 ms for 100 articles
+   * 32329 ms for 100 articles v1
+   * 27047 ms for 100 articles v2 (erraggy perf improvements)
    */
   public static void main(String[] args) {
 
