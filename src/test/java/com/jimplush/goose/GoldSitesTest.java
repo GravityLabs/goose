@@ -292,16 +292,15 @@ public class GoldSitesTest extends TestCase {
     assertTrue(article.getTopImage().getImageSrc().equals("http://i2.cdn.turner.com/si/2011/writers/peter_king/05/08/mmqb/jake-locker.jpg"));
   }
 
-  // todo get this one working - I hate star magazine web designers, they put 2 html files into one
-//  public void testStarMagazine() {
-//
-//    String url = "http://www.starmagazine.com/news/17510?cid=RSS";
-//    ContentExtractor contentExtractor = new ContentExtractor();
-//    Article article = contentExtractor.extractContent(url);
-//    assertTrue(article.getCleanedArticleText().startsWith("The Real Reason Rihanna Skipped Katy's Wedding: No Cell Phone Reception!"));
-//    assertTrue(article.getTopImage().getImageSrc().equals("Rihanna has admitted the real reason she was a no show"));
-//    assertTrue(article.getTitle().equals("http://www.starmagazine.com/media/originals/Rihanna_1010_230.jpg"));
-//  }
+  public void testStarMagazine() {
+
+    String url = "http://www.starmagazine.com/news/17510?cid=RSS";
+    ContentExtractor contentExtractor = new ContentExtractor();
+    Article article = contentExtractor.extractContent(url);
+    assertTrue(article.getCleanedArticleText().startsWith("Rihanna has admitted the real reason she was a no show at her"));
+    assertTrue(article.getTopImage().getImageSrc().equals("http://www.starmagazine.com/sites/starmagazine.com/files/imagecache/node_page_image/article_images/Rihanna_1010_230.jpg"));
+    assertTrue(article.getTitle().equals("The Real Reason Rihanna Skipped Katy's Wedding: No Cell Phone Reception!"));
+  }
 
   public void testDailyBeast() {
 
