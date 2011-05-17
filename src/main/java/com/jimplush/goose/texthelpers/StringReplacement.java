@@ -23,31 +23,26 @@ package com.jimplush.goose.texthelpers;
  * Time: 11:38 AM
  */
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringReplacement {
-  private Matcher matcher;
+  private Pattern pattern;
   private String replaceWith;
 
-  private StringReplacement(Matcher matcher, String replaceWith) {
-    this.matcher = matcher;
+  private StringReplacement(Pattern pattern, String replaceWith) {
+    this.pattern = pattern;
     this.replaceWith = replaceWith;
   }
 
   public static StringReplacement compile(String pattern, String replaceWith) {
     if (string.isNullOrEmpty(pattern)) throw new IllegalArgumentException("Patterns must not be null or empty!");
-    Matcher m = Pattern.compile(pattern).matcher(string.empty);
-    return new StringReplacement(m, replaceWith);
+    Pattern p = Pattern.compile(pattern);
+    return new StringReplacement(p, replaceWith);
   }
 
   public String replaceAll(String input) {
     if (string.isNullOrEmpty(input)) return string.empty;
-    matcher.reset(input);
-    return matcher.replaceAll(replaceWith);
+    return pattern.matcher(input).replaceAll(replaceWith);
   }
 }
 
