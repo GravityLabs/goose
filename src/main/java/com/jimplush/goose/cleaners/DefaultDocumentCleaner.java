@@ -57,7 +57,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
   /**
    * regex to detect if there are block level elements inside of a div element
    */
-  private static final Matcher divToPElementsMatcher;
+  private static final Pattern divToPElementsPattern = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul)");
 
   private static final ReplaceSequence tabsAndNewLinesReplcesments;
   private static final Pattern captionPattern = Pattern.compile("^caption$");
@@ -67,10 +67,6 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
   private static final Pattern twitterPattern = Pattern.compile("[^-]twitter");
 
   static {
-
-    String divToPElementsRe = "<(a|blockquote|dl|div|img|ol|p|pre|table|ul)";
-    Pattern divToPElementsP = Pattern.compile(divToPElementsRe);
-    divToPElementsMatcher = divToPElementsP.matcher(string.empty);
 
     StringBuilder sb = new StringBuilder();
     // create negative elements
@@ -124,7 +120,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
       try {
 
-        divToPElementsMatcher.reset(div.html().toLowerCase());
+        Matcher divToPElementsMatcher = divToPElementsPattern.matcher(div.html().toLowerCase());
         if (divToPElementsMatcher.find() == false) {
           Document newDoc = new Document(doc.baseUri());
           Element newNode = newDoc.createElement("p");
