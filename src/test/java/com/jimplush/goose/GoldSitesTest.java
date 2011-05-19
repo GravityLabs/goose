@@ -4,7 +4,10 @@ package com.jimplush.goose; /**
  */
 
 import com.jimplush.goose.images.Image;
-import junit.framework.TestCase;
+import junit.framework.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class GoldSitesTest extends TestCase {
@@ -23,6 +26,33 @@ public class GoldSitesTest extends TestCase {
     String expectedDescription = "A top regional Federal Reserve official sharply criticized Friday the Fed's ongoing policy of keeping interest rates near zero -- and at record lows -- as a \"dangerous gamble.\"";
 
     runArticleAssertions(article, expectedTitle, expectedStart, null, expectedDescription, expectedKeywords);
+
+    // expected tags:
+    Set<String> expectedTags = new HashSet<String>(16);
+    expectedTags.add("Federal Open Market Committee");
+    expectedTags.add("Federal Reserve");
+    expectedTags.add("Federal Reserve Bank Of Kansas City");
+    expectedTags.add("Financial Crisis");
+    expectedTags.add("Financial Reform");
+    expectedTags.add("Financial Regulation");
+    expectedTags.add("Financial Regulatory Reform");
+    expectedTags.add("Fomc");
+    expectedTags.add("Great Recession");
+    expectedTags.add("Interest Rates");
+    expectedTags.add("Kansas City Fed");
+    expectedTags.add("Monetary Policy");
+    expectedTags.add("The Financial Fix");
+    expectedTags.add("Thomas Hoenig");
+    expectedTags.add("Too Big To Fail");
+    expectedTags.add("Wall Street Reform");
+    expectedTags.add("Business News");
+
+    assertNotNull("Tags should not be NULL!", article.getTags());
+    assertTrue("Tags should not be empty!", article.getTags().size() > 0);
+
+    for (String actualTag : article.getTags()) {
+      assertTrue("Each Tag should be contained in the expected set!", expectedTags.contains(actualTag));
+    }
   }
 
   public void testTechCrunch() {
@@ -274,7 +304,7 @@ public class GoldSitesTest extends TestCase {
     Article article = getArticle(url);
 
     runArticleAssertions(article, "The Real Reason Rihanna Skipped Katy's Wedding: No Cell Phone Reception!", "Rihanna has admitted the real reason she was a no show at her", "http://www.starmagazine.com/sites/starmagazine.com/files/imagecache/node_page_image/article_images/Rihanna_1010_230.jpg");
-    
+
   }
 
   public void testDailyBeast() {
@@ -323,7 +353,7 @@ public class GoldSitesTest extends TestCase {
     Article article = getArticle(url);
 
     runArticleAssertions(article, "More From Tony Colaprete on LCROSS", "I had the chance to interview LCROSS", "http://www.universetoday.com/wp-content/uploads/2009/10/lcross-impact_01_01.jpg");
-    
+
   }
 
 
@@ -333,7 +363,7 @@ public class GoldSitesTest extends TestCase {
     Article article = getArticle(url);
 
     runArticleAssertions(article, "Chinese Art Expert 'Skeptical' of Record-Setting Vase", "A prominent expert on Chinese works ", "http://media.cnbc.com/i/CNBC/Sections/News_And_Analysis/__Story_Inserts/graphics/__ART/chinese_vase_150.jpg");
-    
+
   }
 
   public void testEspnWithFlashVideo() {
@@ -342,7 +372,7 @@ public class GoldSitesTest extends TestCase {
     Article article = getArticle(url);
 
     runArticleAssertions(article, "Michael Vick of Philadelphia Eagles misses practice, unlikely to play vs. Dallas Cowboys", "PHILADELPHIA -- Michael Vick missed practice Thursday", "http://a.espncdn.com/i/espn/espn_logos/espn_red.png");
-    
+
   }
 
   public void testSportingNews() {
@@ -351,7 +381,7 @@ public class GoldSitesTest extends TestCase {
     Article article = getArticle(url);
 
     runArticleAssertions(article, "Raiders cut ties with Cable", "ALAMEDA, Calif. &mdash; The Oakland Raiders informed coach Tom Cable", "http://dy.snimg.com/story-image/0/69/174475/14072-650-366.jpg");
-    
+
   }
 
   public void testFoxSports() {
@@ -376,7 +406,7 @@ public class GoldSitesTest extends TestCase {
         "Irish premier resigns as party leader, stays as PM",
         "Prime Minister Brian Cowen announced Saturday",
         "http://msnbcmedia3.msn.com/j/ap/ireland government crisis--687575559_v2.grid-6x2.jpg");
-    
+
   }
 
   public void testEconomist() {
@@ -388,7 +418,7 @@ public class GoldSitesTest extends TestCase {
         article,
         "FOR beleaguered smokers, the world is an increasingly",
         "http://media.economist.com/images/images-magazine/2011/01/22/st/20110122_stp004.jpg");
-    
+
   }
 
 
@@ -638,8 +668,22 @@ public class GoldSitesTest extends TestCase {
     runArticleAssertions(article, expectedTitle, expectedStart, expectedImage, null, null);
   }
 
+  private static final char NL = '\n';
+  private static final char TAB = '\t';
+  private static StringBuilder tagReport = new StringBuilder("=======================::. TAG REPORT .::======================\n");
+
   private void runArticleAssertions(Article article, String expectedTitle, String expectedStart, String expectedImage, String expectedDescription, String expectedKeywords) {
     assertNotNull("Resulting article was NULL!", article);
+
+    if (article.getTags().size() > 0) {
+      tagReport.append("BEGIN URL:").append(TAB).append(article.getCanonicalLink()).append(NL).append(TAB);
+      tagReport.append("Extracted: ").append(article.getTags().size()).append(" TAGs").append(NL);
+      int i = 0;
+      for (String tag : article.getTags()) {
+        tagReport.append(TAB).append(TAB).append("# ").append(++i).append(": ").append(tag).append(NL);
+      }
+      tagReport.append("END URL:").append(TAB).append(article.getCanonicalLink()).append(NL);
+    }
 
     if (expectedTitle != null) {
       String title = article.getTitle();
@@ -676,5 +720,8 @@ public class GoldSitesTest extends TestCase {
     }
   }
 
+  protected static void printReport() {
+    System.out.print(tagReport);
+  }
 }
 
