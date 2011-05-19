@@ -21,28 +21,22 @@ import com.jimplush.goose.cleaners.DefaultDocumentCleaner;
 import com.jimplush.goose.cleaners.DocumentCleaner;
 import com.jimplush.goose.images.BestImageGuesser;
 import com.jimplush.goose.images.ImageExtractor;
-import com.jimplush.goose.network.HtmlFetcher;
-import com.jimplush.goose.network.MaxBytesException;
-import com.jimplush.goose.network.NotHtmlException;
+import com.jimplush.goose.network.*;
 import com.jimplush.goose.outputformatters.DefaultOutputFormatter;
 import com.jimplush.goose.outputformatters.OutputFormatter;
 import com.jimplush.goose.texthelpers.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.client.HttpClient;
+import org.jsoup.nodes.*;
+import org.jsoup.select.Elements;
+import org.jsoup.select.Selector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Attributes;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: jim plush
@@ -76,13 +70,16 @@ public class ContentExtractor {
   private static final StringSplitter ARROWS_SPLITTER = new StringSplitter("»");
   private static final StringSplitter COLON_SPLITTER = new StringSplitter(":");
   private static final StringSplitter SPACE_SPLITTER = new StringSplitter(" ");
+  
+  private static final Set<String> NO_STRINGS = new HashSet<String>(0);
+  private static final String A_REL_TAG_SELECTOR = "a[rel=tag], a[href*=/tag/]";
 
 
   /**
    * holds the configuration settings we want to use
    */
   private Configuration config;
-
+  
   // sets the default cleaner class to prep the HTML for parsing
   private DocumentCleaner documentCleaner;
   // the MD5 of the URL we're currently parsing, used to references the images we download to the url so we
@@ -163,6 +160,9 @@ public class ContentExtractor {
       article.setTitle(getTitle(doc));
       article.setMetaDescription(getMetaDescription(doc));
       article.setMetaKeywords(getMetaKeywords(doc));
+
+      // grab the text nodes of any <a ... rel="tag">Tag Name</a> elements
+      article.setTags(extractTags(doc));
       article.setCanonicalLink(getCanonicalLink(doc, urlToCrawl));
       article.setDomain(article.getCanonicalLink());
 
@@ -223,6 +223,21 @@ public class ContentExtractor {
     return article;
   }
 
+  private Set<String> extractTags(Element node) {
+    if (node.children().size() == 0) return NO_STRINGS;
+
+    Elements elements = Selector.select(A_REL_TAG_SELECTOR, node);
+    if (elements.size() == 0) return NO_STRINGS;
+
+    Set<String> tags = new HashSet<String>(elements.size());
+    for (Element el : elements) {
+      String tag = el.text();
+      if (!string.isNullOrEmpty(tag)) tags.add(tag);
+    }
+
+    return tags;
+  }
+
   // used for gawker type ajax sites with pound sites
   private String getUrlToCrawl(String urlToCrawl) {
     String finalURL;
@@ -269,7 +284,7 @@ public class ContentExtractor {
    */
   private DocumentCleaner getDocCleaner() {
     if (this.documentCleaner == null) {
-      return new DefaultDocumentCleaner();
+      this.documentCleaner = new DefaultDocumentCleaner();
     }
     return this.documentCleaner;
   }
@@ -694,7 +709,8 @@ public class ContentExtractor {
   private void updateScore(Element node, int addToScore) {
     int currentScore;
     try {
-      currentScore = Integer.parseInt(node.attr("gravityScore"));
+      String scoreString = node.attr("gravityScore");
+      currentScore = string.isNullOrEmpty(scoreString) ? 0 : Integer.parseInt(scoreString);
     } catch (NumberFormatException e) {
       currentScore = 0;
     }
@@ -712,7 +728,8 @@ public class ContentExtractor {
   private void updateNodeCount(Element node, int addToCount) {
     int currentScore;
     try {
-      currentScore = Integer.parseInt(node.attr("gravityNodes"));
+      String countString = node.attr("gravityNodes");
+      currentScore = string.isNullOrEmpty(countString) ? 0 : Integer.parseInt(countString);
     } catch (NumberFormatException e) {
       currentScore = 0;
     }

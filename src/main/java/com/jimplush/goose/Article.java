@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * This class represents the extraction of an Article from a website
@@ -97,6 +97,11 @@ public class Article {
    * holds a list of elements that related to youtube or vimeo movie embeds
    */
   private ArrayList<Element> movies;
+
+  /**
+   * holds a list of tags extracted from the article
+   */
+  private Set<String> tags;
 
   /**
    * returns the title of the webpage
@@ -168,6 +173,20 @@ public class Article {
     this.movies = movies;
   }
 
+  /**
+   * The unique set of tags that matched: "a[rel=tag], a[href*=/tag/]"
+   * @return the unique set of TAGs extracted from this {@link Article}
+   */
+  public Set<String> getTags() {
+    if (tags == null) {
+      tags = new HashSet<String>();
+    }
+    return tags;
+  }
+
+  public void setTags(Set<String> tags) {
+    this.tags = tags;
+  }
 
   public ArrayList<String> getImageCandidates() {
     return imageCandidates;
