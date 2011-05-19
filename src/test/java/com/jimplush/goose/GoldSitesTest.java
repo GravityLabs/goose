@@ -3,14 +3,20 @@ package com.jimplush.goose; /**
  * Date: 12/18/10
  */
 
+import com.jimplush.goose.extractors.PublishDateExtractor;
 import com.jimplush.goose.images.Image;
 import junit.framework.*;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.jsoup.select.Selector;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 public class GoldSitesTest extends TestCase {
+  private static final Configuration DEFAULT_CONFIG = new Configuration();
   private static final Configuration NO_IMAGE_CONFIG = new Configuration();
 
   static {
@@ -181,9 +187,40 @@ public class GoldSitesTest extends TestCase {
   public void testWired() {
 
     String url = "http://www.wired.com/playbook/2010/08/stress-hormones-boxing/";
-    Article article = getArticle(url);
 
-    runArticleAssertions(article, "Stress Hormones Could Predict Boxing Dominance", "On November 25, 1980, professional boxing", "http://www.wired.com/playbook/wp-content/uploads/2010/08/fight_f-660x441.jpg");
+    // example of a custom PublishDateExtractor
+    final SimpleDateFormat fmt = new SimpleDateFormat("yyyy-mm-dd");
+    Configuration config = new Configuration();
+    config.setPublishDateExtractor(new PublishDateExtractor() {
+      @Override
+      public Date extract(Element rootElement) {
+        // look for this guy: <meta name="DisplayDate" content="2010-08-18" />
+        Elements elements = Selector.select("meta[name=DisplayDate]", rootElement);
+        if (elements.size() == 0) return null;
+        Element metaDisplayDate = elements.get(0);
+        if (metaDisplayDate.hasAttr("content")) {
+          String dateStr = metaDisplayDate.attr("content");
+          try {
+            return fmt.parse(dateStr);
+          } catch (ParseException e) {
+            return null;
+          }
+        }
+
+        return null;
+      }
+    });
+
+    Article article = getArticle(url, config);
+
+    runArticleAssertions(
+        article,
+        "Stress Hormones Could Predict Boxing Dominance", "On November 25, 1980, professional boxing",
+        "http://www.wired.com/playbook/wp-content/uploads/2010/08/fight_f-660x441.jpg");
+
+    String expectedDateString = "2010-08-18";
+    assertNotNull("publishDate should not be null!", article.getPublishDate());
+    assertEquals("Publish date should equal: \"2010-08-18\"", expectedDateString, fmt.format(article.getPublishDate()));
   }
 
   public void testGigaOhm() {
@@ -276,10 +313,13 @@ public class GoldSitesTest extends TestCase {
 
   public void testNaturalHomeBlog() {
 
-    String url = "http://www.naturalhomemagazine.com/diy-projects/try-this-papier-mache-ghostly-lanterns.aspx";
+    String url = "http://www.naturalhomeandgarden.com/remodeling/small-steps-to-a-green-remodel.aspx";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "Guide trick or treaters and other friendly spirits to your front", "http://www.naturalhomemagazine.com/uploadedImages/articles/issues/2010-09-01/NH-SO10-trythis-lantern-final2_resized400X266.jpg");
+    runArticleAssertions(
+        article,
+        "This 1921 home in Seattle’s Phinney Ridge neighborhood was renovated by architect Jim Burton of Blip Design",
+        "http://www.naturalhomeandgarden.com/uploadedImages/articles/issues/2011-05-01/NH-MA11-front-home_resized400X266.jpg");
   }
 
   public void testSFGate() {
@@ -652,7 +692,11 @@ public class GoldSitesTest extends TestCase {
   }
 
   private Article getArticle(String url, boolean fetchImages) {
-    ContentExtractor extractor = fetchImages ? new ContentExtractor() : new ContentExtractor(NO_IMAGE_CONFIG);
+    return getArticle(url, fetchImages ? DEFAULT_CONFIG : NO_IMAGE_CONFIG);
+  }
+
+  private Article getArticle(String url, Configuration config) {
+    ContentExtractor extractor = new ContentExtractor(config);
     return extractor.extractContent(url);
   }
 

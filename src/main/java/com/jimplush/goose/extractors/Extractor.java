@@ -15,27 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jimplush.goose; /**
+package com.jimplush.goose.extractors;
+
+import org.jsoup.nodes.Element;
+
+/**
  * Created by IntelliJ IDEA.
  * User: robbie
  * Date: 5/19/11
- * Time: 1:08 AM
+ * Time: 2:45 PM
  */
-
-import junit.framework.*;
 
 /**
- * This is not really a test nor is it a test suite. It is only meant to run all of the tests in
- * {@link GoldSitesTest} and print out a report of all of the tags collected durring those tests
+ * Encapsulates the process of extracting some type <code>T</code> from an article
+ * @param <T> the type of {@link Object} the implementing class will return
  */
-public class GoldenSuite extends TestCase {
-  public void testRunSuite() {
-    TestSuite suite = new TestSuite(GoldSitesTest.class);
-    TestResult result = new TestResult();
-    suite.run(result);
-    GoldSitesTest.printReport();
-  }
-
+public interface Extractor<T> {
+  /**
+   * Given the specified {@link Element}, extract @param <T>
+   *
+   * @param rootElement passed in from the {@link com.jimplush.goose.ContentExtractor} after the article has been parsed
+   * @return an instance of type <code>T</code>
+   */
+  T extract(Element rootElement);
 }
 
 

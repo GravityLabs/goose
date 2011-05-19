@@ -42,6 +42,8 @@ public class Article {
    */
   private String title;
 
+  private Date publishDate;
+
   /**
    * holds the metadescription meta tag in the html doc
    */
@@ -114,6 +116,18 @@ public class Article {
 
   public void setTitle(String title) {
     this.title = title;
+  }
+
+  /**
+   * The {@link Date} this {@link Article} was published
+   * @return an instance of {@link Date} or <code>null</code> if no date was identified
+   */
+  public Date getPublishDate() {
+    return publishDate;
+  }
+
+  public void setPublishDate(Date publishDate) {
+    this.publishDate = publishDate;
   }
 
   public String getMetaDescription() {
