@@ -158,6 +158,7 @@ public class ContentExtractor {
       article = new Article();
 
       article.setTitle(getTitle(doc));
+      article.setPublishDate(config.getPublishDateExtractor().extract(doc));
       article.setMetaDescription(getMetaDescription(doc));
       article.setMetaKeywords(getMetaKeywords(doc));
 
