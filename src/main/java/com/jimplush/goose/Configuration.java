@@ -18,8 +18,12 @@
 package com.jimplush.goose;
 
 
+import com.jimplush.goose.extractors.PublishDateExtractor;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  * User: jim
@@ -60,6 +64,26 @@ public class Configuration {
    *  path to your imagemagick identify executable
    */
   private String imagemagickIdentifyPath= "/opt/local/bin/identify";
+
+  private PublishDateExtractor publishDateExtractor = new PublishDateExtractor() {
+    @Override
+    public Date extract(Element rootElement) {
+      return null;
+    }
+  };
+
+  public PublishDateExtractor getPublishDateExtractor() {
+    return publishDateExtractor;
+  }
+
+  /**
+   * Pass in to extract article publish dates.
+   * @param publishDateExtractor a concrete instance of {@link PublishDateExtractor}
+   * @throws IllegalArgumentException if the instance is <code>null</code>
+   */
+  public void setPublishDateExtractor(PublishDateExtractor publishDateExtractor) throws IllegalArgumentException {
+    this.publishDateExtractor = publishDateExtractor;
+  }
 
   public String getLocalStoragePath() {
     return localStoragePath;
