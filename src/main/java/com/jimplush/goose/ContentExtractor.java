@@ -134,7 +134,7 @@ public class ContentExtractor {
 
     urlToCrawl = getUrlToCrawl(urlToCrawl);
     try {
-      URL url = new URL(urlToCrawl);
+      new URL(urlToCrawl);
 
       this.linkhash = HashUtils.md5(urlToCrawl);
     } catch (MalformedURLException e) {
@@ -151,14 +151,19 @@ public class ContentExtractor {
 
       Document doc = parseWrapper.parse(rawHtml, urlToCrawl);
 
+      article = new Article();
+
+      // before we cleanse, provide consumers with an opportunity to extract the publish date
+      article.setPublishDate(config.getPublishDateExtractor().extract(doc));
+
+      // now allow for any additional data to be extracted
+      article.setAdditionalData(config.getAdditionalDataExtractor().extract(doc));
+
+      // now perform a nice deep cleansing
       DocumentCleaner documentCleaner = getDocCleaner();
       doc = documentCleaner.clean(doc);
 
-
-      article = new Article();
-
       article.setTitle(getTitle(doc));
-      article.setPublishDate(config.getPublishDateExtractor().extract(doc));
       article.setMetaDescription(getMetaDescription(doc));
       article.setMetaKeywords(getMetaKeywords(doc));
 

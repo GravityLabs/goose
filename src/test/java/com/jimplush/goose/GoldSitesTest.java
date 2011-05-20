@@ -3,9 +3,10 @@ package com.jimplush.goose; /**
  * Date: 12/18/10
  */
 
+import com.jimplush.goose.extractors.AdditionalDataExtractor;
 import com.jimplush.goose.extractors.PublishDateExtractor;
 import com.jimplush.goose.images.Image;
-import junit.framework.*;
+import junit.framework.TestCase;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.jsoup.select.Selector;
@@ -189,7 +190,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.wired.com/playbook/2010/08/stress-hormones-boxing/";
 
     // example of a custom PublishDateExtractor
-    final SimpleDateFormat fmt = new SimpleDateFormat("yyyy-mm-dd");
+    final SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
     Configuration config = new Configuration();
     config.setPublishDateExtractor(new PublishDateExtractor() {
       @Override
@@ -221,6 +222,7 @@ public class GoldSitesTest extends TestCase {
     String expectedDateString = "2010-08-18";
     assertNotNull("publishDate should not be null!", article.getPublishDate());
     assertEquals("Publish date should equal: \"2010-08-18\"", expectedDateString, fmt.format(article.getPublishDate()));
+    System.out.println("Publish Date Extracted: " + fmt.format(article.getPublishDate()));
   }
 
   public void testGigaOhm() {
@@ -234,9 +236,25 @@ public class GoldSitesTest extends TestCase {
   public void testMashable() {
 
     String url = "http://mashable.com/2010/08/18/how-tonot-to-ask-someone-out-online/";
-    Article article = getArticle(url);
+
+    Configuration config = new Configuration();
+    config.setAdditionalDataExtractor(new AdditionalDataExtractor() {
+      @Override
+      public Map<String, String> extract(Element rootElement) {
+        Elements elements = Selector.select("span.author > a", rootElement);
+        if (elements.size() == 0) return null;
+        String author = elements.get(0).text();
+        Map<String, String> result = new HashMap<String, String>(1);
+        result.put("author", author);
+        return result;
+      }
+    });
+    Article article = getArticle(url, config);
 
     runArticleAssertions(article, "Imagine, if you will, a crowded dance floor", "http://9.mshcdn.com/wp-content/uploads/2010/07/love.jpg");
+
+    assertNotNull("additionalData should not be null!", article.getAdditionalData());
+    assertEquals("additionalData.get(\"author\") should be as expected!", "Brenna Ehrlich", article.getAdditionalData().get("author"));
   }
 
   public void testReadWriteWeb() {
@@ -318,7 +336,7 @@ public class GoldSitesTest extends TestCase {
 
     runArticleAssertions(
         article,
-        "This 1921 home in Seattle’s Phinney Ridge neighborhood was renovated by architect Jim Burton of Blip Design",
+        "Though green remodeling sometimes involves big-ticket items like solar panels",
         "http://www.naturalhomeandgarden.com/uploadedImages/articles/issues/2011-05-01/NH-MA11-front-home_resized400X266.jpg");
   }
 
