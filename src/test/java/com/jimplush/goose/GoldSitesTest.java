@@ -438,14 +438,14 @@ public class GoldSitesTest extends TestCase {
 
   public void testMSNBC() {
 
-    String url = "http://www.msnbc.msn.com/id/41207891/ns/world_news-europe/";
+    String url = "http://www.msnbc.msn.com/id/43085992/ns/business-stocks_and_economy/";
     Article article = getArticle(url);
 
     runArticleAssertions(
         article,
-        "Irish premier resigns as party leader, stays as PM",
-        "Prime Minister Brian Cowen announced Saturday",
-        "http://msnbcmedia3.msn.com/j/ap/ireland government crisis--687575559_v2.grid-6x2.jpg");
+        "LinkedIn share price soars in market debut",
+        "There was an unmistakable echo of the dot-com boom Thursday",
+        "http://msnbcmedia1.msn.com/j/MSNBC/Components/Photo/_new/110519_linkedin_hmed_0755p.grid-6x2.jpg");
 
   }
 
