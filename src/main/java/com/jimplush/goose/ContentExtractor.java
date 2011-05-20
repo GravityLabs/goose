@@ -159,6 +159,9 @@ public class ContentExtractor {
       // now allow for any additional data to be extracted
       article.setAdditionalData(config.getAdditionalDataExtractor().extract(doc));
 
+      // grab the text nodes of any <a ... rel="tag">Tag Name</a> elements
+      article.setTags(extractTags(doc));
+
       // now perform a nice deep cleansing
       DocumentCleaner documentCleaner = getDocCleaner();
       doc = documentCleaner.clean(doc);
@@ -166,9 +169,6 @@ public class ContentExtractor {
       article.setTitle(getTitle(doc));
       article.setMetaDescription(getMetaDescription(doc));
       article.setMetaKeywords(getMetaKeywords(doc));
-
-      // grab the text nodes of any <a ... rel="tag">Tag Name</a> elements
-      article.setTags(extractTags(doc));
       article.setCanonicalLink(getCanonicalLink(doc, urlToCrawl));
       article.setDomain(article.getCanonicalLink());
 
