@@ -105,6 +105,8 @@ public class Article {
    */
   private Set<String> tags;
 
+  private Map<String, String> additionalData;
+
   /**
    * returns the title of the webpage
    *
@@ -225,5 +227,19 @@ public class Article {
 
   public void setCleanedArticleText(String cleanedArticleText) {
     this.cleanedArticleText = cleanedArticleText;
+  }
+
+  /**
+   * A property bucket for consumers of goose to store custom data extractions.
+   * This is populated by an implementation of {@link com.jimplush.goose.extractors.AdditionalDataExtractor}
+   * which is executed before document cleansing within {@link ContentExtractor#extractContent}
+   * @return a {@link Map Map&lt;String,String&gt;} of property name to property vaue (represented as a {@link String}.
+   */
+  public Map<String, String> getAdditionalData() {
+    return additionalData;
+  }
+
+  public void setAdditionalData(Map<String, String> additionalData) {
+    this.additionalData = additionalData;
   }
 }
