@@ -149,9 +149,12 @@ public class ContentExtractor {
         rawHtml = HtmlFetcher.getHtml(urlToCrawl);
       }
 
+      article = new Article();
+
+      article.setRawHtml(rawHtml);
+
       Document doc = parseWrapper.parse(rawHtml, urlToCrawl);
 
-      article = new Article();
 
       // before we cleanse, provide consumers with an opportunity to extract the publish date
       article.setPublishDate(config.getPublishDateExtractor().extract(doc));
