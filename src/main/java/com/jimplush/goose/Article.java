@@ -56,6 +56,11 @@ public class Article {
    */
   private String cleanedArticleText;
 
+  /**
+   * holds the original unmodified HTML that goose retrieved from the URL
+   */
+  private String rawHtml;
+
 
   /**
    * holds the meta keywords that would in the meta tag of the html doc
@@ -227,6 +232,14 @@ public class Article {
 
   public void setCleanedArticleText(String cleanedArticleText) {
     this.cleanedArticleText = cleanedArticleText;
+  }
+
+  public String getRawHtml() {
+    return rawHtml;
+  }
+
+  public void setRawHtml(String rawHtml) {
+    this.rawHtml = rawHtml;
   }
 
   /**
