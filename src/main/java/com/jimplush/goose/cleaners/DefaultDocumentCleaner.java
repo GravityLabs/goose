@@ -70,7 +70,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
     StringBuilder sb = new StringBuilder();
     // create negative elements
-    sb.append("^side$|combx|retweet|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta|scroll|shoutbox|sponsor");
+    sb.append("^side$|combx|retweet|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll|shoutbox|sponsor");
     sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers");
     sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text");
     regExRemoveNodes = sb.toString();
@@ -284,22 +284,26 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
 
   private Document cleanBadTags(Document doc) {
-    Elements naughtyList = doc.select(queryNaughtyIDs);
+    // only select elements WITHIN the body to avoid removing the body itself
+    Elements children = doc.body().children();
+    
+    
+    Elements naughtyList = children.select(queryNaughtyIDs);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList.size() + " naughty ID elements found");
     }
     for (Element node : naughtyList) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Cleaning: Removing node with class: id: " + node.id());
+        logger.debug("Cleaning: Removing node with id: " + node.id());
       }
-      node.remove();
+      removeNode(node);
     }
     if (logger.isDebugEnabled()) {
-      Elements naughtyList2 = doc.select(queryNaughtyIDs);
+      Elements naughtyList2 = children.select(queryNaughtyIDs);
       logger.debug(naughtyList2.size() + " naughty ID elements found after removal");
     }
 
-    Elements naughtyList3 = doc.select(queryNaughtyClasses);
+    Elements naughtyList3 = children.select(queryNaughtyClasses);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList3.size() + " naughty CLASS elements found");
     }
@@ -307,15 +311,15 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       if (logger.isDebugEnabled()) {
         logger.debug("clean: Removing node with class: " + node.className());
       }
-      node.remove();
+      removeNode(node);
     }
     if (logger.isDebugEnabled()) {
-      Elements naughtyList4 = doc.select(queryNaughtyClasses);
+      Elements naughtyList4 = children.select(queryNaughtyClasses);
       logger.debug(naughtyList4.size() + " naughty CLASS elements found after removal");
     }
 
     // starmagazine puts shit on name tags instead of class or id
-    Elements naughtyList5 = doc.select(queryNaughtyNames);
+    Elements naughtyList5 = children.select(queryNaughtyNames);
     if (logger.isDebugEnabled()) {
       logger.debug(naughtyList5.size() + " naughty Name elements found");
     }
@@ -323,11 +327,20 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       if (logger.isDebugEnabled()) {
         logger.debug("clean: Removing node with class: " + node.attr("class") + " id: " + node.id() + " name: " + node.attr("name"));
       }
-      node.remove();
+      removeNode(node);
     }
 
     return doc;
 
+  }
+
+  /**
+   * Apparently jsoup expects the node's parent to not be null and throws if it is. Let's be safe.
+   * @param node the node to remove from the doc
+   */
+  private void removeNode(Element node) {
+    if (node == null || node.parent() == null) return;
+    node.remove();
   }
 
   /**
@@ -343,7 +356,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
         logger.debug("regExRemoveNodes: " + naughtyList.size() + " ID elements found against pattern: " + pattern);
       }
       for (Element node : naughtyList) {
-        node.remove();
+        removeNode(node);
       }
 
       Elements naughtyList3 = doc.getElementsByAttributeValueMatching("class", pattern);
@@ -351,7 +364,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
         logger.debug("regExRemoveNodes: " + naughtyList3.size() + " CLASS elements found against pattern: " + pattern);
       }
       for (Element node : naughtyList3) {
-        node.remove();
+        removeNode(node);
       }
     } catch (IllegalArgumentException e) {
       e.printStackTrace();

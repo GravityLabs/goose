@@ -110,7 +110,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.aolnews.com/nation/article/the-few-the-proud-the-marines-getting-a-makeover/19592478";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "WASHINGTON (Aug. 13) -- Declaring &quot;the maritime soul of the Marine Corps", "http://o.aolcdn.com/photo-hub/news_gallery/6/8/680919/1281734929876.JPEG");
+    runArticleAssertions(article, "WASHINGTON (Aug. 13) -- Declaring \"the maritime soul of the Marine Corps\" is", "http://o.aolcdn.com/photo-hub/news_gallery/6/8/680919/1281734929876.JPEG");
   }
 
   public void testWallStreetJournal() {
@@ -270,7 +270,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://social.venturebeat.com/2010/08/18/facebook-reveals-the-details-behind-places/";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "Facebook just confirmed the rumors", "http://cdn.venturebeat.com/wp-content/uploads/2010/08/mark-zuckerberg-facebook-places.jpg");
+    runArticleAssertions(article, "Facebook just confirmed the rumors", "http://venturebeat.files.wordpress.com/2010/08/mark-zuckerberg-facebook-places.jpg?w=300&h=219");
   }
 
   public void testTimeMagazine() {
@@ -291,10 +291,10 @@ public class GoldSitesTest extends TestCase {
 
   public void testYahooNews() {
 
-    String url = "http://news.yahoo.com/s/ap/20110305/ap_on_re_af/af_libya";
+    String url = "http://news.yahoo.com/s/ap/20110319/ap_on_re_af/af_libya";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "TRIPOLI, Libya &ndash; Government forces in tanks rolled into", "http://d.yimg.com/a/p/ap/20110305/capt.23c7d780d8d84bc4a8c77af11ecba277-23c7d780d8d84bc4a8c77af11ecba277-0.jpg?x=213&y=147&xc=1&yc=1&wc=409&hc=282&q=85&sig=qp9z58_DJcUzniy1pu6ykw--");
+    runArticleAssertions(article, "BENGHAZI, Libya – The U.S. and European nations pounded Libya", "http://d.yimg.com/a/p/ap/20110319/capt.1e039fdbcbe544ba84c6de6cb3e39d83-1e039fdbcbe544ba84c6de6cb3e39d83-0.jpg?x=213&y=160&xc=1&yc=1&wc=409&hc=307&q=85&sig=NPqjSiOj_KpSiJFh3BU_Qg--");
   }
 
   public void testPolitico() {
@@ -438,7 +438,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.sportingnews.com/nfl/feed/2011-01/nfl-coaches/story/raiders-cut-ties-with-cable";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "Raiders cut ties with Cable", "ALAMEDA, Calif. &mdash; The Oakland Raiders informed coach Tom Cable", "http://dy.snimg.com/story-image/0/69/174475/14072-650-366.jpg");
+    runArticleAssertions(article, "Raiders cut ties with Cable", "ALAMEDA, Calif. — The Oakland Raiders informed coach Tom Cable", "http://dy.snimg.com/story-image/0/69/174475/14072-650-366.jpg");
 
   }
 
@@ -469,13 +469,13 @@ public class GoldSitesTest extends TestCase {
 
   public void testEconomist() {
 
-    String url = "http://www.economist.com/node/17956885";
+    String url = "http://www.economist.com/node/18802932";
     Article article = getArticle(url);
 
     runArticleAssertions(
         article,
-        "FOR beleaguered smokers, the world is an increasingly",
-        "http://media.economist.com/images/images-magazine/2011/01/22/st/20110122_stp004.jpg");
+        "READERS who were paying attention in their maths classes may recall",
+        "http://media.economist.com/images/images-magazine/2011/06/11/st/20110611_stp003.jpg");
 
   }
 
@@ -504,13 +504,13 @@ public class GoldSitesTest extends TestCase {
 
   public void testNyTimes() {
 
-    String url = "http://www.nytimes.com/2010/12/22/world/europe/22start.html";
+    String url = "http://www.nytimes.com/2011/06/13/business/media/13link.html";
     Article article = getArticle(url);
 
     runArticleAssertions(
         article,
-        "WASHINGTON &mdash; An arms control treaty paring back American",
-        "http://graphics8.nytimes.com/images/2010/12/22/world/22start-span/Start-articleInline.jpg");
+        "The potential presidential candidate Sarah Palin has been criticized",
+        "http://graphics8.nytimes.com/images/2011/06/13/business/link1/link1-articleInline.jpg");
   }
 
   public void testTheVacationGals() {
@@ -520,7 +520,7 @@ public class GoldSitesTest extends TestCase {
 
     runArticleAssertions(
         article,
-        "Editors&rsquo; Note: We are huge proponents",
+        "Editors’ Note: We are huge proponents",
         "http://thevacationgals.com/wp-content/uploads/2010/11/Gemmel-Family-Reunion-at-a-Vacation-Rental-Home1-300x225.jpg");
   }
 
@@ -686,7 +686,7 @@ public class GoldSitesTest extends TestCase {
 
     runArticleAssertions(
         article,
-        "There&rsquo;s good news in the air for shelter",
+        "There’s good news in the air for shelter cats",
         "http://b1.cdnsters.com/kitty-news-network/files/2011/05/thomas-and-dahlia-300x225.jpg");
   }
 

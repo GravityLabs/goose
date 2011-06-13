@@ -30,4 +30,6 @@ public interface OutputFormatter {
 
   public String getFormattedText();
 
+  public String getFormattedText(Element topNode);
+
 }

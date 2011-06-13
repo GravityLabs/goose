@@ -197,10 +197,9 @@ public class ContentExtractor {
 
 
         outputFormatter = getOutputFormatter();
-        outputFormatter.getFormattedElement(article.getTopNode());
 
 
-        article.setCleanedArticleText(outputFormatter.getFormattedText());
+        article.setCleanedArticleText(outputFormatter.getFormattedText(article.getTopNode()));
 
 
         if (logger.isDebugEnabled()) {
