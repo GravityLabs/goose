@@ -87,7 +87,6 @@ public class ContentExtractor {
   private String linkhash;
   // once we have our topNode then we want to format that guy for output to the user
   private OutputFormatter outputFormatter;
-  private ImageExtractor imageExtractor;
 
 
   /**
@@ -187,7 +186,7 @@ public class ContentExtractor {
 
         if (config.isEnableImageFetching()) {
           HttpClient httpClient = HtmlFetcher.getHttpClient();
-          imageExtractor = getImageExtractor(httpClient, urlToCrawl);
+          ImageExtractor imageExtractor = getImageExtractor(httpClient, urlToCrawl);
           article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
 
         }
@@ -276,13 +275,8 @@ public class ContentExtractor {
 
   private ImageExtractor getImageExtractor(HttpClient httpClient, String urlToCrawl) {
 
-    if (imageExtractor == null) {
-      BestImageGuesser bestImageGuesser = new BestImageGuesser(this.config, httpClient, urlToCrawl);
-      return bestImageGuesser;
-    } else {
-      return imageExtractor;
-    }
-
+    BestImageGuesser bestImageGuesser = new BestImageGuesser(this.config, httpClient, urlToCrawl);
+    return bestImageGuesser;
   }
 
   /**
