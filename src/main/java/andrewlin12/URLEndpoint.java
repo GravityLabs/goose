@@ -1,4 +1,5 @@
 import com.jimplush.goose.*;
+import com.jimplush.goose.images.Image;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.transport.connect.Connection;
 import org.simpleframework.transport.connect.SocketConnection;
@@ -23,32 +24,44 @@ public class URLEndpoint implements Container {
 
 	public void handle(Request request, Response response) {
 		try {
-	        Configuration config = new Configuration();
-	        config.setImagemagickConvertPath("/usr/bin/convert");
-	        config.setImagemagickIdentifyPath("/usr/bin/identify");
-	        config.setLocalStoragePath("./storage");
-
-	        ContentExtractor contentExtractor = new ContentExtractor(config);
-	        String url = "http://techcrunch.com/2010/08/13/gantto-takes-on-microsoft-project-with-web-based-project-management-application/";
-	        Article article = contentExtractor.extractContent(url);
-
-	        Map map = new HashMap();
-	        map.put("title", article.getTitle());
-	        map.put("image", article.getTopImage().getImageSrc());
-	        map.put("text", article.getCleanedArticleText());
-
 	        PrintStream body = response.getPrintStream();
-	        long time = System.currentTimeMillis();
+	        Map map = new HashMap();
 
-	        response.set("Content-Type", "application/json");
-	        response.setDate("Date", time);
-	        response.setDate("Last-Modified", time);
+			String url = request.getQuery().get("url");
+			if (url == null || url.length() == 0) {
+				map.put("error", true);
+				map.put("message", "No URL specified");
+			}
+			else {
+		        Configuration config = new Configuration();
+		        config.setImagemagickConvertPath("/usr/bin/convert");
+		        config.setImagemagickIdentifyPath("/usr/bin/identify");
+		        config.setLocalStoragePath("./storage");
+
+		        ContentExtractor contentExtractor = new ContentExtractor(config);
+		        Article article = contentExtractor.extractContent(url);
+
+		        map.put("success", true);
+		        map.put("title", article.getTitle());
+		        Image image = article.getTopImage();
+		        if (image != null) {
+			        map.put("image", article.getTopImage().getImageSrc());
+		        }
+		        map.put("link", article.getCanonicalLink());
+		        map.put("text", article.getCleanedArticleText());
+			}
 
 	        body.println(JSONObject.fromObject(map).toString());
+
+	        response.set("Content-Type", "application/json");
+
+	        long time = System.currentTimeMillis();
+	        response.setDate("Date", time);
+	        response.setDate("Last-Modified", time);
 	        body.close();
 		}
 		catch (Exception e) {
-			System.err.println(e);
+			e.printStackTrace();
 		}
 	}
 }
