@@ -28,6 +28,7 @@ import com.jimplush.goose.texthelpers.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.client.HttpClient;
 import org.jsoup.nodes.*;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.jsoup.select.Selector;
 import org.slf4j.Logger;
@@ -70,7 +71,7 @@ public class ContentExtractor {
   private static final StringSplitter ARROWS_SPLITTER = new StringSplitter("»");
   private static final StringSplitter COLON_SPLITTER = new StringSplitter(":");
   private static final StringSplitter SPACE_SPLITTER = new StringSplitter(" ");
-  
+
   private static final Set<String> NO_STRINGS = new HashSet<String>(0);
   private static final String A_REL_TAG_SELECTOR = "a[rel=tag], a[href*=/tag/]";
 
@@ -79,7 +80,7 @@ public class ContentExtractor {
    * holds the configuration settings we want to use
    */
   private Configuration config;
-  
+
   // sets the default cleaner class to prep the HTML for parsing
   private DocumentCleaner documentCleaner;
   // the MD5 of the URL we're currently parsing, used to references the images we download to the url so we
@@ -189,7 +190,13 @@ public class ContentExtractor {
           HttpClient httpClient = HtmlFetcher.getHttpClient();
           imageExtractor = getImageExtractor(httpClient, urlToCrawl);
           article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
+          ArrayList<String> imageCandidates = new ArrayList<String>();
+          Iterator<Element> iter = imageExtractor.getAllImages().iterator();
+          while (iter.hasNext()) {
+        	  imageCandidates.add(iter.next().attr("src"));
+          }
 
+          article.setImageCandidates(imageCandidates);
         }
 
         // grab siblings and remove high link density elements

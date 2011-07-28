@@ -120,6 +120,8 @@ public class BestImageGuesser implements ImageExtractor {
    */
   Configuration config;
 
+  ArrayList<Element> filteredImages;
+
 
   public BestImageGuesser(Configuration config, HttpClient httpClient, String targetUrl) {
     this.httpClient = httpClient;
@@ -233,7 +235,7 @@ public class BestImageGuesser implements ImageExtractor {
   }
 
   public ArrayList<Element> getAllImages() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+	  return this.filteredImages;
   }
 
 
@@ -252,7 +254,6 @@ public class BestImageGuesser implements ImageExtractor {
     if (node == null) return;
 
     Elements images = node.select("img");
-
 
     String nodeId = this.getNodeIds(node);
     if (logger.isDebugEnabled()) {
@@ -275,6 +276,7 @@ public class BestImageGuesser implements ImageExtractor {
 
     HashMap<Element, Float> imageResults = downloadImagesAndGetResults(goodImages, parentDepth);
 
+    this.filteredImages = goodImages;
 
     // pick out image with high score
     Element highScoreImage = null;

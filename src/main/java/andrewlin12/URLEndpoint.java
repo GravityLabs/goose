@@ -66,6 +66,7 @@ public class URLEndpoint implements Container {
 		        if (image != null) {
 			        map.put("image", article.getTopImage().getImageSrc());
 		        }
+		        map.put("images", article.getImageCandidates());
 		        map.put("link", article.getCanonicalLink());
 		        map.put("text", encodeHTML(article.getCleanedArticleText()));
 			}
