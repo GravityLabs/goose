@@ -22,6 +22,25 @@ public class URLEndpoint implements Container {
       connection.connect(address);
 	}
 
+	public static String encodeHTML(String s)
+	{
+	    StringBuffer out = new StringBuffer();
+	    for(int i=0; i<s.length(); i++)
+	    {
+	        char c = s.charAt(i);
+	        if(c > 127 || c=='"' || c=='<' || c=='>')
+	        {
+	           out.append("&#"+(int)c+";");
+	        }
+	        else
+	        {
+	            out.append(c);
+	        }
+	    }
+	    return out.toString();
+	}
+
+
 	public void handle(Request request, Response response) {
 		try {
 	        PrintStream body = response.getPrintStream();
@@ -42,13 +61,13 @@ public class URLEndpoint implements Container {
 		        Article article = contentExtractor.extractContent(url);
 
 		        map.put("success", true);
-		        map.put("title", article.getTitle());
+		        map.put("title", encodeHTML(article.getTitle()));
 		        Image image = article.getTopImage();
 		        if (image != null) {
 			        map.put("image", article.getTopImage().getImageSrc());
 		        }
 		        map.put("link", article.getCanonicalLink());
-		        map.put("text", article.getCleanedArticleText());
+		        map.put("text", encodeHTML(article.getCleanedArticleText()));
 			}
 
 	        body.println(JSONObject.fromObject(map).toString());
