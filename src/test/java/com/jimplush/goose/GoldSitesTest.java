@@ -126,7 +126,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://content.usatoday.com/communities/thehuddle/post/2010/08/brett-favre-practices-set-to-speak-about-return-to-minnesota-vikings/1";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "Brett Favre couldn't get away from the", "http://i.usatoday.net/communitymanager/_photos/the-huddle/2010/08/18/favrespeaksx-inset-community.jpg");
+    runArticleAssertions(article, "Brett Favre says he couldn't give up on one more chance", "http://i.usatoday.net/communitymanager/_photos/the-huddle/2010/08/18/favrespeaksx-inset-community.jpg");
   }
 
   public void testUSAToday2() {
@@ -150,7 +150,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://sports.espn.go.com/golf/pgachampionship10/news/story?id=5463456";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "SHEBOYGAN, Wis. -- The only number that matters at the PGA Championship", "http://a.espncdn.com/media/motion/2010/0813/dm_100814_pga_rinaldi.jpg");
+    runArticleAssertions(article, "SHEBOYGAN, Wis. -- The only number that matters at the PGA Championship", "http://a.espncdn.com/photo/2010/0814/pga_g_watney12_200.jpg");
   }
 
   public void testWashingtonPost() {
