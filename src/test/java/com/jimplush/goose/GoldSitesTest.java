@@ -67,7 +67,7 @@ public class GoldSitesTest extends TestCase {
     Article article = getArticle(url);
     String expectedTitle = "Gantto Takes On Microsoft Project With Web-Based Project Management Application";
     String expectedStart = "Y Combinator-backed Gantto is launching";
-    String expectedImage = "http://tctechcrunch.files.wordpress.com/2010/08/tour.jpg";
+    String expectedImage = "http://tctechcrunch.files.wordpress.com/2010/08/tour.jpg?w=640";
 
     runArticleAssertions(article, expectedTitle, expectedStart, expectedImage);
 
