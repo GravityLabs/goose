@@ -1,13 +1,13 @@
 package com.gravity.goose
 
 import utils.Logging
-import org.jsoup.nodes.Document
+import org.jsoup.nodes.{Element, Document}
 
 /**
- * Created by Jim Plush
- * User: jim
- * Date: 8/14/11
- */
+* Created by Jim Plush
+* User: jim
+* Date: 8/14/11
+*/
 
 class Article extends Logging {
 
@@ -36,6 +36,15 @@ class Article extends Logging {
   */
   var domain: String = null
 
+  /**
+  * holds the top Element we think is a candidate for the main body of the article
+  */
+  var topNode: Element = null
+
+  /**
+  * holds a list of any movies we found on the page like youtube, vimeo
+  */
+  var movies: List[Element] = Nil
 
   /**
   * stores the final URL that we're going to try and fetch content against, this would be expanded if any

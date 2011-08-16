@@ -4,8 +4,9 @@ import cleaners.{DocumentCleaner, StandardDocumentCleaner}
 import extractors.{ContentExtractor, StandardContentExtractor}
 import network.HtmlFetcher
 import utils.{Logging, URLHelper}
-import org.jsoup.nodes.Document
 import org.jsoup.Jsoup
+import org.jsoup.nodes.{Element, Document}
+import org.apache.http.client.HttpClient
 
 /**
  * Created by Jim Plush - Gravity.com
@@ -17,7 +18,8 @@ class Goose extends Logging {
 
   import Goose._
 
-  def extractContent(url: String): Article = {
+
+  def extractContent(url: String)(implicit config: Configuration): Article = {
 
     for {
       pc <- URLHelper.getCleanedUrl(url)
@@ -44,6 +46,23 @@ class Goose extends Logging {
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
 
+      extractor.calculateBestNodeBasedOnClustering(article) match {
+        case Some(node: Element) => {
+          article.topNode = node
+          article.movies = extractor.extractVideos(article.topNode)
+          article.topNode = extractor.postExtractionCleanup(article.topNode)
+          return article
+
+
+
+          //          if (config.isEnableImageFetching) {
+          //            var httpClient: HttpClient = HtmlFetcher.getHttpClient
+          //            imageExtractor = getImageExtractor(httpClient, urlToCrawl)
+          //            article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode))
+          //          }
+        }
+        case _ => trace("NO ARTICLE FOUND");return null
+      }
       return article
     }
     null
@@ -73,5 +92,5 @@ class Goose extends Logging {
 }
 
 object Goose {
-
+  val config: Configuration = new Configuration
 }
