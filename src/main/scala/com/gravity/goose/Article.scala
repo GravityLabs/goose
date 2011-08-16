@@ -28,8 +28,14 @@ class Article extends Logging {
 
   /**
   * The canonical link of this article if found in the meta data
- */
+  */
   var canonicalLink: String = null
+
+  /**
+  * holds the domain of this article we're parsing
+  */
+  var domain: String = null
+
 
   /**
   * stores the final URL that we're going to try and fetch content against, this would be expanded if any

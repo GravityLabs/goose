@@ -6,6 +6,7 @@ import com.gravity.goose.text._
 import com.gravity.goose.utils.Logging
 import org.apache.commons.lang.StringEscapeUtils
 import org.jsoup.nodes.Document
+import java.net.URL
 
 /**
 * Created by Jim Plush
@@ -131,5 +132,9 @@ trait ContentExtractor extends Logging {
     } else {
       article.finalUrl;
     }
+  }
+
+  def getDomain(url: String): String = {
+    new URL(url).getHost
   }
 }

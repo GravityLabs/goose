@@ -1,5 +1,6 @@
 package com.gravity.goose
 
+import cleaners.{DocumentCleaner, StandardDocumentCleaner}
 import extractors.{ContentExtractor, StandardContentExtractor}
 import network.HtmlFetcher
 import utils.{Logging, URLHelper}
@@ -26,6 +27,7 @@ class Goose extends Logging {
       trace("Crawling url: %s".format(pc.url))
 
       val extractor = getExtractor
+      val docCleaner = getDocCleaner
 
       val article = new Article()
       article.finalUrl = pc.url.toString
@@ -33,17 +35,22 @@ class Goose extends Logging {
       article.doc = doc
       article.rawDoc = doc
 
-
       article.title = extractor.getTitle(article)
       article.metaDescription = extractor.getMetaDescription(article)
       article.metaKeywords = extractor.getMetaKeywords(article)
       article.canonicalLink = extractor.getCanonicalLink(article)
-      println("LINK: " + article.finalUrl)
-      println("CANON: " + article.canonicalLink)
+      article.domain = extractor.getDomain(article.finalUrl)
+
+      // before we do any calcs on the body itself let's clean up the document
+      article.doc = docCleaner.clean(article)
 
       return article
     }
     null
+  }
+
+  def getDocCleaner: DocumentCleaner = {
+    new StandardDocumentCleaner
   }
 
   def getDocument(url: String, rawlHtml: String): Option[Document] = {
