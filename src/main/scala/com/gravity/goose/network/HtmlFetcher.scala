@@ -90,7 +90,7 @@ object HtmlFetcher extends Logging {
   * @throws MaxBytesException
   * @throws NotHtmlException
   */
-  def getHtml(url: String): String = {
+  def getHtml(url: String): Option[String] = {
     var httpget: HttpGet = null
     var htmlResult: String = null
     var entity: HttpEntity = null
@@ -145,7 +145,7 @@ object HtmlFetcher extends Logging {
       }
       case e: Exception => {
         trace(e, "FAILURE FOR LINK: " + url + " " + e.toString)
-        return null
+        return None
       }
     }
     finally {
@@ -186,11 +186,11 @@ object HtmlFetcher extends Logging {
       mimeType = URLConnection.guessContentTypeFromStream(is)
       if (mimeType != null) {
         if ((mimeType == "text/html") == true || (mimeType == "application/xml") == true) {
-          return htmlResult
+          return Some(htmlResult)
         }
         else {
           if (htmlResult.contains("<title>") == true && htmlResult.contains("<p>") == true) {
-            return htmlResult
+            return Some(htmlResult)
           }
           trace("GRVBIGFAIL: " + mimeType + " - " + url)
           throw new NotHtmlException
@@ -208,7 +208,7 @@ object HtmlFetcher extends Logging {
         logger.warn(e.getMessage)
       }
     }
-    htmlResult
+    None
   }
 
   private def initClient() {
