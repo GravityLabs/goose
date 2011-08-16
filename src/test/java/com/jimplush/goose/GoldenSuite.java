@@ -26,14 +26,14 @@ import junit.framework.*;
 
 /**
  * This is not really a test nor is it a test suite. It is only meant to run all of the tests in
- * {@link GoldSitesTest} and print out a report of all of the tags collected durring those tests
+ * {@link GoldSitesTestIT} and print out a report of all of the tags collected durring those tests
  */
 public class GoldenSuite extends TestCase {
   public void testRunSuite() {
-    TestSuite suite = new TestSuite(GoldSitesTest.class);
+    TestSuite suite = new TestSuite(GoldSitesTestIT.class);
     TestResult result = new TestResult();
     suite.run(result);
-    GoldSitesTest.printReport();
+    GoldSitesTestIT.printReport();
   }
 
 }

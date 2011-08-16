@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
-public class GoldSitesTest extends TestCase {
+public class GoldSitesTestIT extends TestCase {
   private static final Configuration DEFAULT_CONFIG = new Configuration();
   private static final Configuration NO_IMAGE_CONFIG = new Configuration();
 
@@ -291,10 +291,10 @@ public class GoldSitesTest extends TestCase {
 
   public void testYahooNews() {
 
-    String url = "http://news.yahoo.com/s/ap/20110319/ap_on_re_af/af_libya";
+    String url = "http://news.yahoo.com/midwest-obama-seeks-own-economic-help-174721833.html";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "BENGHAZI, Libya – The U.S. and European nations pounded Libya", "http://d.yimg.com/a/p/ap/20110319/capt.1e039fdbcbe544ba84c6de6cb3e39d83-1e039fdbcbe544ba84c6de6cb3e39d83-0.jpg?x=213&y=160&xc=1&yc=1&wc=409&hc=307&q=85&sig=NPqjSiOj_KpSiJFh3BU_Qg--");
+    runArticleAssertions(article, "PEOSTA, Iowa (AP) — Seeking some help from rural America, President Barack Obama on Tuesday", "http://l.yimg.com/bt/api/res/1.2/zyndHmia7sZSWsxYJsjlYA--/YXBwaWQ9eW5ld3M7Zmk9ZmlsbDtoPTkwO3E9ODU7dz05MA--/http://media.zenfs.com/en_us/News/ap_webfeeds/2aed17a65c710912f60e6a706700abb4.jpg.cf.png");
   }
 
   public void testPolitico() {
@@ -310,7 +310,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.newsweek.com/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring.html";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "The video shows a gun barrel jutting from the rear", "http://www.newsweek.com/content/newsweek/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring/_jcr_content/body/mainimage.img.jpg/1286654107500.jpg");
+    runArticleAssertions(article, "The video shows a gun barrel jutting from the rear", "http://www.thedailybeast.com/newsweek/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring.img.200.jpg");
   }
 
   public void testLifeHacker() {
@@ -370,7 +370,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.thedailybeast.com/blogs-and-stories/2010-11-01/ted-sorensen-speechwriter-behind-jfks-best-jokes/?cid=topic:featured1";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "Legendary Kennedy speechwriter Ted Sorensen passed", "http://www.tdbimg.com/files/2010/11/01/img-article---katz-ted-sorensen_163531624950.jpg");
+    runArticleAssertions(article, "Today, as wordsmiths, politicos and Kennedyophiles alike", "http://www.thedailybeast.com/content/dailybeast/articles/2010/11/01/ted-sorensen-speechwriter-behind-jfks-best-jokes/_jcr_content/body/image_0.img.jpg/1302761778490.jpg");
   }
 
   public void testBloomberg() {
