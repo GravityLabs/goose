@@ -193,7 +193,12 @@ public class ContentExtractor {
           ArrayList<String> imageCandidates = new ArrayList<String>();
           Iterator<Element> iter = imageExtractor.getAllImages().iterator();
           while (iter.hasNext()) {
-        	  imageCandidates.add(iter.next().attr("src"));
+        	  String src = iter.next().attr("src");
+        	  if (!src.startsWith("http:")) {
+        		URL url = new URL(urlToCrawl);
+        	    src = "http://" + url.getHost() + new File(new File(url.getPath()), src).getPath();
+        	  }
+        	  imageCandidates.add(src);
           }
 
           article.setImageCandidates(imageCandidates);

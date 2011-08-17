@@ -24,6 +24,10 @@ public class URLEndpoint implements Container {
 
 	public static String encodeHTML(String s)
 	{
+		if (s == null) {
+			return "";
+		}
+
 	    StringBuffer out = new StringBuffer();
 	    for(int i=0; i<s.length(); i++)
 	    {
