@@ -554,7 +554,7 @@ trait ContentExtractor extends Logging {
           }
         }
       }
-      currentSibling = currentSibling.previousElementSibling
+      currentSibling = if (currentSibling != null) currentSibling.previousElementSibling else null
     }
     node
   }
