@@ -1,5 +1,6 @@
 package com.gravity.goose
 
+import images.Image
 import utils.Logging
 import org.jsoup.nodes.{Element, Document}
 
@@ -15,6 +16,12 @@ class Article extends Logging {
   * title of the article
   */
   var title: String = null
+
+  /**
+  * stores the lovely, pure text from the article, stripped of html, formatting, etc...
+  * just raw text with paragraphs separated by newlines. This is probably what you want to use.
+  */
+  var cleanedArticleText: String = null
 
   /**
   * meta description field in HTML source
@@ -42,6 +49,11 @@ class Article extends Logging {
   var topNode: Element = null
 
   /**
+  * holds the top Image object that we think represents this article
+  */
+  var topImage: Image = null
+
+  /**
   * holds a list of any movies we found on the page like youtube, vimeo
   */
   var movies: List[Element] = Nil
@@ -51,6 +63,11 @@ class Article extends Logging {
   * escaped fragments were found in the starting url
   */
   var finalUrl: String = null;
+
+  /**
+  * stores the MD5 hash of the url to use for various identification tasks
+  */
+  var linkhash: String = null;
 
   /**
   * stores the RAW HTML straight from the network connection
@@ -67,10 +84,6 @@ class Article extends Logging {
   * options done on it
   */
   var rawDoc: Document = null
-
-  def testLogging() {
-    info("hi there")
-  }
 
 
 }

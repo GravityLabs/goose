@@ -2,11 +2,14 @@ package com.gravity.goose
 
 import cleaners.{DocumentCleaner, StandardDocumentCleaner}
 import extractors.{ContentExtractor, StandardContentExtractor}
+import images.{ImageExtractor, StandardImageExtractor}
 import network.HtmlFetcher
+import outputformatters.{StandardOutputFormatter, OutputFormatter}
 import utils.{Logging, URLHelper}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Element, Document}
 import org.apache.http.client.HttpClient
+import java.io.File
 
 /**
  * Created by Jim Plush - Gravity.com
@@ -14,12 +17,15 @@ import org.apache.http.client.HttpClient
  */
 
 
-class Goose extends Logging {
+class Goose()(implicit config: Configuration) extends Logging {
 
   import Goose._
 
+  initializeEnvironment()
 
-  def extractContent(url: String)(implicit config: Configuration): Article = {
+
+  def extractContent(url: String): Article = {
+
 
     for {
       pc <- URLHelper.getCleanedUrl(url)
@@ -30,9 +36,11 @@ class Goose extends Logging {
 
       val extractor = getExtractor
       val docCleaner = getDocCleaner
+      val outputFormatter = getOutputFormatter
 
       val article = new Article()
       article.finalUrl = pc.url.toString
+      article.linkhash = pc.linkhash
       article.rawHtml = rawHtml
       article.doc = doc
       article.rawDoc = doc
@@ -51,21 +59,28 @@ class Goose extends Logging {
           article.topNode = node
           article.movies = extractor.extractVideos(article.topNode)
           article.topNode = extractor.postExtractionCleanup(article.topNode)
+          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
+
+          if (config.enableImageFetching) {
+            val imageExtractor = getImageExtractor(article)
+            article.topImage = imageExtractor.getBestImage(doc, article.topNode)
+          }
           return article
-
-
-
-          //          if (config.isEnableImageFetching) {
-          //            var httpClient: HttpClient = HtmlFetcher.getHttpClient
-          //            imageExtractor = getImageExtractor(httpClient, urlToCrawl)
-          //            article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode))
-          //          }
         }
-        case _ => trace("NO ARTICLE FOUND");return null
+        case _ => trace("NO ARTICLE FOUND"); return null
       }
       return article
     }
     null
+  }
+
+  def getImageExtractor(article: Article): ImageExtractor = {
+    val httpClient: HttpClient = HtmlFetcher.getHttpClient
+    new StandardImageExtractor(httpClient, article, config)
+  }
+
+  def getOutputFormatter: OutputFormatter = {
+    new StandardOutputFormatter
   }
 
   def getDocCleaner: DocumentCleaner = {
@@ -82,15 +97,33 @@ class Goose extends Logging {
         None
       }
     }
-
-
   }
 
   def getExtractor: ContentExtractor = {
     new StandardContentExtractor
   }
+
+  def initializeEnvironment() {
+
+    val f = new File(config.localStoragePath)
+    try {
+      if (!f.isDirectory) {
+        f.mkdirs()
+      }
+    } catch {
+      case e: Exception =>
+    }
+    if (!f.isDirectory) {
+      throw new Exception(config.localStoragePath + " directory does not seem to exist, you need to set this for image processing downloads")
+    }
+    if (!f.canWrite) {
+      throw new Exception(config.localStoragePath + " directory is not writeble, you need to set this for image processing downloads")
+    }
+  }
+
 }
 
 object Goose {
-  val config: Configuration = new Configuration
+
+  implicit val config = new Configuration
 }

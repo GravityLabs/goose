@@ -13,7 +13,7 @@ class ArticleTest {
   @Test
   def newArticle() {
     val a = new Article()
-    a.testLogging
+
     assertTrue(a.isInstanceOf[Article])
   }
 }
