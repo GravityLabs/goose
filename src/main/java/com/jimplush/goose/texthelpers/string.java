@@ -15,21 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jimplush.goose.outputformatters;
-
-import org.jsoup.nodes.Element;
-
+package com.jimplush.goose.texthelpers;
 /**
- * User: jim plush
- * Date: 12/19/10
+ * Created by IntelliJ IDEA.
+ * User: robbie
+ * Date: 5/13/11
+ * Time: 12:11 AM
  */
-public interface OutputFormatter {
 
-  public Element getFormattedElement(Element topNode);
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class string {
+  
+  private string(){}
 
-  public String getFormattedText();
+  public static final String empty = "";
+  public static final String[] emptyArray = new String[] {empty};
 
-  public String getFormattedText(Element topNode);
+  public static boolean isNullOrEmpty(String input) {
+    if (input == null) return true;
+    if (input.length() == 0) return true;
+    return false;
+  }
 
+  public static StringSplitter SPACE_SPLITTER = new StringSplitter(" ");
 }
+
+

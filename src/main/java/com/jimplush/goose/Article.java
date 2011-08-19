@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * This class represents the extraction of an Article from a website
@@ -42,6 +42,8 @@ public class Article {
    */
   private String title;
 
+  private Date publishDate;
+
   /**
    * holds the metadescription meta tag in the html doc
    */
@@ -53,6 +55,11 @@ public class Article {
    * this is the guy you probably want, just pure text
    */
   private String cleanedArticleText;
+
+  /**
+   * holds the original unmodified HTML that goose retrieved from the URL
+   */
+  private String rawHtml;
 
 
   /**
@@ -99,6 +106,13 @@ public class Article {
   private ArrayList<Element> movies;
 
   /**
+   * holds a list of tags extracted from the article
+   */
+  private Set<String> tags;
+
+  private Map<String, String> additionalData;
+
+  /**
    * returns the title of the webpage
    *
    * @return
@@ -109,6 +123,18 @@ public class Article {
 
   public void setTitle(String title) {
     this.title = title;
+  }
+
+  /**
+   * The {@link Date} this {@link Article} was published
+   * @return an instance of {@link Date} or <code>null</code> if no date was identified
+   */
+  public Date getPublishDate() {
+    return publishDate;
+  }
+
+  public void setPublishDate(Date publishDate) {
+    this.publishDate = publishDate;
   }
 
   public String getMetaDescription() {
@@ -168,6 +194,20 @@ public class Article {
     this.movies = movies;
   }
 
+  /**
+   * The unique set of tags that matched: "a[rel=tag], a[href*=/tag/]"
+   * @return the unique set of TAGs extracted from this {@link Article}
+   */
+  public Set<String> getTags() {
+    if (tags == null) {
+      tags = new HashSet<String>();
+    }
+    return tags;
+  }
+
+  public void setTags(Set<String> tags) {
+    this.tags = tags;
+  }
 
   public ArrayList<String> getImageCandidates() {
     return imageCandidates;
@@ -192,5 +232,27 @@ public class Article {
 
   public void setCleanedArticleText(String cleanedArticleText) {
     this.cleanedArticleText = cleanedArticleText;
+  }
+
+  public String getRawHtml() {
+    return rawHtml;
+  }
+
+  public void setRawHtml(String rawHtml) {
+    this.rawHtml = rawHtml;
+  }
+
+  /**
+   * A property bucket for consumers of goose to store custom data extractions.
+   * This is populated by an implementation of {@link com.jimplush.goose.extractors.AdditionalDataExtractor}
+   * which is executed before document cleansing within {@link ContentExtractor#extractContent}
+   * @return a {@link Map Map&lt;String,String&gt;} of property name to property vaue (represented as a {@link String}.
+   */
+  public Map<String, String> getAdditionalData() {
+    return additionalData;
+  }
+
+  public void setAdditionalData(Map<String, String> additionalData) {
+    this.additionalData = additionalData;
   }
 }

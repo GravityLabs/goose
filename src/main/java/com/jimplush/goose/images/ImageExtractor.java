@@ -25,6 +25,7 @@ import java.util.ArrayList;
 /**
  * User: Jim Plush
  * Date: 12/19/10
+ * Image extraction algorithm was developed alongside Steve Kuo, PhD.
  */
 public interface ImageExtractor {
 

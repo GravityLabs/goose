@@ -15,21 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jimplush.goose.outputformatters;
-
-import org.jsoup.nodes.Element;
-
+package com.jimplush.goose.texthelpers;
 /**
- * User: jim plush
- * Date: 12/19/10
+ * Created by IntelliJ IDEA.
+ * User: robbie
+ * Date: 5/13/11
+ * Time: 3:53 PM
  */
-public interface OutputFormatter {
 
-  public Element getFormattedElement(Element topNode);
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.regex.Pattern;
 
-  public String getFormattedText();
+public class StringSplitter {
 
-  public String getFormattedText(Element topNode);
+  private Pattern pattern;
 
+  public StringSplitter(String pattern) {
+    this.pattern = Pattern.compile(pattern);
+  }
+
+  public String[] split(String input) {
+    if (string.isNullOrEmpty(input)) return string.emptyArray;
+    return pattern.split(input);
+  }
 }
+
+

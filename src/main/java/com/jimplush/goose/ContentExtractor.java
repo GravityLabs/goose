@@ -21,31 +21,22 @@ import com.jimplush.goose.cleaners.DefaultDocumentCleaner;
 import com.jimplush.goose.cleaners.DocumentCleaner;
 import com.jimplush.goose.images.BestImageGuesser;
 import com.jimplush.goose.images.ImageExtractor;
-import com.jimplush.goose.network.HtmlFetcher;
-import com.jimplush.goose.network.MaxBytesException;
-import com.jimplush.goose.network.NotHtmlException;
+import com.jimplush.goose.network.*;
 import com.jimplush.goose.outputformatters.DefaultOutputFormatter;
 import com.jimplush.goose.outputformatters.OutputFormatter;
-import com.jimplush.goose.texthelpers.HashUtils;
-import com.jimplush.goose.texthelpers.StopWords;
-import com.jimplush.goose.texthelpers.WordStats;
+import com.jimplush.goose.texthelpers.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.client.HttpClient;
+import org.jsoup.nodes.*;
+import org.jsoup.select.Elements;
+import org.jsoup.select.Selector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Attributes;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.*;
+import java.util.*;
 
 /**
  * User: jim plush
@@ -56,6 +47,9 @@ import java.util.regex.*;
  * Gravity was doing 30+ million links per day with this codebase across a series of crawling servers for a project
  * and it held up well. Our current port is slightly different than this one but I'm working to align them so the goose
  * project gets the love as we continue to move forward.
+ *
+ * Cougar: God dammit, Mustang! This is Ghost Rider 117. This bogey is all over me. He's got missile lock on me. Do I have permission to fire?
+ * Stinger: Do not fire until fired upon...
  */
 
 
@@ -66,23 +60,33 @@ public class ContentExtractor {
 
   private static final Logger logger = LoggerFactory.getLogger(ContentExtractor.class);
 
+  private static final StringReplacement MOTLEY_REPLACEMENT = StringReplacement.compile("&#65533;", string.empty);
+
+  private static final StringReplacement ESCAPED_FRAGMENT_REPLACEMENT = StringReplacement.compile("#!", "?_escaped_fragment_=");
+
+  private static final ReplaceSequence TITLE_REPLACEMENTS = ReplaceSequence.create("&raquo;").append("»");
+  private static final StringSplitter PIPE_SPLITTER = new StringSplitter("\\|");
+  private static final StringSplitter DASH_SPLITTER = new StringSplitter(" - ");
+  private static final StringSplitter ARROWS_SPLITTER = new StringSplitter("»");
+  private static final StringSplitter COLON_SPLITTER = new StringSplitter(":");
+  private static final StringSplitter SPACE_SPLITTER = new StringSplitter(" ");
+  
+  private static final Set<String> NO_STRINGS = new HashSet<String>(0);
+  private static final String A_REL_TAG_SELECTOR = "a[rel=tag], a[href*=/tag/]";
+
+
   /**
    * holds the configuration settings we want to use
    */
   private Configuration config;
-
+  
   // sets the default cleaner class to prep the HTML for parsing
   private DocumentCleaner documentCleaner;
-
-
   // the MD5 of the URL we're currently parsing, used to references the images we download to the url so we
   // can more easily clean up resources when we're done with the page.
   private String linkhash;
-
-
   // once we have our topNode then we want to format that guy for output to the user
   private OutputFormatter outputFormatter;
-
   private ImageExtractor imageExtractor;
 
 
@@ -104,11 +108,33 @@ public class ContentExtractor {
   }
 
 
+  /**
+   * @param urlToCrawl - The url you want to extract the text from
+   * @param html       - if you already have the raw html handy you can pass it here to avoid a network call
+   * @return
+   */
+  public Article extractContent(String urlToCrawl, String html) {
+
+    return performExtraction(urlToCrawl, html);
+
+
+  }
+
+  /**
+   * @param urlToCrawl - The url you want to extract the text from, makes a network call
+   * @return
+   */
   public Article extractContent(String urlToCrawl) {
+    String html = null;
+    return performExtraction(urlToCrawl, html);
+  }
+
+
+  public Article performExtraction(String urlToCrawl, String rawHtml) {
 
     urlToCrawl = getUrlToCrawl(urlToCrawl);
     try {
-      URL url = new URL(urlToCrawl);
+      new URL(urlToCrawl);
 
       this.linkhash = HashUtils.md5(urlToCrawl);
     } catch (MalformedURLException e) {
@@ -118,17 +144,31 @@ public class ContentExtractor {
     ParseWrapper parseWrapper = new ParseWrapper();
     Article article = null;
     try {
-      String rawHtml = HtmlFetcher.getHtml(urlToCrawl);
-      rawHtml = fixRawHtml(rawHtml);
-      Document doc = parseWrapper.parse(rawHtml, urlToCrawl);
-
-      DocumentCleaner documentCleaner = getDocCleaner();
-      doc = documentCleaner.clean(doc);
-
+      if (rawHtml == null) {
+        rawHtml = HtmlFetcher.getHtml(urlToCrawl);
+      }
 
       article = new Article();
 
-      article.setTitle(getTitle(doc, article));
+      article.setRawHtml(rawHtml);
+
+      Document doc = parseWrapper.parse(rawHtml, urlToCrawl);
+
+
+      // before we cleanse, provide consumers with an opportunity to extract the publish date
+      article.setPublishDate(config.getPublishDateExtractor().extract(doc));
+
+      // now allow for any additional data to be extracted
+      article.setAdditionalData(config.getAdditionalDataExtractor().extract(doc));
+
+      // grab the text nodes of any <a ... rel="tag">Tag Name</a> elements
+      article.setTags(extractTags(doc));
+
+      // now perform a nice deep cleansing
+      DocumentCleaner documentCleaner = getDocCleaner();
+      doc = documentCleaner.clean(doc);
+
+      article.setTitle(getTitle(doc));
       article.setMetaDescription(getMetaDescription(doc));
       article.setMetaKeywords(getMetaKeywords(doc));
       article.setCanonicalLink(getCanonicalLink(doc, urlToCrawl));
@@ -156,10 +196,9 @@ public class ContentExtractor {
 
 
         outputFormatter = getOutputFormatter();
-        outputFormatter.getFormattedElement(article.getTopNode());
 
 
-        article.setCleanedArticleText(outputFormatter.getFormattedText());
+        article.setCleanedArticleText(outputFormatter.getFormattedText(article.getTopNode()));
 
 
         if (logger.isDebugEnabled()) {
@@ -184,21 +223,39 @@ public class ContentExtractor {
       logger.error("URL: " + urlToCrawl + " did not contain valid HTML to parse, exiting. " + e.toString());
     } catch (Exception e) {
       logger.error("General Exception occured on url: " + urlToCrawl + " " + e.toString());
+//      throw new RuntimeException(e);
     }
 
 
     return article;
   }
 
-  // used for gawker type ajax sites with pound sites
-  private String getUrlToCrawl(String urlToCrawl) {
-    String finalURL = urlToCrawl;
-    if (urlToCrawl.contains("#!")) {
-      finalURL = urlToCrawl.replace("#!", "?_escaped_fragment_=");
+  private Set<String> extractTags(Element node) {
+    if (node.children().size() == 0) return NO_STRINGS;
+
+    Elements elements = Selector.select(A_REL_TAG_SELECTOR, node);
+    if (elements.size() == 0) return NO_STRINGS;
+
+    Set<String> tags = new HashSet<String>(elements.size());
+    for (Element el : elements) {
+      String tag = el.text();
+      if (!string.isNullOrEmpty(tag)) tags.add(tag);
     }
 
-    if (logger.isInfoEnabled()) {
-      logger.info("Goose is about to crawl URL: " + finalURL);
+    return tags;
+  }
+
+  // used for gawker type ajax sites with pound sites
+  private String getUrlToCrawl(String urlToCrawl) {
+    String finalURL;
+    if (urlToCrawl.contains("#!")) {
+      finalURL = ESCAPED_FRAGMENT_REPLACEMENT.replaceAll(urlToCrawl);
+    } else {
+      finalURL = urlToCrawl;
+    }
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("Goose Extraction: " + finalURL);
     }
 
     return finalURL;
@@ -248,7 +305,7 @@ public class ContentExtractor {
    */
   private DocumentCleaner getDocCleaner() {
     if (this.documentCleaner == null) {
-      return new DefaultDocumentCleaner();
+      this.documentCleaner = new DefaultDocumentCleaner();
     }
     return this.documentCleaner;
   }
@@ -257,32 +314,35 @@ public class ContentExtractor {
    * attemps to grab titles from the html pages, lots of sites use different delimiters
    * for titles so we'll try and do our best guess.
    *
+   *
    * @param doc
-   * @param article
    * @return
    */
-  private String getTitle(Document doc, Article article) {
-    String title = "";
+  private String getTitle(Document doc) {
+    String title = string.empty;
 
     try {
 
-      String titleText = "";
+      Elements titleElem = doc.getElementsByTag("title");
+      if (titleElem == null || titleElem.isEmpty()) return string.empty;
 
-      titleText = doc.getElementsByTag("title").first().text();
+      String titleText = titleElem.first().text();
+
+      if (string.isNullOrEmpty(titleText)) return string.empty;
 
       boolean usedDelimeter = false;
 
       if (titleText.contains("|")) {
-        titleText = doTitleSplits(titleText, "\\|");
+        titleText = doTitleSplits(titleText, PIPE_SPLITTER);
         usedDelimeter = true;
       }
 
-      if (titleText.contains("-") && !usedDelimeter) {
-        titleText = doTitleSplits(titleText, " - ");
+      if (!usedDelimeter && titleText.contains("-")) {
+        titleText = doTitleSplits(titleText, DASH_SPLITTER);
         usedDelimeter = true;
       }
-      if (titleText.contains("»") && !usedDelimeter) {
-        titleText = doTitleSplits(titleText, "»");
+      if (!usedDelimeter && titleText.contains("»")) {
+        titleText = doTitleSplits(titleText, ARROWS_SPLITTER);
         usedDelimeter = true;
       }
       if (titleText.contains("&raquo;") && !usedDelimeter) {
@@ -290,18 +350,16 @@ public class ContentExtractor {
         usedDelimeter = true;
       }
 
-      if (titleText.contains(":") && !usedDelimeter) {
-        titleText = doTitleSplits(titleText, ":");
-        usedDelimeter = true;
+      if (!usedDelimeter && titleText.contains(":")) {
+        titleText = doTitleSplits(titleText, COLON_SPLITTER);
       }
 
       // encode unicode charz
       title = StringEscapeUtils.escapeHtml(titleText);
-      ;
 
       // todo this is a hack until I can fix this.. weird motely crue error with
       // http://money.cnn.com/2010/10/25/news/companies/motley_crue_bp.fortune/index.htm?section=money_latest
-      title = title.replace("&#65533;", "");
+      title = MOTLEY_REPLACEMENT.replaceAll(title);
 
       if (logger.isDebugEnabled()) {
         logger.debug("Page title is: " + title);
@@ -318,31 +376,34 @@ public class ContentExtractor {
    * based on a delimeter in the title take the longest piece or do some custom logic based on the site
    *
    * @param title
-   * @param delimeter
+   * @param splitter
    * @return
    */
-  private String doTitleSplits(String title, String delimeter) {
-
-    String largeText = "";
+  private String doTitleSplits(String title, StringSplitter splitter) {
     int largetTextLen = 0;
+    int largeTextIndex = 0;
 
-    String[] titlePieces = title.split(delimeter);
+    String[] titlePieces = splitter.split(title);
 
     // take the largest split
-    for (String p : titlePieces) {
-      if (p.length() > largetTextLen) {
-        largeText = p;
-        largetTextLen = p.length();
+    for (int i = 0; i < titlePieces.length; i++) {
+      String current = titlePieces[i];
+      if (current.length() > largetTextLen) {
+        largetTextLen = current.length();
+        largeTextIndex = i;
       }
     }
 
-    largeText = largeText.replace("&raquo;", "");
-    largeText = largeText.replace("»", "");
+    return TITLE_REPLACEMENTS.replaceAll(titlePieces[largeTextIndex]).trim();
+  }
 
-
-    return largeText.trim();
-
-
+  private String getMetaContent(Document doc, String metaName) {
+    Elements meta = doc.select(metaName);
+    if (meta.size() > 0) {
+      String content = meta.first().attr("content");
+      return string.isNullOrEmpty(content) ? string.empty : content.trim();
+    }
+    return string.empty;
   }
 
 
@@ -350,37 +411,29 @@ public class ContentExtractor {
    * if the article has meta description set in the source, use that
    */
   private String getMetaDescription(Document doc) {
-    String metaDescription = "";
-    Elements meta = doc.select("meta[name=description]");
-    if (meta.size() > 0) {
-      metaDescription = meta.first().attr("content").trim();
-    }
-    return metaDescription;
+    return getMetaContent(doc, "meta[name=description]");
   }
 
   /**
    * if the article has meta keywords set in the source, use that
    */
   private String getMetaKeywords(Document doc) {
-    String metaKeywords = "";
-    Elements meta = doc.select("meta[name=keywords]");
-    if (meta.size() > 0) {
-      metaKeywords = meta.first().attr("content").trim();
-    }
-    return metaKeywords;
+    return getMetaContent(doc, "meta[name=keywords]");
   }
 
   /**
    * if the article has meta canonical link set in the url
    */
   private String getCanonicalLink(Document doc, String baseUrl) {
-    String canonicalUrl = baseUrl;
     Elements meta = doc.select("link[rel=canonical]");
     if (meta.size() > 0) {
-      canonicalUrl = meta.first().attr("href").trim();
-
+      String href = meta.first().attr("href");
+      return string.isNullOrEmpty(href) ? string.empty : href.trim();
+    } else {
+      return baseUrl;
     }
 
+/*    Not sure what this is for
     // set domain based on canonicalUrl
     URL url = null;
     try {
@@ -398,22 +451,15 @@ public class ContentExtractor {
 
     } catch (MalformedURLException e) {
       logger.error(e.toString(), e);
-    }
-    return canonicalUrl;
-
-
+    }*/
   }
 
   private String getDomain(String canonicalLink) {
-    URL url = null;
     try {
-      url = new URL(canonicalLink);
-      String domain = url.getHost();
-      return domain;
+      return new URL(canonicalLink).getHost();
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   /**
@@ -472,7 +518,7 @@ public class ContentExtractor {
 
       float boostScore = 0;
 
-      if (isOkToBoost(node, i)) {
+      if (isOkToBoost(node)) {
         if (cnt >= 0) {
           boostScore = (float) ((1.0 / startingBoost) * 50);
           startingBoost++;
@@ -537,26 +583,25 @@ public class ContentExtractor {
         topNode = e;
       }
     }
-    if (topNode == null) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("ARTICLE NOT ABLE TO BE EXTRACTED!, WE HAZ FAILED YOU LORD VADAR");
-      }
-    } else {
-      String logText = "";
-      String targetText = "";
-      Element topPara = topNode.getElementsByTag("p").first();
-      if (topPara == null) {
-        topNode.text();
-      } else {
-        topPara.text();
-      }
 
-      if (targetText.length() >= 51) {
-        logText = targetText.substring(0, 50);
+    if (logger.isDebugEnabled()) {
+      if (topNode == null) {
+        logger.debug("ARTICLE NOT ABLE TO BE EXTRACTED!, WE HAZ FAILED YOU LORD VADAR");
       } else {
-        logText = targetText;
-      }
-      if (logger.isDebugEnabled()) {
+        String logText;
+        String targetText = "";
+        Element topPara = topNode.getElementsByTag("p").first();
+        if (topPara == null) {
+          topNode.text();
+        } else {
+          topPara.text();
+        }
+
+        if (targetText.length() >= 51) {
+          logText = targetText.substring(0, 50);
+        } else {
+          logText = targetText;
+        }
         logger.debug("TOPNODE TEXT: " + logText.trim());
         logger.debug("Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id() + "' class='" + topNode.attr("class") + "' ");
       }
@@ -576,18 +621,9 @@ public class ContentExtractor {
   private ArrayList<Element> getNodesToCheck(Document doc) {
     ArrayList<Element> nodesToCheck = new ArrayList<Element>();
 
-    Elements items = doc.getElementsByTag("p");
-    for (Element item : items) {
-      nodesToCheck.add(item);
-    }
-    Elements items2 = doc.getElementsByTag("pre");
-    for (Element item : items2) {
-      nodesToCheck.add(item);
-    }
-    Elements items3 = doc.getElementsByTag("td");
-    for (Element item : items3) {
-      nodesToCheck.add(item);
-    }
+    nodesToCheck.addAll(doc.getElementsByTag("p"));
+    nodesToCheck.addAll(doc.getElementsByTag("pre"));
+    nodesToCheck.addAll(doc.getElementsByTag("td"));
     return nodesToCheck;
 
   }
@@ -602,15 +638,13 @@ public class ContentExtractor {
   private static boolean isHighLinkDensity(Element e) {
 
     Elements links = e.getElementsByTag("a");
-    String txt = e.text().trim();
 
     if (links.size() == 0) {
       return false;
     }
 
-    float score = 0;
-    String text = e.text();
-    String[] words = text.split(" ");
+    String text = e.text().trim();
+    String[] words = SPACE_SPLITTER.split(text);
     float numberOfWords = words.length;
 
 
@@ -620,21 +654,21 @@ public class ContentExtractor {
       sb.append(link.text());
     }
     String linkText = sb.toString();
-    String[] linkWords = linkText.split(" ");
+    String[] linkWords = SPACE_SPLITTER.split(linkText);
     float numberOfLinkWords = linkWords.length;
 
     float numberOfLinks = links.size();
 
-    float linkDivisor = (float) (numberOfLinkWords / numberOfWords);
-    score = (float) linkDivisor * numberOfLinks;
+    float linkDivisor = numberOfLinkWords / numberOfWords;
+    float score = linkDivisor * numberOfLinks;
 
-    String logText = "";
-    if (e.text().length() >= 51) {
-      logText = e.text().substring(0, 50);
-    } else {
-      logText = e.text();
-    }
     if (logger.isDebugEnabled()) {
+      String logText;
+      if (e.text().length() >= 51) {
+        logText = e.text().substring(0, 50);
+      } else {
+        logText = e.text();
+      }
       logger.debug("Calulated link density score as: " + score + " for node: " + logText);
     }
     if (score > 1) {
@@ -649,11 +683,11 @@ public class ContentExtractor {
    * boost a parent node that it should be connected to other paragraphs, at least for the first n paragraphs
    * so we'll want to make sure that the next sibling is a paragraph and has at least some substatial weight to it
    *
+   *
    * @param node
-   * @param i
    * @return
    */
-  private boolean isOkToBoost(Element node, int i) {
+  private boolean isOkToBoost(Element node) {
 
     int stepsAway = 0;
 
@@ -669,7 +703,6 @@ public class ContentExtractor {
         }
 
         String paraText = sibling.text();
-        String html = sibling.outerHtml();
         WordStats wordStats = StopWords.getStopWordCount(paraText);
         if (wordStats.getStopWordCount() > 5) {
           if (logger.isDebugEnabled()) {
@@ -701,7 +734,8 @@ public class ContentExtractor {
   private void updateScore(Element node, int addToScore) {
     int currentScore;
     try {
-      currentScore = Integer.parseInt(node.attr("gravityScore"));
+      String scoreString = node.attr("gravityScore");
+      currentScore = string.isNullOrEmpty(scoreString) ? 0 : Integer.parseInt(scoreString);
     } catch (NumberFormatException e) {
       currentScore = 0;
     }
@@ -719,7 +753,8 @@ public class ContentExtractor {
   private void updateNodeCount(Element node, int addToCount) {
     int currentScore;
     try {
-      currentScore = Integer.parseInt(node.attr("gravityNodes"));
+      String countString = node.attr("gravityNodes");
+      currentScore = string.isNullOrEmpty(countString) ? 0 : Integer.parseInt(countString);
     } catch (NumberFormatException e) {
       currentScore = 0;
     }
@@ -736,11 +771,12 @@ public class ContentExtractor {
    * @return
    */
   private int getScore(Element node) {
+    if (node == null) return 0;
     try {
-      return Integer.parseInt(node.attr("gravityScore"));
+      String grvScoreString = node.attr("gravityScore");
+      if (string.isNullOrEmpty(grvScoreString)) return 0;
+      return Integer.parseInt(grvScoreString);
     } catch (NumberFormatException e) {
-      return 0;
-    } catch (NullPointerException e) {
       return 0;
     }
   }

@@ -18,8 +18,14 @@
 package com.jimplush.goose;
 
 
+import com.jimplush.goose.extractors.AdditionalDataExtractor;
+import com.jimplush.goose.extractors.PublishDateExtractor;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * User: jim
@@ -60,6 +66,47 @@ public class Configuration {
    *  path to your imagemagick identify executable
    */
   private String imagemagickIdentifyPath= "/usr/local/bin/identify";
+
+  private PublishDateExtractor publishDateExtractor = new PublishDateExtractor() {
+    @Override
+    public Date extract(Element rootElement) {
+      return null;
+    }
+  };
+
+  public PublishDateExtractor getPublishDateExtractor() {
+    return publishDateExtractor;
+  }
+
+  /**
+   * Pass in to extract article publish dates.
+   * @param extractor a concrete instance of {@link PublishDateExtractor}
+   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
+   */
+  public void setPublishDateExtractor(PublishDateExtractor extractor) throws IllegalArgumentException {
+    if (extractor == null) throw new IllegalArgumentException("extractor must not be null!");
+    this.publishDateExtractor = extractor;
+  }
+
+  private AdditionalDataExtractor additionalDataExtractor = new AdditionalDataExtractor() {
+    @Override
+    public Map<String, String> extract(Element rootElement) {
+      return null;
+    }
+  };
+
+  public AdditionalDataExtractor getAdditionalDataExtractor() {
+    return additionalDataExtractor;
+  }
+
+  /**
+   * Pass in to extract any additional data not defined within {@link Article}
+   * @param extractor a concrete instance of {@link AdditionalDataExtractor}
+   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
+   */
+  public void setAdditionalDataExtractor(AdditionalDataExtractor extractor) {
+    this.additionalDataExtractor = extractor;
+  }
 
   public String getLocalStoragePath() {
     return localStoragePath;

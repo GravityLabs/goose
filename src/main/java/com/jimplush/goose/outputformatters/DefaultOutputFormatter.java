@@ -38,6 +38,12 @@ public class DefaultOutputFormatter implements OutputFormatter {
 
   private Element topNode;
 
+  /**
+   * Depricated use {@link #getFormattedText(Element)}
+   * @param topNode the top most node to format
+   * @return the prepared Element
+   */
+  @Deprecated
   public Element getFormattedElement(Element topNode) {
 
     this.topNode = topNode;
@@ -55,11 +61,33 @@ public class DefaultOutputFormatter implements OutputFormatter {
   }
 
   /**
+   * Removes all unnecessarry elements and formats the selected text nodes
+   * @param topNode the top most node to format
+   * @return a formatted string with all HTML removed
+   */
+  public String getFormattedText(Element topNode) {
+
+    this.topNode = topNode;
+
+    removeNodesWithNegativeScores();
+
+    convertLinksToText();
+
+    replaceTagsWithText();
+
+    removeParagraphsWithFewWords();
+
+    return getFormattedText();
+  }
+
+  /**
+   * Depricated use {@link #getFormattedText(Element)}
    * takes an element and turns the P tags into \n\n
    * // todo move this to an output formatter object instead of inline here
    *
    * @return
    */
+  @Deprecated
   public String getFormattedText() {
 
     StringBuilder sb = new StringBuilder();
@@ -67,7 +95,7 @@ public class DefaultOutputFormatter implements OutputFormatter {
     Elements nodes = topNode.getAllElements();
     for (Element e : nodes) {
       if (e.tagName().equals("p")) {
-        String text = StringEscapeUtils.escapeHtml(e.text()).trim();
+        String text = StringEscapeUtils.unescapeHtml(e.text()).trim();
         sb.append(text);
         sb.append("\n\n");
       }

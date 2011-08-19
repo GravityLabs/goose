@@ -15,21 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jimplush.goose.outputformatters;
+package com.jimplush.goose.extractors;
 
 import org.jsoup.nodes.Element;
 
 /**
- * User: jim plush
- * Date: 12/19/10
+ * Created by IntelliJ IDEA.
+ * User: robbie
+ * Date: 5/19/11
+ * Time: 2:45 PM
  */
-public interface OutputFormatter {
 
-  public Element getFormattedElement(Element topNode);
-
-
-  public String getFormattedText();
-
-  public String getFormattedText(Element topNode);
-
+/**
+ * Encapsulates the process of extracting some type <code>T</code> from an article
+ * @param <T> the type of {@link Object} the implementing class will return
+ */
+public interface Extractor<T> {
+  /**
+   * Given the specified {@link Element}, extract @param <T>
+   *
+   * @param rootElement passed in from the {@link com.jimplush.goose.ContentExtractor} after the article has been parsed
+   * @return an instance of type <code>T</code>
+   */
+  T extract(Element rootElement);
 }
+
+
