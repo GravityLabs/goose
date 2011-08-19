@@ -21,27 +21,27 @@ class Article extends Logging {
   * stores the lovely, pure text from the article, stripped of html, formatting, etc...
   * just raw text with paragraphs separated by newlines. This is probably what you want to use.
   */
-  var cleanedArticleText: String = null
+  var cleanedArticleText: String = ""
 
   /**
   * meta description field in HTML source
   */
-  var metaDescription: String = null
+  var metaDescription: String = ""
 
   /**
   * meta keywords field in the HTML source
   */
-  var metaKeywords: String = null
+  var metaKeywords: String = ""
 
   /**
   * The canonical link of this article if found in the meta data
   */
-  var canonicalLink: String = null
+  var canonicalLink: String = ""
 
   /**
   * holds the domain of this article we're parsing
   */
-  var domain: String = null
+  var domain: String = ""
 
   /**
   * holds the top Element we think is a candidate for the main body of the article
@@ -52,6 +52,12 @@ class Article extends Logging {
   * holds the top Image object that we think represents this article
   */
   var topImage: Image = null
+
+
+  /**
+  * holds a set of tags that may have been in the artcle, these are not meta keywords
+  */
+  var tags: Set[String] = null
 
   /**
   * holds a list of any movies we found on the page like youtube, vimeo
@@ -72,7 +78,7 @@ class Article extends Logging {
   /**
   * stores the RAW HTML straight from the network connection
   */
-  var rawHtml: String = null
+  var rawHtml: String = ""
 
   /**
   * the JSoup Document object

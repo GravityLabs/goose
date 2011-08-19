@@ -1,106 +1,33 @@
 package com.gravity.goose
 
-import cleaners.{DocumentCleaner, StandardDocumentCleaner}
-import extractors.{ContentExtractor, StandardContentExtractor}
-import images.{ImageExtractor, StandardImageExtractor}
-import network.HtmlFetcher
-import outputformatters.{StandardOutputFormatter, OutputFormatter}
-import utils.{Logging, URLHelper}
-import org.jsoup.Jsoup
-import org.jsoup.nodes.{Element, Document}
-import org.apache.http.client.HttpClient
+import utils.{Logging}
 import java.io.File
+import akka.actor.Actor
 
 /**
  * Created by Jim Plush - Gravity.com
  * Date: 8/14/11
  */
-
-
 class Goose()(implicit config: Configuration) extends Logging {
 
   import Goose._
 
   initializeEnvironment()
 
-
+  /**
+  * Main method to extract an article object from a URL, pass in a url and get back a Article
+  * @url The url that you want to extract
+  */
   def extractContent(url: String): Article = {
 
-
-    for {
-      pc <- URLHelper.getCleanedUrl(url)
-      rawHtml <- HtmlFetcher.getHtml(pc.url.toString)
-      doc <- getDocument(pc.url.toString, rawHtml)
-    } {
-      trace("Crawling url: %s".format(pc.url))
-
-      val extractor = getExtractor
-      val docCleaner = getDocCleaner
-      val outputFormatter = getOutputFormatter
-
-      val article = new Article()
-      article.finalUrl = pc.url.toString
-      article.linkhash = pc.linkhash
-      article.rawHtml = rawHtml
-      article.doc = doc
-      article.rawDoc = doc
-
-      article.title = extractor.getTitle(article)
-      article.metaDescription = extractor.getMetaDescription(article)
-      article.metaKeywords = extractor.getMetaKeywords(article)
-      article.canonicalLink = extractor.getCanonicalLink(article)
-      article.domain = extractor.getDomain(article.finalUrl)
-
-      // before we do any calcs on the body itself let's clean up the document
-      article.doc = docCleaner.clean(article)
-
-      extractor.calculateBestNodeBasedOnClustering(article) match {
-        case Some(node: Element) => {
-          article.topNode = node
-          article.movies = extractor.extractVideos(article.topNode)
-          article.topNode = extractor.postExtractionCleanup(article.topNode)
-          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
-
-          if (config.enableImageFetching) {
-            val imageExtractor = getImageExtractor(article)
-            article.topImage = imageExtractor.getBestImage(doc, article.topNode)
-          }
-          return article
-        }
-        case _ => trace("NO ARTICLE FOUND"); return null
+    val cc = new CrawlCandidate(config, url)
+    val result = crawlingActor !! cc
+    result match {
+      case Some(article) => {
+        article.asInstanceOf[Article]
       }
-      return article
+      case _ => null
     }
-    null
-  }
-
-  def getImageExtractor(article: Article): ImageExtractor = {
-    val httpClient: HttpClient = HtmlFetcher.getHttpClient
-    new StandardImageExtractor(httpClient, article, config)
-  }
-
-  def getOutputFormatter: OutputFormatter = {
-    new StandardOutputFormatter
-  }
-
-  def getDocCleaner: DocumentCleaner = {
-    new StandardDocumentCleaner
-  }
-
-  def getDocument(url: String, rawlHtml: String): Option[Document] = {
-
-    try {
-      Some(Jsoup.parse(rawlHtml))
-    } catch {
-      case e: Exception => {
-        trace("Unable to parse %s properly into JSoup Doc".format(url))
-        None
-      }
-    }
-  }
-
-  def getExtractor: ContentExtractor = {
-    new StandardContentExtractor
   }
 
   def initializeEnvironment() {
@@ -119,6 +46,8 @@ class Goose()(implicit config: Configuration) extends Logging {
     if (!f.canWrite) {
       throw new Exception(config.localStoragePath + " directory is not writeble, you need to set this for image processing downloads")
     }
+
+    // todo cleanup any jank that may be in the tmp folder currently
   }
 
 }
@@ -126,4 +55,11 @@ class Goose()(implicit config: Configuration) extends Logging {
 object Goose {
 
   implicit val config = new Configuration
+
+  val logPrefix = "goose: "
+
+  // create the crawling actor that will accept bulk crawls
+  val crawlingActor = Actor.actorOf[CrawlingActor]
+  crawlingActor.start()
+
 }

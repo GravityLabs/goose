@@ -1,7 +1,6 @@
 package com.gravity.goose.extractors
 
 import com.gravity.goose.Article
-import org.jsoup.select.Elements
 import com.gravity.goose.text._
 import com.gravity.goose.utils.Logging
 import org.apache.commons.lang.StringEscapeUtils
@@ -10,6 +9,7 @@ import java.util.ArrayList
 import collection.JavaConversions._
 import org.jsoup.nodes.{Attributes, Element, Document}
 import collection.mutable.{ListBuffer, HashSet}
+import org.jsoup.select.{Selector, Elements}
 
 /**
 * Created by Jim Plush
@@ -30,7 +30,7 @@ trait ContentExtractor extends Logging {
   val ARROWS_SPLITTER: StringSplitter = new StringSplitter("»")
   val COLON_SPLITTER: StringSplitter = new StringSplitter(":")
   val SPACE_SPLITTER: StringSplitter = new StringSplitter(" ")
-  //   val NO_STRINGS: Set[String] = new HashSet[String](0)
+  val NO_STRINGS = Set.empty[String]
   val A_REL_TAG_SELECTOR: String = "a[rel=tag], a[href*=/tag/]"
 
   def getTitle(article: Article): String = {
@@ -141,6 +141,20 @@ trait ContentExtractor extends Logging {
 
   def getDomain(url: String): String = {
     new URL(url).getHost
+  }
+
+  def extractTags(article: Article): Set[String] = {
+    val node = article.doc
+    if (node.children.size == 0) return NO_STRINGS
+    val elements: Elements = Selector.select(A_REL_TAG_SELECTOR, node)
+    if (elements.size == 0) return NO_STRINGS
+    val tags = new HashSet[String]
+
+    for (el <- elements) {
+      var tag: String = el.text
+      if (!string.isNullOrEmpty(tag)) tags += tag
+    }
+    tags.toSet
   }
 
   /**
@@ -494,17 +508,17 @@ trait ContentExtractor extends Logging {
 
         trace(logPrefix + "topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore)
 
-        if (!removed) {
-          if (currentNodeScore < thresholdScore) {
-            if (!(e.tagName == "td")) {
-              trace(logPrefix + "Removing node due to low threshold score")
-              e.remove()
-            }
-            else {
-              trace(logPrefix + "Not removing TD node")
-            }
+
+        if (currentNodeScore < thresholdScore) {
+          if (!(e.tagName == "td")) {
+            trace(logPrefix + "Removing node due to low threshold score")
+            e.remove()
+          }
+          else {
+            trace(logPrefix + "Not removing TD node")
           }
         }
+
       }
     }
     node

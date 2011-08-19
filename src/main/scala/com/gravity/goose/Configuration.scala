@@ -1,5 +1,10 @@
 package com.gravity.goose
 
+import extractors.{AdditionalDataExtractor, PublishDateExtractor}
+import org.jsoup.nodes.Element
+import java.util.Date
+
+
 /**
  * Created by Jim Plush
  * User: jim
@@ -32,10 +37,16 @@ class Configuration {
   */
   var imagemagickIdentifyPath: String = "/opt/local/bin/identify"
 
-//  def getPublishDateExtractor: PublishDateExtractor = {
-//    return publishDateExtractor
-//  }
+  var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
+    def extract(rootElement: Element): Date = {
+      null
+    }
+  }
+  var additionalDataExtractor: AdditionalDataExtractor = new AdditionalDataExtractor
 
+  def getPublishDateExtractor: PublishDateExtractor = {
+    publishDateExtractor
+  }
 
 
   /**
@@ -43,35 +54,23 @@ class Configuration {
   * @param extractor a concrete instance of {@link PublishDateExtractor}
   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
   */
-//  def setPublishDateExtractor(extractor: PublishDateExtractor): Unit = {
-//    if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
-//    this.publishDateExtractor = extractor
-//  }
-//
-//  def getAdditionalDataExtractor: AdditionalDataExtractor = {
-//    return additionalDataExtractor
-//  }
+  def setPublishDateExtractor(extractor: PublishDateExtractor): Unit = {
+    if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
+    this.publishDateExtractor = extractor
+  }
+
+  def getAdditionalDataExtractor: AdditionalDataExtractor = {
+    additionalDataExtractor
+  }
 
   /**
   * Pass in to extract any additional data not defined within {@link Article}
   * @param extractor a concrete instance of {@link AdditionalDataExtractor}
   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
   */
-//  def setAdditionalDataExtractor(extractor: AdditionalDataExtractor): Unit = {
-//    this.additionalDataExtractor = extractor
-//  }
+  def setAdditionalDataExtractor(extractor: AdditionalDataExtractor): Unit = {
+    this.additionalDataExtractor = extractor
+  }
 
 
-
-
-//  private var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
-//    def extract(rootElement: Element): Date = {
-//      return null
-//    }
-//  }
-//  private var additionalDataExtractor: AdditionalDataExtractor = new AdditionalDataExtractor {
-//    def extract(rootElement: Element): Map[String, String] = {
-//      return null
-//    }
-//  }
 }

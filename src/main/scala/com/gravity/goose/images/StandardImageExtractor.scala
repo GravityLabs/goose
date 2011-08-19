@@ -55,7 +55,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   */
   var matchBadImageNames: Matcher = null
   val NODE_ID_FORMAT: String = "tag: %s class: %s ID: %s"
-  val knownIds: Array[String] = Array("yn-story-related-media", "cnn_strylccimg300cntr", "big_photo")
+  val KNOWN_IMG_DOM_NAMES = "yn-story-related-media" :: "cnn_strylccimg300cntr" :: "big_photo" :: Nil
 
   var sb: StringBuilder = new StringBuilder
   // create negative elements
@@ -356,14 +356,16 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * //todo enable this to use a series of settings files so people can define what the image ids/classes are on specific sites
   */
   def checkForKnownElements(): Unit = {
+
     var knownImage: Element = null
     trace(logPrefix + "Checking for known images from large sites")
 
-    for (knownName <- knownIds) {
+    for (knownName <- KNOWN_IMG_DOM_NAMES) {
+      println("NAMEZ: " + knownName)
       try {
-        var known: Element = doc.getElementById(knownName)
+        var known: Element = article.rawDoc.getElementById(knownName)
         if (known == null) {
-          known = doc.getElementsByClass(knownName).first
+          known = article.rawDoc.getElementsByClass(knownName).first
         }
         if (known != null) {
           var mainImage: Element = known.getElementsByTag("img").first
@@ -374,6 +376,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
             }
           }
         }
+
       }
       catch {
         case e: NullPointerException => {
@@ -395,6 +398,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
         logger.debug("No known images found")
       }
     }
+
   }
 
   /**
