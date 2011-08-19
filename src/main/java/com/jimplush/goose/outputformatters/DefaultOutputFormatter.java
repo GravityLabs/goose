@@ -140,7 +140,11 @@ public class DefaultOutputFormatter implements OutputFormatter {
    */
   private void replaceTagsWithText() {
 
-    Elements strongs = topNode.getElementsByTag("strong");
+    topNode.select("strong").unwrap();
+    topNode.select("b").unwrap();
+    topNode.select("i").unwrap();
+    
+/*    Elements strongs = topNode.getElementsByTag("strong");
     for (Element item : strongs) {
       TextNode tn = new TextNode(item.text(), topNode.baseUri());
       item.replaceWith(tn);
@@ -156,7 +160,7 @@ public class DefaultOutputFormatter implements OutputFormatter {
     for (Element item : italics) {
       TextNode tn = new TextNode(item.text(), topNode.baseUri());
       item.replaceWith(tn);
-    }
+    }*/
   }
 
   /**

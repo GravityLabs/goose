@@ -85,6 +85,8 @@ public class ContentExtractor {
   // the MD5 of the URL we're currently parsing, used to references the images we download to the url so we
   // can more easily clean up resources when we're done with the page.
   private String linkhash;
+  // also store the actual link we're crawling so we can do a few things customized per-site
+  private String link;
   // once we have our topNode then we want to format that guy for output to the user
   private OutputFormatter outputFormatter;
   private ImageExtractor imageExtractor;
@@ -136,6 +138,7 @@ public class ContentExtractor {
     try {
       new URL(urlToCrawl);
 
+      this.link = urlToCrawl;
       this.linkhash = HashUtils.md5(urlToCrawl);
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Invalid URL Passed in: " + urlToCrawl, e);
@@ -147,6 +150,7 @@ public class ContentExtractor {
       if (rawHtml == null) {
         rawHtml = HtmlFetcher.getHtml(urlToCrawl);
       }
+      //rawHtml = fixRawHtml(rawHtml);
 
       article = new Article();
 
@@ -345,10 +349,10 @@ public class ContentExtractor {
         titleText = doTitleSplits(titleText, ARROWS_SPLITTER);
         usedDelimeter = true;
       }
-      if (titleText.contains("&raquo;") && !usedDelimeter) {
-        titleText = doTitleSplits(titleText, "&raquo;");
-        usedDelimeter = true;
-      }
+//       if (titleText.contains("&raquo;") && !usedDelimeter) {
+//         titleText = doTitleSplits(titleText, "&raquo;");
+//         usedDelimeter = true;
+//       }
 
       if (!usedDelimeter && titleText.contains(":")) {
         titleText = doTitleSplits(titleText, COLON_SPLITTER);
@@ -384,6 +388,11 @@ public class ContentExtractor {
     int largeTextIndex = 0;
 
     String[] titlePieces = splitter.split(title);
+    
+    if (this.link.contains("blogs.walkerart.org")) {
+        // it's always the second one!!
+        return TITLE_REPLACEMENTS.replaceAll(titlePieces[1]).trim();
+    }
 
     // take the largest split
     for (int i = 0; i < titlePieces.length; i++) {
