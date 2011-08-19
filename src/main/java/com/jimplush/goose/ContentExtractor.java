@@ -45,6 +45,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.*;
 
 /**
  * User: jim plush
@@ -118,6 +119,7 @@ public class ContentExtractor {
     Article article = null;
     try {
       String rawHtml = HtmlFetcher.getHtml(urlToCrawl);
+      rawHtml = fixRawHtml(rawHtml);
       Document doc = parseWrapper.parse(rawHtml, urlToCrawl);
 
       DocumentCleaner documentCleaner = getDocCleaner();
@@ -202,7 +204,21 @@ public class ContentExtractor {
     return finalURL;
   }
 
-
+  // There's a bug in JSoup that can't deal with internal spaces in tags like this. It's a hack.
+  private String fixRawHtml(String html) {
+    html = html.replaceAll("<strong> "," <strong>");
+    html = html.replaceAll(" </strong>","</strong> ");
+    html = html.replaceAll("<i> "," <i>");
+    html = html.replaceAll(" </i>","</i> ");
+    html = html.replaceAll("<b> "," <b>");
+    html = html.replaceAll(" </b>","</b> ");
+    html = html.replaceAll("<em> "," <em>");
+    html = html.replaceAll(" </em>","</em> ");
+    
+    html = html.replaceAll(" </a>","</a> ");
+    return html;
+  }
+  
   // todo create a setter for this for people to override output formatter
   private OutputFormatter getOutputFormatter() {
     if (outputFormatter == null) {
@@ -267,6 +283,10 @@ public class ContentExtractor {
       }
       if (titleText.contains("»") && !usedDelimeter) {
         titleText = doTitleSplits(titleText, "»");
+        usedDelimeter = true;
+      }
+      if (titleText.contains("&raquo;") && !usedDelimeter) {
+        titleText = doTitleSplits(titleText, "&raquo;");
         usedDelimeter = true;
       }
 
