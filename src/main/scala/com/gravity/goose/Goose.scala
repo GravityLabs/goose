@@ -8,7 +8,7 @@ import akka.actor.Actor
  * Created by Jim Plush - Gravity.com
  * Date: 8/14/11
  */
-class Goose()(implicit config: Configuration) extends Logging {
+class Goose(config: Configuration) extends Logging {
 
   import Goose._
 
@@ -18,10 +18,19 @@ class Goose()(implicit config: Configuration) extends Logging {
   * Main method to extract an article object from a URL, pass in a url and get back a Article
   * @url The url that you want to extract
   */
-  def extractContent(url: String, rawHTML: String = null): Article = {
+  def extractContent(url: String, rawHTML: String): Article = {
 
     val cc = new CrawlCandidate(config, url, rawHTML)
-    val result = crawlingActor !! cc
+    sendToActor(cc)
+  }
+
+  def extractContent(url: String): Article = {
+    val cc = new CrawlCandidate(config, url, null)
+    sendToActor(cc)
+  }
+
+  def sendToActor(crawlCandidate: CrawlCandidate) = {
+    val result = crawlingActor !! crawlCandidate
     result match {
       case Some(article) => {
         article.asInstanceOf[Article]

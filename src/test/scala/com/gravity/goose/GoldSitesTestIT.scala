@@ -45,6 +45,17 @@ class GoldSitesTestIT {
   }
 
   @Test
+  def businessWeek2 {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.businessweek.com/magazine/content/10_34/b4192048613870.htm"
+    val article: Article = TestUtils.getArticle(url)
+    val content = "There's discord on Wall Street: Strategists at major American investment banks see a"
+    val image = "http://images.businessweek.com/mz/covers/current_120x160.jpg"
+    TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
+
+  }
+
+  @Test
   def desertNews() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url = "http://www.deseretnews.com/article/705388385/High-school-basketball-Top-Utah-prospects-representing-well.html"

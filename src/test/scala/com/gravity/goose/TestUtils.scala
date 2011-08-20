@@ -23,7 +23,7 @@ object TestUtils {
   * returns an article object from a crawl
   */
   def getArticle(url: String, rawHTML: String = null)(implicit config: Configuration): Article = {
-    val goose = new Goose
+    val goose = new Goose(config)
     val article = goose.extractContent(url, rawHTML)
     article
   }
