@@ -45,4 +45,15 @@ class TextExtractions {
     val article = TestUtils.getArticle(url = url, rawHTML = html)
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedStart = content)
   }
+
+   @Test
+  def foxNews() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = FileHelper.loadResourceFile(resDir + "foxnews1.txt", Goose.getClass)
+    val url: String = "http://www.foxnews.com/politics/2010/08/14/russias-nuclear-help-iran-stirs-questions-improved-relations/"
+    val content = "Russia's announcement that it will help Iran get nuclear fuel is raising questions"
+    val article = TestUtils.getArticle(url = url, rawHTML = html)
+    TestUtils.runArticleAssertions(article = article,  expectedStart = content)
+
+  }
 }
