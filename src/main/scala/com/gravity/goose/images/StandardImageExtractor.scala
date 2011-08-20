@@ -23,16 +23,17 @@ import java.util.regex.{Pattern, Matcher}
 * Date: 8/18/11
 */
 
+case class DepthTraversal(node: Element, parentDepth: Int, siblingDepth: Int)
 
 /**
-  * This image extractor will attempt to find the best image nearest the article.
-  * Unfortunately this is a slow process since we're actually downloading the image itself
-  * to inspect it's actual height/width and area metrics since most of the time these aren't
-  * in the image tags themselves or can be falsified.
-  * We'll weight the images in descending order depending on how high up they are compared to the top node content
-  *
-  * //todo this is a straight java to scala conversion, need to add the nicities of scala, all these null checks make me dizzy
-  */
+* This image extractor will attempt to find the best image nearest the article.
+* Unfortunately this is a slow process since we're actually downloading the image itself
+* to inspect it's actual height/width and area metrics since most of the time these aren't
+* in the image tags themselves or can be falsified.
+* We'll weight the images in descending order depending on how high up they are compared to the top node content
+*
+* //todo this is a straight java to scala conversion, need to add the nicities of scala, all these null checks make me dizzy
+*/
 class StandardImageExtractor(httpClient: HttpClient, article: Article, config: Configuration) extends ImageExtractor {
 
 
@@ -174,6 +175,51 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     null
   }
 
+  def getImagesFromNode(node: Element): Option[Elements] = {
+    val images: Elements = node.select("img")
+
+    if (images == null || images.size < 1) {
+      None
+    } else {
+      Some(images)
+    }
+  }
+
+
+  def getImageCandidates(node: Element): Option[ArrayList[Element]] = {
+
+    for {
+      n <- getNode(node)
+      images <- getImagesFromNode(node)
+      filteredImages <- filterBadNames(images)
+      goodImages <- findImagesThatPassByteSizeTest(filteredImages)
+    } {
+      return Some(goodImages)
+    }
+    None
+
+  }
+
+  def getDepthLevel(node: Element, parentDepth: Int, siblingDepth: Int): Option[DepthTraversal] = {
+    if (parentDepth > 2) {
+      None
+    } else {
+      try {
+        val siblingNode = node.previousElementSibling()
+        Some(DepthTraversal(siblingNode, parentDepth, siblingDepth + 1))
+      } catch {
+        case e: NullPointerException => {
+          if (node != null) {
+            Some(DepthTraversal(node.parent, parentDepth + 1, 0))
+          } else {
+            None
+          }
+
+        }
+      }
+    }
+  }
+
   /**
   * although slow the best way to determine the best image is to download them and check the actual dimensions of the image when on disk
   * so we'll go through a phased approach...
@@ -186,82 +232,62 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @param node
   */
   private def checkForLargeImages(node: Element, parentDepthLevel: Int, siblingDepthLevel: Int) {
-    var siblingDepth = siblingDepthLevel
-    var parentDepth = parentDepthLevel
-    if (node == null) return
-    val images: Elements = node.select("img")
-    val nodeId: String = this.getNodeIds(node)
-    if (logger.isDebugEnabled) {
-      logger.debug("checkForLargeImages: Checking for large images, found: " + images.size + " - parent depth: " + parentDepth + " sibling depth: " + siblingDepth + " for node: " + nodeId)
-    }
-    var goodImages: ArrayList[Element] = null
-    goodImages = this.filterBadNames(images)
-    if (logger.isDebugEnabled) {
-      logger.debug("checkForLargeImages: After filterBadNames we have: " + goodImages.size)
-    }
-    if (logger.isDebugEnabled) {
-      goodImages = findImagesThatPassByteSizeTest(goodImages)
-    }
-    if (logger.isDebugEnabled) {
-      logger.debug("checkForLargeImages: After findImagesThatPassByteSizeTest we have: " + goodImages.size)
-    }
-    // todo re-fix
-    val imageResults: HashMap[Element, Float] = downloadImagesAndGetResults(goodImages, parentDepth)
-    //    val imageResults: HashMap[Element, Float] = new HashMap[Element, Float].empty
-    var highScoreImage: Element = null
+    trace(logPrefix + "Checking for large images - parent depth %d sibling depth: %d".format(parentDepthLevel, siblingDepthLevel))
 
-    imageResults.foreach {
-      case (key, value) =>
-        if (highScoreImage == null) {
-          highScoreImage = key
-        }
-        if (value > imageResults.get(highScoreImage).get) {
-          highScoreImage = key
-        }
-    }
 
-    if (highScoreImage != null) {
-      val f: File = new File(highScoreImage.attr("tempImagePath"))
-      this.image.topImageNode = highScoreImage
-      this.image.imageSrc = this.buildImagePath(highScoreImage.attr("src"))
-      this.image.imageExtractionType = "bigimage"
-      this.image.bytes = f.length.asInstanceOf[Int]
-      if (imageResults.size > 0) {
-        this.image.confidenceScore = (100 / imageResults.size)
-      }
-      else {
-        this.image.confidenceScore = 0
-      }
-      trace(logPrefix + "High Score Image is: " + this.buildImagePath(highScoreImage.attr("src")))
-    }
-    else {
-      if (logger.isDebugEnabled) {
-        logger.debug("unable to find a large image, going to fall back modez. depth: " + parentDepth)
-      }
-      if (parentDepth < 2) {
-        val prevSibling: Element = node.previousElementSibling
-        if (prevSibling != null) {
-          if (logger.isDebugEnabled) {
-            logger.debug("About to do a check against the sibling element, tagname: '" + prevSibling.tagName + "' class: '" + prevSibling.attr("class") + "' id: '" + prevSibling.id + "'")
+    getImageCandidates(node) match {
+      case Some(goodImages) => {
+        trace(logPrefix + "checkForLargeImages: After findImagesThatPassByteSizeTest we have: " + goodImages.size)
+        val scoredImages = downloadImagesAndGetResults(goodImages, parentDepthLevel)
+        var highScoreImage: Element = null
+        scoredImages.foreach {
+          case (key, value) => {
+            if (highScoreImage == null) {
+              highScoreImage = key
+            } else {
+              if (value > scoredImages.get(highScoreImage).get) {
+                highScoreImage = key
+              }
+            }
           }
-          ({
-            siblingDepth += 1;
-            siblingDepth
-          })
-          this.checkForLargeImages(prevSibling, parentDepth, siblingDepth)
         }
-        else {
-          if (logger.isDebugEnabled) {
-            logger.debug("no more sibling nodes found, time to roll up to parent node")
+
+        if (highScoreImage != null) {
+          val f: File = new File(highScoreImage.attr("tempImagePath"))
+          this.image.topImageNode = highScoreImage
+          this.image.imageSrc = buildImagePath(highScoreImage.attr("src"))
+          this.image.imageExtractionType = "bigimage"
+          this.image.bytes = f.length.asInstanceOf[Int]
+          if (scoredImages.size > 0) {
+            this.image.confidenceScore = (100 / scoredImages.size)
           }
-          ({
-            parentDepth += 1;
-            parentDepth
-          })
-          this.checkForLargeImages(node.parent, parentDepth, siblingDepth)
+          else {
+            this.image.confidenceScore = 0
+          }
+          trace(logPrefix + "High Score Image is: " + buildImagePath(highScoreImage.attr("src")))
+        } else {
+          getDepthLevel(node, parentDepthLevel, siblingDepthLevel) match {
+            case Some(depthObj) => {
+              checkForLargeImages(depthObj.node, depthObj.parentDepth, depthObj.siblingDepth)
+            }
+            case None => trace("Image iteration is over!")
+          }
         }
       }
+      case None => {
+
+        getDepthLevel(node, parentDepthLevel, siblingDepthLevel) match {
+          case Some(depthObj) => {
+            checkForLargeImages(depthObj.node, depthObj.parentDepth, depthObj.siblingDepth)
+          }
+          case None => trace("Image iteration is over!")
+        }
+      }
     }
+  }
+
+  def getNode(node: Element): Option[Element] = {
+    if (node == null) None else Some(node)
   }
 
   /**
@@ -270,16 +296,16 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @param images
   * @return
   */
-  private def findImagesThatPassByteSizeTest(images: ArrayList[Element]): ArrayList[Element] = {
+  private def findImagesThatPassByteSizeTest(images: ArrayList[Element]): Option[ArrayList[Element]] = {
     var cnt: Int = 0
-    var goodImages: ArrayList[Element] = new ArrayList[Element]
-    import scala.collection.JavaConversions._
+    val goodImages: ArrayList[Element] = new ArrayList[Element]
+
     for (image <- images) {
       if (cnt > 30) {
         if (logger.isDebugEnabled) {
           logger.debug("Abort! they have over 30 images near the top node: " + this.doc.baseUri)
         }
-        return goodImages
+        return Some(goodImages)
       }
       var bytes: Int = this.getBytesForImage(image.attr("src"))
       if ((bytes == 0 || bytes > this.minBytesForImages) && bytes < 15728640) {
@@ -289,14 +315,14 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
         goodImages.add(image)
       }
       else {
-        image.remove
+        image.remove()
       }
       ({
         cnt += 1;
         cnt
       })
     }
-    return goodImages
+    if (goodImages != null && goodImages.size > 0) Some(goodImages) else None
   }
 
   /**
@@ -305,18 +331,17 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @param images
   * @return
   */
-  private def filterBadNames(images: Elements): ArrayList[Element] = {
-    var goodImages: ArrayList[Element] = new ArrayList[Element]
-    import scala.collection.JavaConversions._
+  private def filterBadNames(images: Elements): Option[ArrayList[Element]] = {
+    val goodImages: ArrayList[Element] = new ArrayList[Element]
     for (image <- images) {
       if (this.isOkImageFileName(image)) {
         goodImages.add(image)
       }
       else {
-        image.remove
+        image.remove()
       }
     }
-    return goodImages
+    if (goodImages != null && goodImages.size > 0) Some(goodImages) else None
   }
 
   /**
@@ -355,20 +380,20 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * known  places to look for good images.
   * //todo enable this to use a series of settings files so people can define what the image ids/classes are on specific sites
   */
-  def checkForKnownElements(): Unit = {
+  def checkForKnownElements() {
 
     var knownImage: Element = null
     trace(logPrefix + "Checking for known images from large sites")
 
     for (knownName <- KNOWN_IMG_DOM_NAMES) {
-      println("NAMEZ: " + knownName)
+
       try {
         var known: Element = article.rawDoc.getElementById(knownName)
         if (known == null) {
           known = article.rawDoc.getElementsByClass(knownName).first
         }
         if (known != null) {
-          var mainImage: Element = known.getElementsByTag("img").first
+          val mainImage: Element = known.getElementsByTag("img").first
           if (mainImage != null) {
             knownImage = mainImage
             if (logger.isDebugEnabled) {
@@ -578,7 +603,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
 
         }
         case e: Exception => {
-          logger.error(e.toString)
+          warn(e, e.toString)
 
         }
       }
@@ -594,27 +619,27 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @param width
   * @param height
   */
-  private def isBannerDimensions(width: Integer, height: Integer): Boolean = {
-    if (width eq height) {
+  private def isBannerDimensions(width: Int, height: Int): Boolean = {
+    if (width == height) {
       return false
     }
     if (width > height) {
-      var diff: Float = width.asInstanceOf[Float] / height
+      val diff: Float = (width.asInstanceOf[Float] / height.asInstanceOf[Float])
       if (diff > 5) {
         return true
       }
     }
     if (height > width) {
-      var diff: Float = height.asInstanceOf[Float] / width
+      val diff: Float = height.asInstanceOf[Float] / width.asInstanceOf[Float]
       if (diff > 5) {
         return true
       }
     }
-    return false
+    false
   }
 
   def getMinBytesForImages: Int = {
-    return minBytesForImages
+    minBytesForImages
   }
 
   def setMinBytesForImages(minBytesForImages: Int): Unit = {

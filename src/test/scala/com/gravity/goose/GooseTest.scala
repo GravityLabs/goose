@@ -18,7 +18,7 @@ class GooseTest {
 
     implicit val config = new Configuration
     val url = "http://techcrunch.com/2011/08/13/2005-zuckerberg-didnt-want-to-take-over-the-world/"
-    val goose = new Goose
+    val goose = new Goose(config)
     val article = goose.extractContent(url)
 
     println("\nFINAL TALLY")

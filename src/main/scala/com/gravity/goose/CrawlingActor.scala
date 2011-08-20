@@ -69,14 +69,14 @@ class CrawlingActor extends Actor with Logging {
         case Some(node: Element) => {
           article.topNode = node
           article.movies = extractor.extractVideos(article.topNode)
-          article.topNode = extractor.postExtractionCleanup(article.topNode)
-          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
 
           if (config.enableImageFetching) {
             trace(logPrefix + "Image fetching enabled...")
             val imageExtractor = getImageExtractor(article)
             article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
           }
+          article.topNode = extractor.postExtractionCleanup(article.topNode)
+          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
         }
         case _ => trace("NO ARTICLE FOUND");
       }

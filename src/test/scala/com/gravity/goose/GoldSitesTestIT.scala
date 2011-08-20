@@ -65,6 +65,17 @@ class GoldSitesTestIT {
 
   }
 
+  @Test
+  def foxNews() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.foxnews.com/politics/2010/08/14/russias-nuclear-help-iran-stirs-questions-improved-relations/"
+    val article = TestUtils.getArticle(url)
+    val content = "Russia's announcement that it will help Iran get nuclear fuel is raising questions"
+    val image = "http://a57.foxnews.com/static/managed/img/Politics/396/223/startsign.jpg"
+    TestUtils.runArticleAssertions(article=article, expectedStart = content, expectedImage=image)
+
+  }
+
 
 }
 
