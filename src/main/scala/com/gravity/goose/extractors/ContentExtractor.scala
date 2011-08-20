@@ -502,9 +502,9 @@ trait ContentExtractor extends Logging {
         }
 
 
-        var topNodeScore: Int = getScore(node)
-        var currentNodeScore: Int = getScore(e)
-        var thresholdScore: Float = (topNodeScore * .08).asInstanceOf[Float]
+        val topNodeScore: Int = getScore(node)
+        val currentNodeScore: Int = getScore(e)
+        val thresholdScore: Float = (topNodeScore * .08).asInstanceOf[Float]
 
         trace(logPrefix + "topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore)
 
@@ -512,7 +512,11 @@ trait ContentExtractor extends Logging {
         if (currentNodeScore < thresholdScore) {
           if (!(e.tagName == "td")) {
             trace(logPrefix + "Removing node due to low threshold score")
-            e.remove()
+            try {
+              e.remove()
+            } catch {
+              case ex: IllegalArgumentException => trace(logPrefix + " " + ex.toString)
+            }
           }
           else {
             trace(logPrefix + "Not removing TD node")

@@ -82,13 +82,13 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     if (logger.isDebugEnabled) {
       logger.debug("Starting to Look for the Most Relavent Image")
     }
-    if (image.getImageSrc == null) {
+    if (image.getImageSrc == "") {
       this.checkForKnownElements()
     }
-    if (image.getImageSrc == null) {
+    if (image.getImageSrc == "") {
       this.checkForLargeImages(topNode, 0, 0)
     }
-    if (image.getImageSrc == null) {
+    if (image.getImageSrc == "") {
       this.checkForMetaTag
     }
     image
@@ -387,7 +387,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
       }
     }
     if (knownImage != null) {
-      var knownImgSrc: String = knownImage.attr("src")
+      val knownImgSrc: String = knownImage.attr("src")
       this.image.imageSrc = this.buildImagePath(knownImgSrc)
       this.image.imageExtractionType = "known"
       this.image.confidenceScore = 90

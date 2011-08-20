@@ -19,7 +19,7 @@ class Image {
   /**
    * holds the src of the image
    */
-  var imageSrc: String = null;
+  var imageSrc: String = "";
 
   /**
    * how confident are we in this image extraction? the most images generally the less confident
@@ -30,7 +30,7 @@ class Image {
   /**
    * what kind of image extraction was used for this? bestGuess, linkTag, openGraph tags?
    */
-  var imageExtractionType: String = null;
+  var imageExtractionType: String = "NA";
 
 
   /**

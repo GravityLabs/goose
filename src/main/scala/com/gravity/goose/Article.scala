@@ -51,7 +51,7 @@ class Article extends Logging {
   /**
   * holds the top Image object that we think represents this article
   */
-  var topImage: Image = null
+  var topImage: Image = new Image
 
 
   /**

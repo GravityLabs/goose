@@ -6,11 +6,11 @@ import extractors.{StandardContentExtractor, ContentExtractor}
 import images.{StandardImageExtractor, ImageExtractor}
 import network.HtmlFetcher
 import outputformatters.{StandardOutputFormatter, OutputFormatter}
-import utils.{URLHelper, Logging}
 import org.apache.http.client.HttpClient
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.Jsoup
 import java.io.File
+import utils.{ParsingCandidate, URLHelper, Logging}
 
 /**
  * Created by Jim Plush
@@ -18,7 +18,7 @@ import java.io.File
  * Date: 8/18/11
  */
 
-case class CrawlCandidate(config: Configuration, url: String)
+case class CrawlCandidate(config: Configuration, url: String, rawHTML: String = null)
 
 class CrawlingActor extends Actor with Logging {
 
@@ -29,17 +29,17 @@ class CrawlingActor extends Actor with Logging {
   def receive = {
     case cc: CrawlCandidate => {
       config = cc.config
-      crawl(cc.url)
+      crawl(cc)
     }
     case _ => throw new Exception("unknown message sent to actor")
   }
 
 
-  def crawl(url: String) = {
+  def crawl(crawlCandidate: CrawlCandidate) = {
     val article = new Article()
     for {
-      parseCandidate <- URLHelper.getCleanedUrl(url)
-      rawHtml <- HtmlFetcher.getHtml(parseCandidate.url.toString)
+      parseCandidate <- URLHelper.getCleanedUrl(crawlCandidate.url)
+      rawHtml <- getHTML(crawlCandidate, parseCandidate)
       doc <- getDocument(parseCandidate.url.toString, rawHtml)
     } {
 
@@ -48,7 +48,6 @@ class CrawlingActor extends Actor with Logging {
       val extractor = getExtractor
       val docCleaner = getDocCleaner
       val outputFormatter = getOutputFormatter
-
 
       article.finalUrl = parseCandidate.url.toString
       article.linkhash = parseCandidate.linkhash
@@ -74,15 +73,26 @@ class CrawlingActor extends Actor with Logging {
           article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
 
           if (config.enableImageFetching) {
+            trace(logPrefix + "Image fetching enabled...")
             val imageExtractor = getImageExtractor(article)
             article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
           }
-
         }
         case _ => trace("NO ARTICLE FOUND");
       }
       releaseResources(article)
       self.reply(article)
+    }
+  }
+
+  def getHTML(crawlCandidate: CrawlCandidate, parsingCandidate: ParsingCandidate): Option[String] = {
+    if (crawlCandidate.rawHTML != null) {
+      Some(crawlCandidate.rawHTML)
+    } else {
+      HtmlFetcher.getHtml(parsingCandidate.url.toString) match {
+        case Some(html) => Some(html)
+        case _ => None
+      }
     }
   }
 

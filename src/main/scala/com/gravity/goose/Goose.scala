@@ -18,9 +18,9 @@ class Goose()(implicit config: Configuration) extends Logging {
   * Main method to extract an article object from a URL, pass in a url and get back a Article
   * @url The url that you want to extract
   */
-  def extractContent(url: String): Article = {
+  def extractContent(url: String, rawHTML: String = null): Article = {
 
-    val cc = new CrawlCandidate(config, url)
+    val cc = new CrawlCandidate(config, url, rawHTML)
     val result = crawlingActor !! cc
     result match {
       case Some(article) => {
