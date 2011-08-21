@@ -88,7 +88,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 			logger.debug("Starting cleaning phase with DefaultDocumentCleaner");
 		}
 		Document docToClean = doc;
-		docToClean = cleanEmTags(docToClean);
+		docToClean = cleanTextTags(docToClean);
 		docToClean = removeDropCaps(docToClean);
 		docToClean = removeScriptsAndStyles(docToClean);
 		docToClean = cleanBadTags(docToClean);
@@ -243,10 +243,17 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 	}
 
 	/**
-	 * replaces <em> tags with textnodes
+	 * replaces various tags with textnodes
 	 */
-	private Document cleanEmTags(Document doc) {
+	private Document cleanTextTags(Document doc) {
 		Elements ems = doc.getElementsByTag("em");
+		ems.addAll(doc.getElementsByTag("strong"));
+		ems.addAll(doc.getElementsByTag("b"));
+		ems.addAll(doc.getElementsByTag("i"));
+		ems.addAll(doc.getElementsByTag("strike"));
+		ems.addAll(doc.getElementsByTag("del"));
+		ems.addAll(doc.getElementsByTag("ins"));
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cleaning " + ems.size() + " EM tags");
 		}
