@@ -1,8 +1,13 @@
 package com.gravity.goose
 
+import extractors.PublishDateExtractor
 import org.junit.Test
 import org.junit.Assert._
 import utils.FileHelper
+import java.text.SimpleDateFormat
+import org.jsoup.select.Selector
+import org.jsoup.nodes.Element
+import java.util.Date
 
 /**
  * Created by Jim Plush
@@ -127,4 +132,55 @@ class TextExtractions {
     val content = "Brett Favre says he couldn't give up on one more chance"
     TestUtils.runArticleAssertions(article = article, expectedStart = content)
   }
+
+  @Test
+  def wiredPubDate() {
+    val url = "http://www.wired.com/playbook/2010/08/stress-hormones-boxing/";
+    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "wired1.txt", Goose.getClass)
+    val fmt = new SimpleDateFormat("yyyy-MM-dd")
+
+    // example of a custom PublishDateExtractor
+    implicit val config = new Configuration();
+    config.enableImageFetching = false
+    config.setPublishDateExtractor(new PublishDateExtractor() {
+      @Override
+      def extract(rootElement: Element): Date = {
+        // look for this guy: <meta name="DisplayDate" content="2010-08-18" />
+        val elements = Selector.select("meta[name=DisplayDate]", rootElement);
+        if (elements.size() == 0) return null;
+        val metaDisplayDate = elements.get(0);
+        if (metaDisplayDate.hasAttr("content")) {
+          val dateStr = metaDisplayDate.attr("content");
+
+          return fmt.parse(dateStr);
+        }
+        null;
+      }
+    });
+
+    val article = TestUtils.getArticle(url, rawHTML = html)
+
+    TestUtils.runArticleAssertions(
+      article,
+      "Stress Hormones Could Predict Boxing Dominance",
+      "On November 25, 1980, professional boxing");
+
+    val expectedDateString = "2010-08-18";
+    assertNotNull("publishDate should not be null!", article.publishDate);
+    assertEquals("Publish date should equal: \"2010-08-18\"", expectedDateString, fmt.format(article.publishDate));
+    System.out.println("Publish Date Extracted: " + fmt.format(article.publishDate));
+
+  }
+
+  @Test
+  def espn() {
+     implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "espn1.txt", Goose.getClass)
+    val url: String = "http://sports.espn.go.com/espn/commentary/news/story?id=5461430"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "If you believe what college football coaches have said about sports")
+  }
+
+
 }

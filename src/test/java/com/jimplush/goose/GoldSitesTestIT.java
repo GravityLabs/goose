@@ -25,43 +25,7 @@
 //    NO_IMAGE_CONFIG.setEnableImageFetching(false);
 //  }
 //
-//  public void testHuffingtonPost() {
-//    String url = "http://www.huffingtonpost.com/2010/08/13/federal-reserve-pursuing_n_681540.html";
-//    Article article = getArticle(url);
-//    String expectedTitle = "Federal Reserve's Low Rate Policy Is A 'Dangerous Gamble,' Says Top Central Bank Official";
-//    String expectedStart = "A top regional Federal Reserve official sharply";
-//    String expectedKeywords = "federal, reserve's, low, rate, policy, is, a, 'dangerous, gamble,', says, top, central, bank, official, business";
-//    String expectedDescription = "A top regional Federal Reserve official sharply criticized Friday the Fed's ongoing policy of keeping interest rates near zero -- and at record lows -- as a \"dangerous gamble.\"";
-//
-//    runArticleAssertions(article, expectedTitle, expectedStart, null, expectedDescription, expectedKeywords);
-//
-//    // expected tags:
-//    Set<String> expectedTags = new HashSet<String>(16);
-//    expectedTags.add("Federal Open Market Committee");
-//    expectedTags.add("Federal Reserve");
-//    expectedTags.add("Federal Reserve Bank Of Kansas City");
-//    expectedTags.add("Financial Crisis");
-//    expectedTags.add("Financial Reform");
-//    expectedTags.add("Financial Regulation");
-//    expectedTags.add("Financial Regulatory Reform");
-//    expectedTags.add("Fomc");
-//    expectedTags.add("Great Recession");
-//    expectedTags.add("Interest Rates");
-//    expectedTags.add("Kansas City Fed");
-//    expectedTags.add("Monetary Policy");
-//    expectedTags.add("The Financial Fix");
-//    expectedTags.add("Thomas Hoenig");
-//    expectedTags.add("Too Big To Fail");
-//    expectedTags.add("Wall Street Reform");
-//    expectedTags.add("Business News");
-//
-//    assertNotNull("Tags should not be NULL!", article.getTags());
-//    assertTrue("Tags should not be empty!", article.getTags().size() > 0);
-//
-//    for (String actualTag : article.getTags()) {
-//      assertTrue("Each Tag should be contained in the expected set!", expectedTags.contains(actualTag));
-//    }
-//  }
+
 //
 //  public void testTechCrunch() {
 //    String url = "http://techcrunch.com/2010/08/13/gantto-takes-on-microsoft-project-with-web-based-project-management-application/";
@@ -74,21 +38,6 @@
 //
 //  }
 //
-//  public void testCNN() {
-//    String url = "http://www.cnn.com/2010/POLITICS/08/13/democrats.social.security/index.html";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "Democrats to use Social Security against GOP this fall", "Washington (CNN) -- Democrats pledged ", "http://i.cdn.turner.com/cnn/2010/POLITICS/08/13/democrats.social.security/story.kaine.gi.jpg");
-//  }
-//
-//  public void testBusinessWeek() {
-//
-//    String url = "http://www.businessweek.com/magazine/content/10_34/b4192066630779.htm";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "Olivia Munn: Queen of the Uncool", "Six years ago, Olivia Munn arrived in Hollywood with fading ambitions of making it as a sports reporter and set about deploying", "http://images.businessweek.com/mz/10/34/370/1034_mz_66popmunnessa.jpg");
-//
-//  }
 //
 //  public void testBusinessWeek2() {
 //
@@ -98,53 +47,10 @@
 //    runArticleAssertions(article, "There's discord on Wall Street: Strategists at major American investment banks see a", "http://images.businessweek.com/mz/covers/current_120x160.jpg");
 //  }
 //
-//  public void testFoxNews() {
+
 //
-//    String url = "http://www.foxnews.com/politics/2010/08/14/russias-nuclear-help-iran-stirs-questions-improved-relations/";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "Russia's announcement that it will help Iran get nuclear fuel is raising questions", "http://a57.foxnews.com/static/managed/img/Politics/396/223/startsign.jpg");
-//  }
-//
-//  public void testAOLNews() {
-//
-//    String url = "http://www.aolnews.com/nation/article/the-few-the-proud-the-marines-getting-a-makeover/19592478";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "WASHINGTON (Aug. 13) -- Declaring \"the maritime soul of the Marine Corps\" is", "http://o.aolcdn.com/photo-hub/news_gallery/6/8/680919/1281734929876.JPEG");
-//  }
-//
-//  public void testWallStreetJournal() {
-//
-//    String url = "http://online.wsj.com/article/SB10001424052748704532204575397061414483040.html";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "The Obama administration has paid out less than a third of the nearly $230 billion", "http://si.wsj.net/public/resources/images/OB-JO747_stimul_G_20100814113803.jpg");
-//  }
-//
-//  public void testUSAToday() {
-//
-//    String url = "http://content.usatoday.com/communities/thehuddle/post/2010/08/brett-favre-practices-set-to-speak-about-return-to-minnesota-vikings/1";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "Brett Favre says he couldn't give up on one more chance", "http://i.usatoday.net/communitymanager/_photos/the-huddle/2010/08/18/favrespeaksx-inset-community.jpg");
-//  }
-//
-//  public void testUSAToday2() {
-//
-//    String url = "http://content.usatoday.com/communities/driveon/post/2010/08/gm-finally-files-for-ipo/1";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "General Motors just filed with the Securities and Exchange ", "http://i.usatoday.net/communitymanager/_photos/drive-on/2010/08/18/cruzex-wide-community.jpg");
-//  }
-//
-//  public void testESPN() {
-//
-//    String url = "http://sports.espn.go.com/espn/commentary/news/story?id=5461430";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "If you believe what college football coaches have said about sports", "http://a.espncdn.com/photo/2010/0813/ncf_i_mpouncey1_300.jpg");
-//  }
+
+
 //
 //  public void testESPN2() {
 //
@@ -154,13 +60,7 @@
 //    runArticleAssertions(article, "SHEBOYGAN, Wis. -- The only number that matters at the PGA Championship", "http://a.espncdn.com/photo/2010/0814/pga_g_watney12_200.jpg");
 //  }
 //
-//  public void testWashingtonPost() {
-//
-//    String url = "http://www.washingtonpost.com/wp-dyn/content/article/2010/12/08/AR2010120803185.html";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "The Supreme Court sounded ", "http://media3.washingtonpost.com/wp-dyn/content/photo/2010/10/09/PH2010100904575.jpg");
-//  }
+
 //
 //  public void testGizmodo() {
 //
@@ -186,45 +86,6 @@
 //    runArticleAssertions(article, "Dr. Laura Schlessinger is leaving radio to regain", "http://www.boingboing.net/images/drlaura.jpg");
 //  }
 //
-//  public void testWired() {
-//
-//    String url = "http://www.wired.com/playbook/2010/08/stress-hormones-boxing/";
-//
-//    // example of a custom PublishDateExtractor
-//    final SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-//    Configuration config = new Configuration();
-//    config.setPublishDateExtractor(new PublishDateExtractor() {
-//      @Override
-//      public Date extract(Element rootElement) {
-//        // look for this guy: <meta name="DisplayDate" content="2010-08-18" />
-//        Elements elements = Selector.select("meta[name=DisplayDate]", rootElement);
-//        if (elements.size() == 0) return null;
-//        Element metaDisplayDate = elements.get(0);
-//        if (metaDisplayDate.hasAttr("content")) {
-//          String dateStr = metaDisplayDate.attr("content");
-//          try {
-//            return fmt.parse(dateStr);
-//          } catch (ParseException e) {
-//            return null;
-//          }
-//        }
-//
-//        return null;
-//      }
-//    });
-//
-//    Article article = getArticle(url, config);
-//
-//    runArticleAssertions(
-//        article,
-//        "Stress Hormones Could Predict Boxing Dominance", "On November 25, 1980, professional boxing",
-//        "http://www.wired.com/playbook/wp-content/uploads/2010/08/fight_f-660x441.jpg");
-//
-//    String expectedDateString = "2010-08-18";
-//    assertNotNull("publishDate should not be null!", article.getPublishDate());
-//    assertEquals("Publish date should equal: \"2010-08-18\"", expectedDateString, fmt.format(article.getPublishDate()));
-//    System.out.println("Publish Date Extracted: " + fmt.format(article.getPublishDate()));
-//  }
 //
 //  public void testGigaOhm() {
 //
@@ -706,86 +567,7 @@
 //    runArticleAssertions(article, "Microfinance and Poverty Reduction Susan Johnson and Ben Rogaly");
 //  }
 //
-//  private Article getArticle(String url) {
-//    return getArticle(url, true);
-//  }
-//
-//  private Article getArticle(String url, boolean fetchImages) {
-//    return getArticle(url, fetchImages ? DEFAULT_CONFIG : NO_IMAGE_CONFIG);
-//  }
-//
-//  private Article getArticle(String url, Configuration config) {
-//    ContentExtractor extractor = new ContentExtractor(config);
-//    return extractor.extractContent(url);
-//  }
-//
-//  private void runArticleAssertions(Article article, String expectedStart) {
-//    runArticleAssertions(article, null, expectedStart, null, null, null);
-//  }
-//
-//  private void runArticleAssertions(Article article, String expectedStart, String expectedImage) {
-//    runArticleAssertions(article, null, expectedStart, expectedImage, null, null);
-//  }
-//
-//  private void runArticleAssertions(Article article, String expectedTitle, String expectedStart, String expectedImage) {
-//    runArticleAssertions(article, expectedTitle, expectedStart, expectedImage, null, null);
-//  }
-//
-//  private static final char NL = '\n';
-//  private static final char TAB = '\t';
-//  private static StringBuilder tagReport = new StringBuilder("=======================::. TAG REPORT .::======================\n");
-//
-//  private void runArticleAssertions(Article article, String expectedTitle, String expectedStart, String expectedImage, String expectedDescription, String expectedKeywords) {
-//    assertNotNull("Resulting article was NULL!", article);
-//
-//    if (article.getTags().size() > 0) {
-//      tagReport.append("BEGIN URL:").append(TAB).append(article.getCanonicalLink()).append(NL).append(TAB);
-//      tagReport.append("Extracted: ").append(article.getTags().size()).append(" TAGs").append(NL);
-//      int i = 0;
-//      for (String tag : article.getTags()) {
-//        tagReport.append(TAB).append(TAB).append("# ").append(++i).append(": ").append(tag).append(NL);
-//      }
-//      tagReport.append("END URL:").append(TAB).append(article.getCanonicalLink()).append(NL);
-//    }
-//
-//    if (expectedTitle != null) {
-//      String title = article.getTitle();
-//      assertNotNull("Title was NULL!", title);
-//      assertEquals("Expected title was not returned!", expectedTitle, title);
-//    }
-//
-//    if (expectedStart != null) {
-//      String articleText = article.getCleanedArticleText();
-//      assertNotNull("Resulting article text was NULL!", articleText);
-//      assertTrue("Article text was not as long as expected beginning!", expectedStart.length() <= articleText.length());
-//      String actual = articleText.substring(0, expectedStart.length());
-//      assertEquals("The beginning of the article text was not as expected!", expectedStart, actual);
-//    }
-//
-//    if (expectedImage != null) {
-//      Image image = article.getTopImage();
-//      assertNotNull("Top image was NULL!", image);
-//      String src = image.getImageSrc();
-//      assertNotNull("Image src was NULL!", src);
-//      assertEquals("Image src was not as expected!", expectedImage, src);
-//    }
-//
-//    if (expectedDescription != null) {
-//      String description = article.getMetaDescription();
-//      assertNotNull("Meta Description was NULL!", description);
-//      assertEquals("Meta Description was not as expected!", expectedDescription, description);
-//    }
-//
-//    if (expectedKeywords != null) {
-//      String keywords = article.getMetaKeywords();
-//      assertNotNull("Meta Keywords was NULL!", keywords);
-//      assertEquals("Meta Keywords was not as expected!", expectedKeywords, keywords);
-//    }
-//  }
-//
-//  protected static void printReport() {
-//    System.out.print(tagReport);
-//  }
+
 //}
 //
 

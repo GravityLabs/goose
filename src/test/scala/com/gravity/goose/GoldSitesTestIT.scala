@@ -44,6 +44,7 @@ class GoldSitesTestIT {
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedStart = content, expectedImage = image)
   }
 
+
   @Test
   def businessWeek2() {
     implicit val config = TestUtils.DEFAULT_CONFIG
@@ -106,6 +107,37 @@ class GoldSitesTestIT {
     val content = "Brett Favre says he couldn't give up on one more chance"
     val image = "http://i.usatoday.net/communitymanager/_photos/the-huddle/2010/08/18/favrespeaksx-inset-community.jpg"
     TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
+  }
+
+  @Test
+  def usaToday2() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://content.usatoday.com/communities/driveon/post/2010/08/gm-finally-files-for-ipo/1"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "General Motors just filed with the Securities and Exchange ",
+      expectedImage = "http://i.usatoday.net/communitymanager/_photos/drive-on/2010/08/18/cruzex-wide-community.jpg")
+  }
+
+
+  @Test
+  def espn() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://sports.espn.go.com/espn/commentary/news/story?id=5461430"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "If you believe what college football coaches have said about sports",
+      expectedImage = "http://a.espncdn.com/photo/2010/0813/ncf_i_mpouncey1_300.jpg")
+  }
+
+  @Test
+  def washingtonpost() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.washingtonpost.com/wp-dyn/content/article/2010/12/08/AR2010120803185.html"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "The Supreme Court sounded ",
+      expectedImage = "http://media3.washingtonpost.com/wp-dyn/content/photo/2010/10/09/PH2010100904575.jpg")
   }
 
 

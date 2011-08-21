@@ -218,11 +218,14 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   }
 
   def getDepthLevel(node: Element, parentDepth: Int, siblingDepth: Int): Option[DepthTraversal] = {
-    if (parentDepth > 2) {
+    val MAX_PARENT_DEPTH = 2
+    if (parentDepth > MAX_PARENT_DEPTH) {
+      trace(logPrefix + "ParentDepth is greater than %d, aborting depth traversal".format(MAX_PARENT_DEPTH))
       None
     } else {
       try {
         val siblingNode = node.previousElementSibling()
+        if (siblingNode == null) throw new NullPointerException
         Some(DepthTraversal(siblingNode, parentDepth, siblingDepth + 1))
       } catch {
         case e: NullPointerException => {
@@ -317,28 +320,23 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     var cnt: Int = 0
     val goodImages: ArrayList[Element] = new ArrayList[Element]
 
-    for (image <- images) {
+    images.foreach(image => {
       if (cnt > 30) {
-        if (logger.isDebugEnabled) {
-          logger.debug("Abort! they have over 30 images near the top node: " + this.doc.baseUri)
-        }
+        trace(logPrefix + "Abort! they have over 30 images near the top node: " + this.doc.baseUri)
         return Some(goodImages)
       }
-      var bytes: Int = this.getBytesForImage(image.attr("src"))
-      if ((bytes == 0 || bytes > this.minBytesForImages) && bytes < 15728640) {
-        if (logger.isDebugEnabled) {
-          logger.debug("findImagesThatPassByteSizeTest: Found potential image - size: " + bytes + " src: " + image.attr("src"))
-        }
+      val bytes: Int = getBytesForImage(image.attr("src"))
+      val MAX_BYTES_SIZE: Int = 15728640
+      if ((bytes == 0 || bytes > minBytesForImages) && bytes < MAX_BYTES_SIZE) {
+        trace(logPrefix + "findImagesThatPassByteSizeTest: Found potential image - size: " + bytes + " src: " + image.attr("src"))
         goodImages.add(image)
       }
       else {
         image.remove()
       }
-      ({
-        cnt += 1;
-        cnt
-      })
-    }
+      cnt += 1
+    })
+
     if (goodImages != null && goodImages.size > 0) Some(goodImages) else None
   }
 
