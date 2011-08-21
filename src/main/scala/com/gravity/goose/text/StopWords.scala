@@ -48,19 +48,10 @@ object StopWords {
     val candidateWords: Array[String] = string.SPACE_SPLITTER.split(strippedInput)
 
     val overlappingStopWords: List[String] = new ArrayList[String]
-    var i: Int = 0
-    while (i < candidateWords.length) {
-      {
-        val word: String = candidateWords(i)
-        val wordLower: String = word.toLowerCase
-        if (STOP_WORDS.contains(wordLower)) overlappingStopWords.add(wordLower)
-      }
-      ({
-        i += 1;
-        i
-      })
-    }
 
+    candidateWords.foreach(w => {
+       if (STOP_WORDS.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)
+    })
     ws.setWordCount(candidateWords.length)
     ws.setStopWordCount(overlappingStopWords.size)
     ws.setStopWords(overlappingStopWords)
