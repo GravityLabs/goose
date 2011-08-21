@@ -1,6 +1,7 @@
 package com.gravity.goose.utils
 
 import org.junit.Test
+import org.junit.Assert._
 import com.gravity.goose.text.StopWords
 
 /**
@@ -15,7 +16,7 @@ class FileHelperTest {
   def loadFileContents() {
     println("loading test")
     val txt = FileHelper.loadResourceFile("stopwords-en.txt", StopWords.getClass)
-    println(txt.split("\n").toSet)
+    assertTrue(txt.startsWith("a's"))
   }
 
 }

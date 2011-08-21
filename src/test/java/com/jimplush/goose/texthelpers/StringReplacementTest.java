@@ -4,7 +4,7 @@ package com.jimplush.goose.texthelpers; /**
  * Date: 5/17/11
  * Time: 2:11 PM
  */
-
+   /*
 import com.jimplush.goose.Multithreader;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
@@ -66,5 +66,5 @@ public class StringReplacementTest extends TestCase {
     return generator.nextInt(max);
   }
 }
-
+  */
 
