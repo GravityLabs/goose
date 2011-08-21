@@ -16,14 +16,14 @@ public class ConfigurationTestIT extends TestCase {
     // it is expected for you to not want certain things in certain places so whatever is in the
     // configuration object you can override
 
-    String url = "http://www.msnbc.msn.com/id/41207891/ns/world_news-europe/";
-
-    // set my configuration options for goose
-    Configuration configuration = new Configuration();
-    configuration.setMinBytesForImages(5000);
-    configuration.setLocalStoragePath("/opt/goose");
-    configuration.setEnableImageFetching(false); // i don't care about the image, just want text, this is much faster!
-    configuration.setImagemagickConvertPath("/opt/local/bin/convert");
+//    String url = "http://www.msnbc.msn.com/id/41207891/ns/world_news-europe/";
+//
+//    // set my configuration options for goose
+//    Configuration configuration = new Configuration();
+//    configuration.setMinBytesForImages(5000);
+//    configuration.setLocalStoragePath("/opt/goose");
+//    configuration.setEnableImageFetching(false); // i don't care about the image, just want text, this is much faster!
+//    configuration.setImagemagickConvertPath("/opt/local/bin/convert");
 
 
 //    ContentExtractor contentExtractor = new ContentExtractor(configuration);

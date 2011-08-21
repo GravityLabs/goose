@@ -15,26 +15,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jimplush.goose; /**
- * Created by IntelliJ IDEA.
- * User: robbie
- * Date: 5/19/11
- * Time: 1:08 AM
- */
+package com.gravity.goose.images
+
+import org.jsoup.nodes.Element
 
 /**
- * This is not really a test nor is it a test suite. It is only meant to run all of the tests in
- * {@link GoldSitesTestIT} and print out a report of all of the tags collected durring those tests
+ * Created by Jim Plush
+ * User: jim
+ * Date: 8/18/11
  */
 
-//public class GoldenSuite extends TestCase {
-//  public void testRunSuite() {
-//    TestSuite suite = new TestSuite(GoldSitesTest.class);
-//    TestResult result = new TestResult();
-//    suite.run(result);
-//    GoldSitesTest.printReport();
-//  }
-//
-//}
-//
-//
+class Image {
+
+
+  /**
+   * holds the Element node of the image we think is top dog
+   */
+  var topImageNode: Element = null
+
+  /**
+   * holds the src of the image
+   */
+  var imageSrc: String = "";
+
+  /**
+   * how confident are we in this image extraction? the most images generally the less confident
+   */
+  var confidenceScore: Double = 0.0;
+
+
+  /**
+   * what kind of image extraction was used for this? bestGuess, linkTag, openGraph tags?
+   */
+  var imageExtractionType: String = "NA";
+
+
+  /**
+   * stores how many bytes this image is.
+   */
+  var bytes: Int = 0;
+
+
+  def getImageSrc = {
+    imageSrc
+  }
+}

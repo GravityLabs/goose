@@ -15,26 +15,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jimplush.goose; /**
- * Created by IntelliJ IDEA.
- * User: robbie
- * Date: 5/19/11
- * Time: 1:08 AM
+package com.gravity.goose.images
+
+/**
+ * Created by Jim Plush
+ * User: jim
+ * Date: 8/18/11
  */
 
 /**
- * This is not really a test nor is it a test suite. It is only meant to run all of the tests in
- * {@link GoldSitesTestIT} and print out a report of all of the tags collected durring those tests
- */
+* holds the details of the result of inspecting an image
+* @author Jim Plush
+*
+*/
+class ImageDetails {
+  def getWidth: Int = {
+    return width
+  }
 
-//public class GoldenSuite extends TestCase {
-//  public void testRunSuite() {
-//    TestSuite suite = new TestSuite(GoldSitesTest.class);
-//    TestResult result = new TestResult();
-//    suite.run(result);
-//    GoldSitesTest.printReport();
-//  }
-//
-//}
-//
-//
+  def setWidth(width: Int): Unit = {
+    this.width = width
+  }
+
+  def getHeight: Int = {
+    return height
+  }
+
+  def setHeight(height: Int): Unit = {
+    this.height = height
+  }
+
+  def getMimeType: String = {
+    return mimeType
+  }
+
+  def setMimeType(mimeType: String): Unit = {
+    this.mimeType = mimeType
+  }
+
+  /**
+  * the width of the image
+  */
+  private var width: Int = 0
+  /**
+  * height of the image
+  */
+  private var height: Int = 0
+  /**
+  * the mimeType of the image JPEG / PNG
+  */
+  private var mimeType: String = null
+}

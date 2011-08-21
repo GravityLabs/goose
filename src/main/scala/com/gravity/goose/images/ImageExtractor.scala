@@ -15,26 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jimplush.goose; /**
- * Created by IntelliJ IDEA.
- * User: robbie
- * Date: 5/19/11
- * Time: 1:08 AM
- */
+package com.gravity.goose.images
+
+import com.gravity.goose.utils.Logging
+import org.jsoup.nodes.{Element, Document}
 
 /**
- * This is not really a test nor is it a test suite. It is only meant to run all of the tests in
- * {@link GoldSitesTestIT} and print out a report of all of the tags collected durring those tests
- */
+* Created by Jim Plush
+* User: jim
+* Date: 8/18/11
+*/
+trait ImageExtractor extends Logging {
 
-//public class GoldenSuite extends TestCase {
-//  public void testRunSuite() {
-//    TestSuite suite = new TestSuite(GoldSitesTest.class);
-//    TestResult result = new TestResult();
-//    suite.run(result);
-//    GoldSitesTest.printReport();
-//  }
-//
-//}
-//
-//
+  val logPrefix = "images: "
+
+  def getBestImage(doc: Document, topNode: Element): Image
+}
+
