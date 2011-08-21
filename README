@@ -50,3 +50,7 @@ Here are some of the reasons for the port to Scala:
  - There wasn't enough contribution to warrant keeping it in Java
  - The packages were all namespaced under a person's name and not the company's name
  - Scala is more fun
+
+
+##Issues
+It was a pretty fast Java to Scala port so lots of the nicities of the Scala language aren't in the codebase yet, but those will come over the coming months as we re-write alot of the internal methods to be more Scalesque.
