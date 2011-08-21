@@ -1,5 +1,3 @@
-package com.gravity.goose.network
-
 /**
  * Licensed to Gravity.com under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,6 +16,7 @@ package com.gravity.goose.network
  * limitations under the License.
  */
 
+package com.gravity.goose.network
 
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse

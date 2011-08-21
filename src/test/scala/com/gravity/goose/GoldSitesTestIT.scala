@@ -2,7 +2,6 @@ package com.gravity.goose
 
 import org.junit.Test
 
-
 /**
  * Created by Jim Plush
  * User: jim
@@ -91,14 +90,12 @@ class GoldSitesTestIT {
 
   @Test
   def wallStreetJournal() {
-
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://online.wsj.com/article/SB10001424052748704532204575397061414483040.html"
     val article = TestUtils.getArticle(url)
     val content = "The Obama administration has paid out less than a third of the nearly $230 billion"
     val image = "http://si.wsj.net/public/resources/images/OB-JO747_stimul_G_20100814113803.jpg"
     TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
-
   }
 
   @Test
@@ -110,5 +107,8 @@ class GoldSitesTestIT {
     val image = "http://i.usatoday.net/communitymanager/_photos/the-huddle/2010/08/18/favrespeaksx-inset-community.jpg"
     TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
   }
+
+
+
 }
 

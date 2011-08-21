@@ -1,5 +1,3 @@
-package com.gravity.goose.text
-
 /**
  * Licensed to Gravity.com under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,7 +14,9 @@ package com.gravity.goose.text
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
+
+package com.gravity.goose.text
 
 /**
 * Created by IntelliJ IDEA.
