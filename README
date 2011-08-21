@@ -1,11 +1,7 @@
-Goose - Article Extractor
----------------
+#Goose - Article Extractor
 
+##Intro
 
-----------
-
-Intro
--------
 
 Goose was originally an article extractor written in Java that has most recently (aug2011) converted to a scala project. It's mission is to take any news article or article type web page and not only extract what is the main body of the article but also all meta data and most probable image candidate.
 
@@ -21,28 +17,28 @@ Goose will try to extract the following information:
  - Publish Date
 
 
-The wiki has the full details on how to use Goose [https://github.com/jiminoc/goose/wiki][1]
+The wiki has the full details on how to use Goose [https://github.com/jiminoc/goose/wiki](https://github.com/jiminoc/goose/wiki)
 
 Goose was open sourced by Gravity.com in 2011
 
-**Lead Programmer**: Jim Plush (Gravity.com)
+Lead Programmer: Jim Plush (Gravity.com)
 
-**Contributers**: Robbie Coleman (Gravity.com)
+Contributers: Robbie Coleman (Gravity.com)
 
 
 Try it out online!
 http://jimplush.com/blog/goose
 
 
+##Licensing
 If you find Goose useful or have issues please drop me a line, I'd love to hear how you're using it or what features should be improved
 
 Goose is licensed by Gravity.com under the Apache 2.0 license, see the LICENSE file for more details
 
+##Take it for a spin
 To use goose from the command line:
 
     cd into the goose directory
     mvn compile
     MAVEN_OPTS="-Xms256m -Xmx2000m" mvn exec:java -Dexec.mainClass=com.jimplush.goose.TalkToMeGoose  -Dexec.args="http://techcrunch.com/2011/05/13/native-apps-or-web-apps-particle-code-wants-you-to-do-both/&quot; -e -q > ~/Desktop/gooseresult.txt
 
-
-  [1]: https://github.com/jiminoc/goose/wiki "Wiki"
