@@ -11,6 +11,7 @@ import junit.framework.Assert._
 
 object TestUtils {
 
+  val staticHtmlDir = "/com/gravity/goose/statichtml/"
   private val NL = '\n';
   private val TAB = "\t\t";
   private val articleReport = new StringBuilder("=======================::. ARTICLE REPORT .::======================\n");

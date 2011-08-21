@@ -22,6 +22,7 @@ class GoldSitesTestIT {
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
   }
 
+
   @Test
   def cnn() {
     implicit val config = TestUtils.DEFAULT_CONFIG
@@ -45,7 +46,7 @@ class GoldSitesTestIT {
   }
 
   @Test
-  def businessWeek2 {
+  def businessWeek2() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://www.businessweek.com/magazine/content/10_34/b4192048613870.htm"
     val article: Article = TestUtils.getArticle(url)
@@ -72,10 +73,42 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     val content = "Russia's announcement that it will help Iran get nuclear fuel is raising questions"
     val image = "http://a57.foxnews.com/static/managed/img/Politics/396/223/startsign.jpg"
-    TestUtils.runArticleAssertions(article=article, expectedStart = content, expectedImage=image)
+    TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
 
   }
 
+  @Test
+  def aolNews() {
 
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.aolnews.com/nation/article/the-few-the-proud-the-marines-getting-a-makeover/19592478"
+    val article = TestUtils.getArticle(url)
+    val content = "WASHINGTON (Aug. 13) -- Declaring \"the maritime soul of the Marine Corps\" is"
+    val image = "http://o.aolcdn.com/photo-hub/news_gallery/6/8/680919/1281734929876.JPEG"
+    TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
+
+  }
+
+  @Test
+  def wallStreetJournal() {
+
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://online.wsj.com/article/SB10001424052748704532204575397061414483040.html"
+    val article = TestUtils.getArticle(url)
+    val content = "The Obama administration has paid out less than a third of the nearly $230 billion"
+    val image = "http://si.wsj.net/public/resources/images/OB-JO747_stimul_G_20100814113803.jpg"
+    TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
+
+  }
+
+  @Test
+  def usaToday() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://content.usatoday.com/communities/thehuddle/post/2010/08/brett-favre-practices-set-to-speak-about-return-to-minnesota-vikings/1"
+    val article = TestUtils.getArticle(url)
+    val content = "Brett Favre says he couldn't give up on one more chance"
+    val image = "http://i.usatoday.net/communitymanager/_photos/the-huddle/2010/08/18/favrespeaksx-inset-community.jpg"
+    TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
+  }
 }
 

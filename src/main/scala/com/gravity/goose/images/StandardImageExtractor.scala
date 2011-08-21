@@ -513,7 +513,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   private def downloadImagesAndGetResults(images: ArrayList[Element], depthLevel: Int): HashMap[Element, Float] = {
     val imageResults: HashMap[Element, Float] = new HashMap[Element, Float]
     var cnt: Int = 1
-    var initialArea: Int = 0
+    var initialArea: Float = 0
 
     for (image <- images) {
       var continueVar = true // major haxor during java to scala conversion -> this whole section needs a rewrite
@@ -572,29 +572,26 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
             if (logger.isDebugEnabled) {
               logger.debug(image.attr("src") + " is too small width: " + width + " removing..")
             }
-            image.remove
+            image.remove()
             continueVar = false
           }
         }
         if (continueVar) {
-          var sequenceScore: Float = 1.asInstanceOf[Float] / cnt
-          var area: Int = width * height
+          val sequenceScore: Float = (1).asInstanceOf[Float] / cnt
+          val area: Int = width * height
           var totalScore: Float = 0
           if (initialArea == 0) {
-            initialArea = area
+            // give the initial image a little area boost as well
+            initialArea = area * 1.48.asInstanceOf[Float]
             totalScore = 1
           }
           else {
-            var areaDifference: Float = area.asInstanceOf[Float] / initialArea
+            val areaDifference: Float = area.asInstanceOf[Float] / initialArea
             totalScore = sequenceScore.asInstanceOf[Float] * areaDifference
           }
-          if (logger.isDebugEnabled) {
-            logger.debug(imageSource + " Area is: " + area + " sequence score: " + sequenceScore + " totalScore: " + totalScore)
-          }
-          ({
-            cnt += 1;
-            cnt
-          })
+          trace(logPrefix + imageSource + " Area is: " + area + " sequence score: " + sequenceScore + " totalScore: " + totalScore)
+          cnt += 1;
+
           imageResults.put(image, totalScore)
         }
       }
