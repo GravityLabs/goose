@@ -21,6 +21,7 @@ package com.gravity.goose
 import extractors.{AdditionalDataExtractor, PublishDateExtractor}
 import org.jsoup.nodes.Element
 import java.util.Date
+import reflect.BeanProperty
 
 
 /**
@@ -35,24 +36,29 @@ class Configuration {
   /**
   * this is the local storage path used to place images to inspect them, should be writable
   */
+  @BeanProperty
   var localStoragePath: String = "/tmp/goose"
   /**
   * What's the minimum bytes for an image we'd accept is, alot of times we want to filter out the author's little images
   * in the beginning of the article
   */
+  @BeanProperty
   var minBytesForImages: Int = 4500
   /**
   * set this guy to false if you don't care about getting images, otherwise you can either use the default
   * image extractor to implement the ImageExtractor interface to build your own
   */
+  @BeanProperty
   var enableImageFetching: Boolean = true
   /**
   * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
   */
+  @BeanProperty
   var imagemagickConvertPath: String = "/opt/local/bin/convert"
   /**
   *  path to your imagemagick identify executable
   */
+  @BeanProperty
   var imagemagickIdentifyPath: String = "/opt/local/bin/identify"
 
   var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
@@ -72,7 +78,7 @@ class Configuration {
   * @param extractor a concrete instance of {@link PublishDateExtractor}
   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
   */
-  def setPublishDateExtractor(extractor: PublishDateExtractor): Unit = {
+  def setPublishDateExtractor(extractor: PublishDateExtractor) {
     if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
     this.publishDateExtractor = extractor
   }
@@ -86,7 +92,7 @@ class Configuration {
   * @param extractor a concrete instance of {@link AdditionalDataExtractor}
   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
   */
-  def setAdditionalDataExtractor(extractor: AdditionalDataExtractor): Unit = {
+  def setAdditionalDataExtractor(extractor: AdditionalDataExtractor) {
     this.additionalDataExtractor = extractor
   }
 
