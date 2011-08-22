@@ -37,7 +37,6 @@ class Goose(config: Configuration) extends Logging {
   * @url The url that you want to extract
   */
   def extractContent(url: String, rawHTML: String): Article = {
-
     val cc = new CrawlCandidate(config, url, rawHTML)
     sendToActor(cc)
   }

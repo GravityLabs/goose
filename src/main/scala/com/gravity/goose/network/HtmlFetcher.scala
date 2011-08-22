@@ -44,8 +44,6 @@ import org.apache.http.params.HttpProtocolParams
 import org.apache.http.protocol.BasicHttpContext
 import org.apache.http.protocol.HttpContext
 import org.apache.http.util.EntityUtils
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.io._
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -143,7 +141,7 @@ object HtmlFetcher extends Logging {
         trace(e.toString)
       }
       case e: Exception => {
-        trace(e, "FAILURE FOR LINK: " + url + " " + e.toString)
+        trace("FAILURE FOR LINK: " + url + " " + e.toString)
         return None
       }
     }
