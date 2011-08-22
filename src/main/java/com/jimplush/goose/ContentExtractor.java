@@ -71,6 +71,8 @@ public class ContentExtractor {
   private static final StringSplitter COLON_SPLITTER = new StringSplitter(":");
   private static final StringSplitter SPACE_SPLITTER = new StringSplitter(" ");
   
+  
+  
   private static final Set<String> NO_STRINGS = new HashSet<String>(0);
   private static final String A_REL_TAG_SELECTOR = "a[rel=tag], a[href*=/tag/]";
 
@@ -88,8 +90,6 @@ public class ContentExtractor {
   // once we have our topNode then we want to format that guy for output to the user
   private OutputFormatter outputFormatter;
   private ImageExtractor imageExtractor;
-
-
   /**
    * you can optionally pass in a configuration object here that will allow you to override the settings
    * that goose comes default with
@@ -105,6 +105,7 @@ public class ContentExtractor {
    */
   public ContentExtractor(Configuration config) {
     this.config = config;
+    
   }
 
 
@@ -266,7 +267,7 @@ public class ContentExtractor {
   // todo create a setter for this for people to override output formatter
   private OutputFormatter getOutputFormatter() {
     if (outputFormatter == null) {
-      return new DefaultOutputFormatter();
+      return new DefaultOutputFormatter(config.getStopWords());
     } else {
       return outputFormatter;
     }
@@ -313,8 +314,8 @@ public class ContentExtractor {
       Elements titleElem = doc.getElementsByTag("title");
       if (titleElem == null || titleElem.isEmpty()) return string.empty;
 
-      String titleText = titleElem.first().text();
-
+      String titleText = titleElem.first().text().replaceAll("\r?\n\r?", " ");
+      
       if (string.isNullOrEmpty(titleText)) return string.empty;
 
       boolean usedDelimeter = false;
@@ -437,14 +438,6 @@ public class ContentExtractor {
     }*/
   }
 
-  private String getDomain(String canonicalLink) {
-    try {
-      return new URL(canonicalLink).getHost();
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   /**
    * we're going to start looking for where the clusters of paragraphs are. We'll score a cluster based on the number of stopwords
    * and the number of consecutive paragraphs together, which should form the cluster of text that this node is around
@@ -472,7 +465,7 @@ public class ContentExtractor {
     for (Element node : nodesToCheck) {
 
       String nodeText = node.text();
-      WordStats wordStats = StopWords.getStopWordCount(nodeText);
+      WordStats wordStats = config.getStopWords().getStopWordCount(nodeText);
       boolean highLinkDensity = isHighLinkDensity(node);
 
 
@@ -527,7 +520,7 @@ public class ContentExtractor {
         logger.debug("Location Boost Score: " + boostScore + " on interation: " + i + "' id='" + node.parent().id() + "' class='" + node.parent().attr("class"));
       }
       String nodeText = node.text();
-      WordStats wordStats = StopWords.getStopWordCount(nodeText);
+      WordStats wordStats = config.getStopWords().getStopWordCount(nodeText);
       int upscore = (int) (wordStats.getStopWordCount() + boostScore);
       updateScore(node.parent(), upscore);
       updateScore(node.parent().parent(), upscore / 2);
@@ -686,7 +679,7 @@ public class ContentExtractor {
         }
 
         String paraText = sibling.text();
-        WordStats wordStats = StopWords.getStopWordCount(paraText);
+        WordStats wordStats = config.getStopWords().getStopWordCount(paraText);
         if (wordStats.getStopWordCount() > 5) {
           if (logger.isDebugEnabled()) {
             logger.debug("We're gonna boost this node, seems contenty");
@@ -938,7 +931,7 @@ public class ContentExtractor {
         continue;
       }
       for (Element firstParagraph : potentialParagraphs) {
-        WordStats wordStats = StopWords.getStopWordCount(firstParagraph.text());
+        WordStats wordStats = config.getStopWords().getStopWordCount(firstParagraph.text());
 
         int paragraphScore = wordStats.getStopWordCount();
 
@@ -980,7 +973,7 @@ public class ContentExtractor {
     for (Element node : nodesToCheck) {
 
       String nodeText = node.text();
-      WordStats wordStats = StopWords.getStopWordCount(nodeText);
+      WordStats wordStats = config.getStopWords().getStopWordCount(nodeText);
       boolean highLinkDensity = isHighLinkDensity(node);
 
 

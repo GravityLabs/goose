@@ -20,6 +20,8 @@ package com.jimplush.goose;
 
 import com.jimplush.goose.extractors.AdditionalDataExtractor;
 import com.jimplush.goose.extractors.PublishDateExtractor;
+import com.jimplush.goose.texthelpers.StopWords;
+
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +69,8 @@ public class Configuration {
    */
   private String imagemagickIdentifyPath= "/opt/local/bin/identify";
 
+  private StopWords stopWords;
+  
   private PublishDateExtractor publishDateExtractor = new PublishDateExtractor() {
     @Override
     public Date extract(Element rootElement) {
@@ -146,5 +150,16 @@ public class Configuration {
 
   public void setImagemagickIdentifyPath(String imagemagickIdentifyPath) {
     this.imagemagickIdentifyPath = imagemagickIdentifyPath;
+  }
+
+  public void setStopWords(StopWords stopWords) {
+    this.stopWords = stopWords;
+  }
+
+  public StopWords getStopWords() {
+    if (stopWords == null) {
+      return StopWords.EN;
+    }
+    return stopWords;
   }
 }

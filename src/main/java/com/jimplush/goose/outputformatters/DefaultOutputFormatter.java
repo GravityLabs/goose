@@ -37,7 +37,12 @@ public class DefaultOutputFormatter implements OutputFormatter {
   private static final Logger logger = LoggerFactory.getLogger(DefaultOutputFormatter.class);
 
   private Element topNode;
-
+  private StopWords stopWords;
+  
+  public DefaultOutputFormatter(StopWords stopWords) {
+    this.stopWords = stopWords;
+  }
+  
   /**
    * Depricated use {@link #getFormattedText(Element)}
    * @param topNode the top most node to format
@@ -115,6 +120,10 @@ public class DefaultOutputFormatter implements OutputFormatter {
     for (Element item : links) {
       if (item.getElementsByTag("img").size() == 0) {
         TextNode tn = new TextNode(item.text(), topNode.baseUri());
+        // the link might be wrapped in multiple tags. Remove these as well
+        while (item != topNode && item.parent().text().trim().equals(tn.text())) {
+          item = item.parent();
+        }
         item.replaceWith(tn);
       }
     }
@@ -173,9 +182,9 @@ public class DefaultOutputFormatter implements OutputFormatter {
       try {
         // get stop words that appear in each node
 
-        WordStats stopWords = StopWords.getStopWordCount(el.text());
+        WordStats wordStats = stopWords.getStopWordCount(el.text());
 
-        if (stopWords.getStopWordCount() < 5 && el.getElementsByTag("object").size() == 0 && el.getElementsByTag("embed").size() == 0) {
+        if (wordStats.getStopWordCount() < 5 && el.getElementsByTag("object").size() == 0 && el.getElementsByTag("embed").size() == 0) {
           el.remove();
         }
       } catch (IllegalArgumentException e) {

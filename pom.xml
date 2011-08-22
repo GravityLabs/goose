@@ -58,7 +58,7 @@
   </dependencies>
 
   <!--
-    Hey... since we're open source, let's compile the source and javadocs into jars as well
+    Hey... since we're open source, let's compile the source, javadocs and tests into jars as well
   -->
   <build>
     <plugins>
@@ -82,6 +82,17 @@
             <id>attach-javadocs</id>
             <goals>
               <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
             </goals>
           </execution>
         </executions>

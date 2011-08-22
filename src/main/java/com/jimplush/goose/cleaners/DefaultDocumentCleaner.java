@@ -28,7 +28,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,7 +69,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
     StringBuilder sb = new StringBuilder();
     // create negative elements
-    sb.append("^side$|combx|retweet|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll|shoutbox|sponsor");
+    sb.append("^side$|combx|retweet|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|meta$|scroll|shoutbox|sponsor");
     sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers");
     sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text");
     regExRemoveNodes = sb.toString();
@@ -139,9 +138,8 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
           StringBuilder replacementText = new StringBuilder();
 
-          ArrayList<Node> nodesToRemove = new ArrayList<Node>();
-
           //cleanTags(div);
+          Document newDoc = new Document(doc.baseUri());
 
 
           for (Node kid : div.childNodes()) {
@@ -173,33 +171,16 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
                     }
                   }
                 }
+                Element newPara = newDoc.createElement("p");
 
-                replacementText.append(text);
-                nodesToRemove.add(kid);
-
+                newPara.text(text);
+                kid.replaceWith(newPara);
                 convertedTextNodes++;
               }
 
             }
 
 
-          }
-
-          // replace div's text with the new master replacement text node that containts the sum of all the little text nodes
-          //div.appendChild(replacementTextNode);
-
-          Document newDoc = new Document(doc.baseUri());
-          Element newPara = newDoc.createElement("p");
-          newPara.html(replacementText.toString());
-
-
-          div.childNode(0).before(newPara.outerHtml());
-
-          newDoc = null;
-
-
-          for (Node n : nodesToRemove) {
-            n.remove();
           }
 
 
