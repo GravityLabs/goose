@@ -189,7 +189,7 @@ public class ContentExtractor {
         if (config.isEnableImageFetching()) {
           HttpClient httpClient = HtmlFetcher.getHttpClient();
           imageExtractor = getImageExtractor(httpClient, urlToCrawl);
-          article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
+          article.setTopImage(imageExtractor.getBestImage(doc, doc.body()));
           ArrayList<String> imageCandidates = new ArrayList<String>();
           Iterator<Element> iter = imageExtractor.getAllImages().iterator();
           while (iter.hasNext()) {
