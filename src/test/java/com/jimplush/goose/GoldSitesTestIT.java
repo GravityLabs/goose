@@ -121,13 +121,7 @@
 //    runArticleAssertions(article, "Facebook just confirmed the rumors", "http://venturebeat.files.wordpress.com/2010/08/mark-zuckerberg-facebook-places.jpg?w=300&h=219");
 //  }
 //
-//  public void testTimeMagazine() {
-//
-//    String url = "http://www.time.com/time/health/article/0,8599,2011497,00.html";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "This month, the federal government released", "http://img.timeinc.net/time/daily/2010/1008/bp_oil_spill_0817.jpg");
-//  }
+
 //
 //  public void testCnet() {
 //

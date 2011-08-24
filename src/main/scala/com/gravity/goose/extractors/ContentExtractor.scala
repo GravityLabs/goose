@@ -288,26 +288,27 @@ trait ContentExtractor extends Logging {
   * @return
   */
   private def isOkToBoost(node: Element): Boolean = {
+    val para = "p"
     var stepsAway: Int = 0
-    var sibling: Element = node.nextElementSibling
-    while (sibling != null) {
-      if (sibling.tagName == "p") {
-        if (stepsAway >= 3) {
-          trace(logPrefix + "Next paragraph is too far away, not boosting")
-          return false
-        }
-        val paraText: String = sibling.text
-        val wordStats: WordStats = StopWords.getStopWordCount(paraText)
-        if (wordStats.getStopWordCount > 5) {
-          trace(logPrefix + "We're gonna boost this node, seems contenty")
-          return true
+    val minimumStopWordCount = 5
+    val maxStepsAwayFromNode = 3
+
+    walkSiblings(node) {
+      currentNode => {
+        if (currentNode.tagName == para) {
+          if (stepsAway >= maxStepsAwayFromNode) {
+            trace(logPrefix + "Next paragraph is too far away, not boosting")
+            return false
+          }
+          val paraText: String = currentNode.text
+          val wordStats: WordStats = StopWords.getStopWordCount(paraText)
+          if (wordStats.getStopWordCount > minimumStopWordCount) {
+            trace(logPrefix + "We're gonna boost this node, seems contenty")
+            return true
+          }
+          stepsAway += 1
         }
       }
-      ({
-        stepsAway += 1;
-        stepsAway
-      })
-      sibling = sibling.nextElementSibling
     }
     false
   }

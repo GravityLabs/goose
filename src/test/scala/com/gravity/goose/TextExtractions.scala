@@ -196,5 +196,27 @@ class TextExtractions {
       expectedStart = "Streaming and downloading TV content to mobiles is nice")
   }
 
+  @Test
+  def time() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("time1.txt")
+    val url: String = "http://www.time.com/time/health/article/0,8599,2011497,00.html"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "This month, the federal government released",
+      expectedTitle = "Invisible Oil from BP Spill May Threaten Gulf Aquatic Life")
+  }
+
+  @Test
+  def time2() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("time2.txt")
+    val url: String = "http://newsfeed.time.com/2011/08/24/washington-monument-closes-to-repair-earthquake-induced-crack/"
+    val article = TestUtils.getArticle(url, html)
+
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Despite what the jeers of jaded Californians might suggest")
+  }
+
 
 }

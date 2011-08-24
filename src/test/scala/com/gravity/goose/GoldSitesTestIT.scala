@@ -170,6 +170,25 @@ class GoldSitesTestIT {
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
   }
 
+    @Test
+  def time() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.time.com/time/health/article/0,8599,2011497,00.html"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "This month, the federal government released",
+      expectedImage = "http://img.timeinc.net/time/daily/2010/1008/bp_oil_spill_0817.jpg")
+  }
+
+    @Test
+  def time2() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://newsfeed.time.com/2011/08/24/washington-monument-closes-to-repair-earthquake-induced-crack/"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Despite what the jeers of jaded Californians might suggest",
+      expectedImage = "http://timenewsfeed.files.wordpress.com/2011/08/newsfeed_0824.jpg?w=455")
+  }
 
 }
 
