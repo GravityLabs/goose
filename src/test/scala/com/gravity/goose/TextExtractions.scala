@@ -17,11 +17,14 @@ import java.util.Date
 
 class TextExtractions {
 
+  def getHtml(filename: String): String = {
+    FileHelper.loadResourceFile(TestUtils.staticHtmlDir + filename, Goose.getClass)
+  }
 
   @Test
   def cnn1() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "cnn1.txt", Goose.getClass)
+    val html = getHtml("cnn1.txt")
     val url = "http://www.cnn.com/2010/POLITICS/08/13/democrats.social.security/index.html"
     val article = TestUtils.getArticle(url = url, rawHTML = html)
     val title = "Democrats to use Social Security against GOP this fall"
@@ -32,7 +35,7 @@ class TextExtractions {
   @Test
   def techcrunch1() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "techcrunch1.txt", Goose.getClass)
+    val html = getHtml("techcrunch1.txt")
     val url = "http://techcrunch.com/2011/08/13/2005-zuckerberg-didnt-want-to-take-over-the-world/"
     val content = "The Huffington Post has come across this fascinating five-minute interview"
     val title = "2005 Zuckerberg Didn’t Want To Take Over The World"
@@ -43,7 +46,7 @@ class TextExtractions {
   @Test
   def businessweek1() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "businessweek1.txt", Goose.getClass)
+    val html = getHtml("businessweek1.txt")
     val url: String = "http://www.businessweek.com/magazine/content/10_34/b4192066630779.htm"
     val title = "Olivia Munn: Queen of the Uncool"
     val content = "Six years ago, Olivia Munn arrived in Hollywood with fading ambitions of making it as a sports reporter and set about deploying"
@@ -54,7 +57,7 @@ class TextExtractions {
   @Test
   def foxNews() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "foxnews1.txt", Goose.getClass)
+    val html = getHtml("foxnews1.txt")
     val url: String = "http://www.foxnews.com/politics/2010/08/14/russias-nuclear-help-iran-stirs-questions-improved-relations/"
     val content = "Russia's announcement that it will help Iran get nuclear fuel is raising questions"
     val article = TestUtils.getArticle(url = url, rawHTML = html)
@@ -65,7 +68,7 @@ class TextExtractions {
   @Test
   def aolNews() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "aol1.txt", Goose.getClass)
+    val html = getHtml("aol1.txt")
     val url: String = "http://www.aolnews.com/nation/article/the-few-the-proud-the-marines-getting-a-makeover/19592478"
     val article = TestUtils.getArticle(url = url, rawHTML = html)
     val content = "WASHINGTON (Aug. 13) -- Declaring \"the maritime soul of the Marine Corps\" is"
@@ -77,7 +80,7 @@ class TextExtractions {
   def testHuffingtonPost() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
     val url: String = "http://www.huffingtonpost.com/2010/08/13/federal-reserve-pursuing_n_681540.html"
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "huffpo1.txt", Goose.getClass)
+    val html = getHtml("huffpo1.txt")
 
     val title: String = "Federal Reserve's Low Rate Policy Is A 'Dangerous Gamble,' Says Top Central Bank Official"
     val content = "A top regional Federal Reserve official sharply criticized Friday"
@@ -116,7 +119,7 @@ class TextExtractions {
   @Test
   def wallStreetJournal() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "wsj1.txt", Goose.getClass)
+    val html = getHtml("wsj1.txt")
     val url: String = "http://online.wsj.com/article/SB10001424052748704532204575397061414483040.html"
     val article = TestUtils.getArticle(url = url, rawHTML = html)
     val content = "The Obama administration has paid out less than a third of the nearly $230 billion"
@@ -126,7 +129,7 @@ class TextExtractions {
   @Test
   def usaToday() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "usatoday1.txt", Goose.getClass)
+    val html = getHtml("usatoday1.txt")
     val url: String = "http://content.usatoday.com/communities/thehuddle/post/2010/08/brett-favre-practices-set-to-speak-about-return-to-minnesota-vikings/1"
     val article = TestUtils.getArticle(url, rawHTML = html)
     val content = "Brett Favre says he couldn't give up on one more chance"
@@ -136,7 +139,7 @@ class TextExtractions {
   @Test
   def wiredPubDate() {
     val url = "http://www.wired.com/playbook/2010/08/stress-hormones-boxing/";
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "wired1.txt", Goose.getClass)
+    val html = getHtml("wired1.txt")
     val fmt = new SimpleDateFormat("yyyy-MM-dd")
 
     // example of a custom PublishDateExtractor
@@ -174,12 +177,23 @@ class TextExtractions {
 
   @Test
   def espn() {
-     implicit val config = TestUtils.NO_IMAGE_CONFIG
-    val html = FileHelper.loadResourceFile(TestUtils.staticHtmlDir + "espn1.txt", Goose.getClass)
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("espn1.txt")
     val url: String = "http://sports.espn.go.com/espn/commentary/news/story?id=5461430"
     val article = TestUtils.getArticle(url, html)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "If you believe what college football coaches have said about sports")
+  }
+
+
+  @Test
+  def engadget() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("engadget1.txt")
+    val url: String = "http://www.engadget.com/2010/08/18/verizon-fios-set-top-boxes-getting-a-new-hd-guide-external-stor/"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Streaming and downloading TV content to mobiles is nice")
   }
 
 

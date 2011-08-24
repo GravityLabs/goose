@@ -26,7 +26,7 @@ import akka.actor.Actor
  * Created by Jim Plush - Gravity.com
  * Date: 8/14/11
  */
-class Goose(config: Configuration) extends Logging {
+class Goose(config: Configuration = new Configuration) extends Logging {
 
   import Goose._
 

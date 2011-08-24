@@ -140,6 +140,25 @@ class GoldSitesTestIT {
       expectedImage = "http://media3.washingtonpost.com/wp-dyn/content/photo/2010/10/09/PH2010100904575.jpg")
   }
 
+  @Test
+  def gizmodo() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://gizmodo.com/5833746/what-if-the-earthquake-had-hit-manhattan"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Today's 5.9 magnitude earthquake was felt throughout the Mid-Atlantic",
+      expectedImage = "http://cache.gawkerassets.com/assets/images/4/2011/08/medium_aftershock-earthquake-in-new-york-original.jpg")
+  }
+
+  @Test
+  def engadget() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.engadget.com/2010/08/18/verizon-fios-set-top-boxes-getting-a-new-hd-guide-external-stor/"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Streaming and downloading TV content to mobiles is nice",
+      expectedImage = "http://www.blogcdn.com/www.engadget.com/media/2010/08/44ni600.jpg")
+  }
 
 
 }

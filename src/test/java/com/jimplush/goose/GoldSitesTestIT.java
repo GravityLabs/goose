@@ -61,22 +61,8 @@
 //  }
 //
 
-//
-//  public void testGizmodo() {
-//
-//    String url = "http://gizmodo.com/#!5616256/xbox-kinect-gets-its-fight-club";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "You love to punch your arms through the air", "http://cache.gawkerassets.com/assets/images/9/2010/08/500x_fighters_uncaged__screenshot_3b__jawbreaker.jpg");
-//  }
-//
-//  public void testEngadget() {
-//
-//    String url = "http://www.engadget.com/2010/08/18/verizon-fios-set-top-boxes-getting-a-new-hd-guide-external-stor/";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "Streaming and downloading TV content to mobiles is nice", "http://www.blogcdn.com/www.engadget.com/media/2010/08/44ni600.jpg");
-//  }
+
+
 //
 //  public void testBoingBoing() {
 //

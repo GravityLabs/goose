@@ -25,8 +25,8 @@ import java.net.URL
 import java.util.ArrayList
 import collection.JavaConversions._
 import org.jsoup.nodes.{Attributes, Element, Document}
-import collection.mutable.{ListBuffer, HashSet}
 import org.jsoup.select.{Selector, Elements}
+import collection.mutable.{Buffer, ListBuffer, HashSet}
 
 /**
 * Created by Jim Plush
@@ -267,10 +267,15 @@ trait ContentExtractor extends Logging {
       }
     }
 
+    printTraceLog(topNode)
 
-    trace(logPrefix + "Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id + "' class='" + topNode.attr("class") + "' ")
-    trace(logPrefix + "Text - " + topNode.text.trim.substring(0, 100) + "...")
     if (topNode == null) None else Some(topNode)
+  }
+
+  def printTraceLog(topNode: Element) {
+    trace(logPrefix + "Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id + "' class='" + topNode.attr("class") + "' ")
+    val text = if (topNode.text.trim.length > 100) topNode.text.trim.substring(0, 100) + "..." else topNode.text.trim
+    trace(logPrefix + "Text - " + text)
   }
 
   /**
@@ -498,7 +503,7 @@ trait ContentExtractor extends Logging {
         e.remove()
         removed = true
       } else {
-        var subParagraphs: Elements = e.getElementsByTag("p")
+        val subParagraphs: Elements = e.getElementsByTag("p")
         import scala.collection.JavaConversions._
         for (p <- subParagraphs) {
           if (p.text.length < 25) {
@@ -551,47 +556,65 @@ trait ContentExtractor extends Logging {
   * @param node
   * @return
   */
-  private def addSiblings(node: Element): Element = {
+  def getSiblingContent(currentSibling: Element, baselineScoreForSiblingParagraphs: Int): Option[String] = {
+
+    if (currentSibling.tagName == "p" && currentSibling.text.length() > 0) {
+      Some(currentSibling.outerHtml)
+
+    } else {
+
+      val potentialParagraphs: Elements = currentSibling.getElementsByTag("p")
+      if (potentialParagraphs.first == null) {
+        None
+      } else {
+
+        Some((for {
+          firstParagraph <- potentialParagraphs
+          if (firstParagraph.text.length() > 0)
+          wordStats: WordStats = StopWords.getStopWordCount(firstParagraph.text)
+          paragraphScore: Int = wordStats.getStopWordCount
+          siblingBaseLineScore: Double = .30
+          if ((baselineScoreForSiblingParagraphs * siblingBaseLineScore).toDouble < paragraphScore)
+        } yield {
+
+          trace(logPrefix + "This node looks like a good sibling, adding it")
+          "<p>" + firstParagraph.text + "<p>"
+
+        }).mkString)
+      }
+
+    }
+  }
+
+  def walkSiblings[T](node: Element)(work: (Element) => T): Seq[T] = {
+    var currentSibling: Element = node.previousElementSibling
+    val b = Buffer[T]()
+
+    while (currentSibling != null) {
+
+      trace(logPrefix + "SIBLINGCHECK: " + debugNode(currentSibling))
+      b += work(currentSibling)
+
+      currentSibling = if (currentSibling != null) currentSibling.previousElementSibling else null
+    }
+    b
+  }
+
+  private def addSiblings(topNode: Element): Element = {
 
     trace(logPrefix + "Starting to add siblings")
 
-    val baselineScoreForSiblingParagraphs: Int = getBaselineScoreForSiblings(node)
-    var currentSibling: Element = node.previousElementSibling
-    while (currentSibling != null) {
-      var continue = false // total hack while we convert over java code to scala
-      trace(logPrefix + "SIBLINGCHECK: " + debugNode(currentSibling))
+    val baselineScoreForSiblingParagraphs: Int = getBaselineScoreForSiblings(topNode)
 
-      if (currentSibling.tagName == "p") {
-        node.child(0).before(currentSibling.outerHtml)
-        currentSibling = currentSibling.previousElementSibling
-        continue = true
+    val results = walkSiblings(topNode) {
+      currentNode => {
+        getSiblingContent(currentNode, baselineScoreForSiblingParagraphs)
+
       }
-      if (!continue) {
-        var insertedSiblings: Int = 0
-        var potentialParagraphs: Elements = currentSibling.getElementsByTag("p")
-        if (potentialParagraphs.first == null) {
-          currentSibling = currentSibling.previousElementSibling
-          continue //todo: continue is not supported
-        }
-        import scala.collection.JavaConversions._
-        for (firstParagraph <- potentialParagraphs) {
-          var wordStats: WordStats = StopWords.getStopWordCount(firstParagraph.text)
-          var paragraphScore: Int = wordStats.getStopWordCount
-          if ((baselineScoreForSiblingParagraphs * .30).asInstanceOf[Float] < paragraphScore) {
-            if (logger.isDebugEnabled) {
-              logger.debug("This node looks like a good sibling, adding it")
-            }
-            node.child(insertedSiblings).before("<p>" + firstParagraph.text + "<p>")
-            ({
-              insertedSiblings += 1;
-              insertedSiblings
-            })
-          }
-        }
-      }
-      currentSibling = if (currentSibling != null) currentSibling.previousElementSibling else null
-    }
-    node
+    }.flatMap(itm => itm)
+
+    topNode.child(0).before(results.mkString)
+    topNode
   }
 
   /**
