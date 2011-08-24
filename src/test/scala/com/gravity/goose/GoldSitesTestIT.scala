@@ -159,6 +159,18 @@ class GoldSitesTestIT {
       expectedStart = "Streaming and downloading TV content to mobiles is nice",
       expectedImage = "http://www.blogcdn.com/www.engadget.com/media/2010/08/44ni600.jpg")
   }
+  @Test
+  def hostedap() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://hosted.ap.org/dynamic/stories/M/ML_LIBYA_HOTEL_FROM_HELL?SITE=CATOR&SECTION=HOME&TEMPLATE=DEFAULT&CTIME=2011-08-24-11-58-03"
+    val article = TestUtils.getArticle(url)
+    println(article.cleanedArticleText)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "TRIPOLI, Libya (AP) -- Dozens of international journalists",
+      expectedImage = "http://hosted.ap.org/photos/0/0d100338-01a3-4e33-86cb-69e3dbb60c1f-small.jpg")
+  }
+
+
 
 
 }

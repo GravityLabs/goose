@@ -73,11 +73,11 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   */
   var matchBadImageNames: Matcher = null
   val NODE_ID_FORMAT: String = "tag: %s class: %s ID: %s"
-  val KNOWN_IMG_DOM_NAMES = "yn-story-related-media" :: "cnn_strylccimg300cntr" :: "big_photo" :: Nil
+  val KNOWN_IMG_DOM_NAMES = "yn-story-related-media" :: "cnn_strylccimg300cntr" :: "big_photo" :: "ap-smallphoto-a" :: Nil
 
   var sb: StringBuilder = new StringBuilder
   // create negative elements
-  sb.append(".html|.gif|.ico|button|twitter.jpg|facebook.jpg|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com")
+  sb.append(".html|.gif|.ico|button|twitter.jpg|facebook.jpg|ap_buy_photo|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com")
   sb.append("|mediaplex.com|adsatt|view.atdmt")
   matchBadImageNames = Pattern.compile(sb.toString()).matcher(string.empty)
 
