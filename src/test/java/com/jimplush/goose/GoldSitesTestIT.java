@@ -122,15 +122,7 @@
 //  }
 //
 
-//
-//  public void testCnet() {
-//
-//    String url = "http://news.cnet.com/8301-30686_3-20014053-266.html?tag=topStories1";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "NEW YORK--Verizon Communications is prepping a new", "http://i.i.com.com/cnwk.1d/i/tim//2010/08/18/Verizon_iPad_and_live_TV_610x458.JPG");
-//  }
-//
+
 //  public void testYahooNews() {
 //
 //    String url = "http://news.yahoo.com/s/ap/20110319/ap_on_re_af/af_libya";

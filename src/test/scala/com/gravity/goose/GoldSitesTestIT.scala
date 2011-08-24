@@ -170,7 +170,7 @@ class GoldSitesTestIT {
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
   }
 
-    @Test
+  @Test
   def time() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://www.time.com/time/health/article/0,8599,2011497,00.html"
@@ -180,7 +180,7 @@ class GoldSitesTestIT {
       expectedImage = "http://img.timeinc.net/time/daily/2010/1008/bp_oil_spill_0817.jpg")
   }
 
-    @Test
+  @Test
   def time2() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://newsfeed.time.com/2011/08/24/washington-monument-closes-to-repair-earthquake-induced-crack/"
@@ -189,6 +189,17 @@ class GoldSitesTestIT {
       expectedStart = "Despite what the jeers of jaded Californians might suggest",
       expectedImage = "http://timenewsfeed.files.wordpress.com/2011/08/newsfeed_0824.jpg?w=455")
   }
+
+  @Test
+  def cnet() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://news.cnet.com/8301-30686_3-20014053-266.html?tag=topStories1"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "NEW YORK--Verizon Communications is prepping a new",
+      expectedImage = "http://i.i.com.com/cnwk.1d/i/tim//2010/08/18/Verizon_iPad_and_live_TV_610x458.JPG")
+  }
+
 
 }
 

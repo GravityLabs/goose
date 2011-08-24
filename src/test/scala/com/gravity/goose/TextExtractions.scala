@@ -213,9 +213,18 @@ class TextExtractions {
     val html = getHtml("time2.txt")
     val url: String = "http://newsfeed.time.com/2011/08/24/washington-monument-closes-to-repair-earthquake-induced-crack/"
     val article = TestUtils.getArticle(url, html)
-
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Despite what the jeers of jaded Californians might suggest")
+  }
+
+  @Test
+  def cnet() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("cnet1.txt")
+    val url: String = "http://news.cnet.com/8301-30686_3-20014053-266.html?tag=topStories1"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "NEW YORK--Verizon Communications is prepping a new")
   }
 
 
