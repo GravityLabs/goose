@@ -34,7 +34,7 @@ class GoldSitesTestIT {
   }
 
   @Test
-  def businessWeek: Unit = {
+  def businessWeek() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://www.businessweek.com/magazine/content/10_34/b4192066630779.htm"
     val article: Article = TestUtils.getArticle(url)
@@ -198,6 +198,26 @@ class GoldSitesTestIT {
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "NEW YORK--Verizon Communications is prepping a new",
       expectedImage = "http://i.i.com.com/cnwk.1d/i/tim//2010/08/18/Verizon_iPad_and_live_TV_610x458.JPG")
+  }
+
+  @Test
+  def yahoo() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://news.yahoo.com/apple-says-steve-jobs-resigning-ceo-224628633.html"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "SAN FRANCISCO (AP) — Steve Jobs, the mind behind the iPhone",
+      expectedImage = "http://l.yimg.com/bt/api/res/1.2/Q00X5.OHr6E5RB_IQnkCAQ--/YXBwaWQ9eW5ld3M7Y2g9MTc4Mjtjcj0xO2N3PTI2MTY7ZHg9MDtkeT0wO2ZpPXVsY3JvcDtoPTQzMDtxPTg1O3c9NjMw/http://media.zenfs.com/en_us/News/ap_webfeeds/c21f27410259ce13f60e6a706700a61a.jpg")
+  }
+
+  @Test
+  def politico() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.politico.com/news/stories/1010/43352.html"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "If the newest Census Bureau estimates stay close to form",
+      expectedImage = "http://images.politico.com/global/news/100927_obama22_ap_328.jpg")
   }
 
 

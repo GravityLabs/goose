@@ -227,5 +227,25 @@ class TextExtractions {
       expectedStart = "NEW YORK--Verizon Communications is prepping a new")
   }
 
+  @Test
+  def yahoo() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("yahoo1.txt")
+    val url: String = "http://news.yahoo.com/apple-says-steve-jobs-resigning-ceo-224628633.html"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "SAN FRANCISCO (AP) — Steve Jobs, the mind behind the iPhone")
+  }
+
+  @Test
+  def politico() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("politico1.txt")
+    val url: String = "http://www.politico.com/news/stories/1010/43352.html"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "If the newest Census Bureau estimates stay close to form")
+  }
+
 
 }

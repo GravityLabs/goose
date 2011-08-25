@@ -1,27 +1,4 @@
 
-//package com.jimplush.goose; /**
-// * User: jim
-// * Date: 12/18/10
-// */
-//
-//import com.jimplush.goose.extractors.AdditionalDataExtractor;
-//import com.jimplush.goose.extractors.PublishDateExtractor;
-//import com.jimplush.goose.images.Image;
-//import junit.framework.TestCase;
-//import org.jsoup.nodes.Element;
-//import org.jsoup.select.Elements;
-//import org.jsoup.select.Selector;
-//
-//import java.text.ParseException;
-//import java.text.SimpleDateFormat;
-//import java.util.*;
-//
-//
-//public class GoldSitesTest extends TestCase {
-//  private static final Configuration DEFAULT_CONFIG = new Configuration();
-//  private static final Configuration NO_IMAGE_CONFIG = new Configuration();
-//
-//  static {
 //    NO_IMAGE_CONFIG.setEnableImageFetching(false);
 //  }
 //
@@ -123,21 +100,7 @@
 //
 
 
-//  public void testYahooNews() {
-//
-//    String url = "http://news.yahoo.com/s/ap/20110319/ap_on_re_af/af_libya";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "BENGHAZI, Libya – The U.S. and European nations pounded Libya", "http://d.yimg.com/a/p/ap/20110319/capt.1e039fdbcbe544ba84c6de6cb3e39d83-1e039fdbcbe544ba84c6de6cb3e39d83-0.jpg?x=213&y=160&xc=1&yc=1&wc=409&hc=307&q=85&sig=NPqjSiOj_KpSiJFh3BU_Qg--");
-//  }
-//
-//  public void testPolitico() {
-//
-//    String url = "http://www.politico.com/news/stories/1010/43352.html";
-//    Article article = getArticle(url);
-//
-//    runArticleAssertions(article, "If the newest Census Bureau estimates stay close to form", "http://images.politico.com/global/news/100927_obama22_ap_328.jpg");
-//  }
+
 //
 //  public void testNewsweek() {
 //
