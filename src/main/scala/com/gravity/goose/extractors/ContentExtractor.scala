@@ -361,16 +361,19 @@ trait ContentExtractor extends Logging {
   * @return
   */
   private def getScore(node: Element): Int = {
-    if (node == null) return 0
+    getGravityScoreFromNode(node) match {
+      case Some(score) => score
+      case None => 0
+    }
+  }
+
+  private def getGravityScoreFromNode(node: Element): Option[Int] = {
     try {
       val grvScoreString: String = node.attr("gravityScore")
-      if (string.isNullOrEmpty(grvScoreString)) return 0
-      Integer.parseInt(grvScoreString)
-    }
-    catch {
-      case e: NumberFormatException => {
-        0
-      }
+      if (string.isNullOrEmpty(grvScoreString)) return None
+      Some(Integer.parseInt(grvScoreString))
+    } catch {
+      case e: Exception => None
     }
   }
 
@@ -415,7 +418,7 @@ trait ContentExtractor extends Logging {
   * @param node
   * @param addToCount
   */
-  private def updateNodeCount(node: Element, addToCount: Int): Unit = {
+  private def updateNodeCount(node: Element, addToCount: Int) {
     var currentScore: Int = 0
     try {
       val countString: String = node.attr("gravityNodes")
@@ -664,6 +667,6 @@ trait ContentExtractor extends Logging {
     sb.append(e.id)
     sb.append("' className: '")
     sb.append(e.attr("class"))
-    sb.toString
+    sb.toString()
   }
 }
