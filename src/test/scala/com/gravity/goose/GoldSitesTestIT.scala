@@ -20,7 +20,7 @@ class GoldSitesTestIT {
     val image = "http://tctechcrunch2011.files.wordpress.com/2011/08/screen-shot-2011-08-13-at-4-55-35-pm.png?w=288"
     val title = "2005 Zuckerberg Didn’t Want To Take Over The World"
     val article = TestUtils.getArticle(url)
-    val daterz = article.aditionalData
+    val daterz = article.additionalData
     println(daterz.mkString(";"))
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
   }

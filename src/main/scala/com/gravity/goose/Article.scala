@@ -22,6 +22,7 @@ import images.Image
 import utils.Logging
 import org.jsoup.nodes.{Element, Document}
 import java.util.Date
+import scala.collection._
 
 /**
 * Created by Jim Plush
