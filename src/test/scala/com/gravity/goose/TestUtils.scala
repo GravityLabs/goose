@@ -2,6 +2,8 @@ package com.gravity.goose
 
 import images.Image
 import junit.framework.Assert._
+import com.gravity.goose.extractors.AdditionalDataExtractor
+import org.jsoup.nodes.Element
 
 /**
  * Created by Jim Plush
@@ -19,6 +21,18 @@ object TestUtils {
   val DEFAULT_CONFIG: Configuration = new Configuration
   val NO_IMAGE_CONFIG: Configuration = new Configuration
   NO_IMAGE_CONFIG.enableImageFetching = false
+
+  object additionalExt extends AdditionalDataExtractor {
+      override def extract(rootElement: Element) = {
+        println()
+        println("ADDITIONAL DATA EXTRACTOR CALLED")
+        println()
+        Map("test" -> "success")
+      }
+    }
+
+  val ADDITIONAL_DATA_CONFIG = new Configuration
+  ADDITIONAL_DATA_CONFIG.setAdditionalDataExtractor(additionalExt)
 
   /**
   * returns an article object from a crawl

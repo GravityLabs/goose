@@ -46,21 +46,25 @@ trait Logging {
   private def checkFormat(msg: String, refs: Seq[Any]): String =
     if (refs.size > 0) formatmsg(msg, refs) else msg
 
-  def trace(msg: String, refs: Any*) = logger trace checkFormat(msg, refs)
+  def trace(msg: String, refs: Any*) { logger trace checkFormat(msg, refs) }
 
-  def trace(t: Throwable, msg: String, refs: Any*) = logger trace (checkFormat(msg, refs), t)
+  def trace(t: Throwable, msg: String, refs: Any*) { logger trace(checkFormat(msg, refs), t) }
 
-  def info(msg: String, refs: Any*) = logger info checkFormat(msg, refs)
+  def info(msg: String, refs: Any*) { logger info checkFormat(msg, refs) }
 
-  def info(t: Throwable, msg: String, refs: Any*) = logger info (checkFormat(msg, refs), t)
+  def info(t: Throwable, msg: String, refs: Any*) { logger info (checkFormat(msg, refs), t) }
 
-  def warn(msg: String, refs: Any*) = logger warn checkFormat(msg, refs)
+  def warn(msg: String, refs: Any*) { logger warn checkFormat(msg, refs) }
 
-  def warn(t: Throwable, msg: String, refs: Any*) = logger warn (checkFormat(msg, refs), t)
+  def warn(t: Throwable, msg: String, refs: Any*) { logger warn (checkFormat(msg, refs), t) }
 
-  def critical(msg: String, refs: Any*) = logger error checkFormat(msg, refs)
+  def critical(msg: String, refs: Any*) { logger error checkFormat(msg, refs) }
 
-  def critical(t: Throwable, msg: String, refs: Any*) = logger error (checkFormat(msg, refs), t)
+  def critical(t: Throwable, msg: String, refs: Any*) { logger error (checkFormat(msg, refs), t) }
+
+  def debug(msg: String, refs: Any*) { logger debug checkFormat(msg, refs) }
+
+  def debug(t: Throwable, msg: String, refs: Any*) { logger debug (checkFormat(msg, refs), t) }
 
 }
 

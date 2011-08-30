@@ -75,6 +75,7 @@ class CrawlingActor extends Actor with Logging {
 
       article.title = extractor.getTitle(article)
       article.publishDate = config.publishDateExtractor.extract(doc)
+      article.aditionalData = config.getAdditionalDataExtractor.extract(doc)
       article.metaDescription = extractor.getMetaDescription(article)
       article.metaKeywords = extractor.getMetaKeywords(article)
       article.canonicalLink = extractor.getCanonicalLink(article)

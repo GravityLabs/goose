@@ -115,5 +115,11 @@ class Article extends Logging {
   */
   var publishDate: Date = null
 
-
+  /**
+   * A property bucket for consumers of goose to store custom data extractions.
+   * This is populated by an implementation of {@link com.gravity.goose.extractors.AdditionalDataExtractor}
+   * which is executed before document cleansing within {@link com.gravity.goose.CrawlingActor#crawl}
+   * @return a {@link Map Map&lt;String,String&gt;} of property name to property vaue (represented as a {@link String}.
+   */
+  var aditionalData: Map[String, String] = Map.empty
 }

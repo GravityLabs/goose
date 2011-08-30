@@ -48,7 +48,16 @@ object URLHelper extends Logging {
     }
     catch {
       case e: MalformedURLException => {
-        warn("%s - is a malformed URL and cannot be processed")
+        warn("{0} - is a malformed URL and cannot be processed", urlToCrawl)
+        None
+      }
+      case unknown: Exception => {
+        critical("Unable to process URL: {0} due to an unexpected exception:\n\tException Type: {1}\n\tException Message: {2}\n\tException Stack:\n{3}",
+          urlToCrawl,
+          unknown.getClass.getCanonicalName,
+          unknown.getMessage,
+          unknown.getStackTraceString)
+
         None
       }
     }

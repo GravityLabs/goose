@@ -1,6 +1,8 @@
 package com.gravity.goose
 
 import org.junit.Test
+import com.gravity.goose.extractors.AdditionalDataExtractor
+import org.jsoup.nodes.Element
 
 /**
  * Created by Jim Plush
@@ -12,12 +14,14 @@ class GoldSitesTestIT {
 
   @Test
   def techCrunch() {
-    implicit val config = TestUtils.DEFAULT_CONFIG
+    implicit val config = TestUtils.ADDITIONAL_DATA_CONFIG
     val url = "http://techcrunch.com/2011/08/13/2005-zuckerberg-didnt-want-to-take-over-the-world/"
     val content = "The Huffington Post has come across this fascinating five-minute interview"
     val image = "http://tctechcrunch2011.files.wordpress.com/2011/08/screen-shot-2011-08-13-at-4-55-35-pm.png?w=288"
     val title = "2005 Zuckerberg Didn’t Want To Take Over The World"
     val article = TestUtils.getArticle(url)
+    val daterz = article.aditionalData
+    println(daterz.mkString(";"))
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
   }
 
