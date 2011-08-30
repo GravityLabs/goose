@@ -121,5 +121,5 @@ class Article extends Logging {
    * which is executed before document cleansing within {@link com.gravity.goose.CrawlingActor#crawl}
    * @return a {@link Map Map&lt;String,String&gt;} of property name to property vaue (represented as a {@link String}.
    */
-  var aditionalData: Map[String, String] = Map.empty
+  var additionalData: Map[String, String] = Map.empty
 }
