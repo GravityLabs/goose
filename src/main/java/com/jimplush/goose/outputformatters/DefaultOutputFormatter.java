@@ -77,7 +77,12 @@ public class DefaultOutputFormatter implements OutputFormatter {
 
     removeParagraphsWithFewWords();
 
-    return getFormattedText();
+    String out = getFormattedText();
+    // NS - some archive content doesn't have p tags...
+    if (out.equals("")) {
+        out = StringEscapeUtils.unescapeHtml(this.topNode.text()).trim();
+    }
+    return out;
   }
 
   /**
