@@ -894,7 +894,8 @@ public class ContentExtractor {
       // their next siblings to avoid getting img bylines
       // first let's remove any element that now doesn't have any p tags at all
       Elements subParagraphs2 = e.getElementsByTag("p");
-      if (subParagraphs2.size() == 0 && !e.tagName().equals("td")) {
+      //if (subParagraphs2.size() == 0 && !e.tagName().equals("td")) {
+      if (!this.link.startsWith("http://www.walkerart.org/archive/") && subParagraphs2.size() == 0 && !e.tagName().equals("td")) {
         if (logger.isDebugEnabled()) {
           logger.debug("Removing node because it doesn't have any paragraphs");
         }
