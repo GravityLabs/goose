@@ -309,7 +309,9 @@ public class BestImageGuesser implements ImageExtractor {
       if (logger.isDebugEnabled()) {
         logger.debug("unable to find a large image, going to fall back modez. depth: " + parentDepth);
       }
-      if (parentDepth < 2) {
+      //if (parentDepth < 2) {
+      // try harder on our archive
+      if (parentDepth < 2 || (this.targetUrl.startsWith("http://www.walkerart.org/archive") && (this.image.getImageSrc() == null) && parentDepth<4)) {
 
         // we start at the top node then recursively go up to siblings/parent/grandparent to find something good
 

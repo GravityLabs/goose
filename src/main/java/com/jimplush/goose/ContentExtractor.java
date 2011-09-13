@@ -389,7 +389,7 @@ public class ContentExtractor {
 
     String[] titlePieces = splitter.split(title);
     
-    if (this.link.contains("blogs.walkerart.org")) {
+    if (this.link.contains("blogs.walkerart.org") && titlePieces.length > 1) {
         // it's always the second one!!
         return TITLE_REPLACEMENTS.replaceAll(titlePieces[1]).trim();
     }
