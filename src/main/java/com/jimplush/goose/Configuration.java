@@ -24,7 +24,13 @@ import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jsoup.nodes.*;
+import org.jsoup.select.Elements;
+import org.jsoup.select.Selector;
+import com.jimplush.goose.texthelpers.*;
+
 import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 /**
@@ -70,6 +76,23 @@ public class Configuration {
   private PublishDateExtractor publishDateExtractor = new PublishDateExtractor() {
     @Override
     public Date extract(Element rootElement) {
+      // this belongs in a separate class as a proper Date Extractor. But...
+      // for now this knows how to pull dates out of mnartists articles
+      Elements body = rootElement.select("div[class=articleBody]");
+        try {
+            if (body.size() > 0) {
+                Elements ems = body.first().select("em");
+                if (ems.size() > 0) {
+                    String em = ems.first().text();
+                    String date_str = string.isNullOrEmpty(em) ? string.empty : em.trim();
+                    logger.error(date_str);
+                    Date date = new SimpleDateFormat("MMM dd, yyyy").parse(date_str);
+                    return date;
+                }
+            }
+        } catch (java.text.ParseException e) {
+            // ignore it
+        }
       return null;
     }
   };
