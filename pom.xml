@@ -11,6 +11,14 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  <repositories>
+    <repository>
+      <id>akka.repository</id>
+      <name>Akka Maven Repository</name>
+      <url>http://akka.io/repository</url>
+    </repository>
+  </repositories>
+
 
   <dependencies>
     <dependency>
