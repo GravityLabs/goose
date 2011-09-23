@@ -21,7 +21,7 @@ package com.gravity.goose
 import akka.actor.Actor
 import cleaners.{StandardDocumentCleaner, DocumentCleaner}
 import extractors.{StandardContentExtractor, ContentExtractor}
-import images.{StandardImageExtractor, ImageExtractor}
+import images.{UpgradedImageIExtractor, StandardImageExtractor, ImageExtractor}
 import network.HtmlFetcher
 import outputformatters.{StandardOutputFormatter, OutputFormatter}
 import org.apache.http.client.HttpClient
@@ -93,7 +93,13 @@ class CrawlingActor extends Actor with Logging {
           if (config.enableImageFetching) {
             trace(logPrefix + "Image fetching enabled...")
             val imageExtractor = getImageExtractor(article)
-            article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+            try {
+              article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+            } catch {
+              case e: Exception => {
+                warn(e, e.toString)
+              }
+            }
           }
           article.topNode = extractor.postExtractionCleanup(article.topNode)
           article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
@@ -119,7 +125,7 @@ class CrawlingActor extends Actor with Logging {
 
   def getImageExtractor(article: Article): ImageExtractor = {
     val httpClient: HttpClient = HtmlFetcher.getHttpClient
-    new StandardImageExtractor(httpClient, article, config)
+    new UpgradedImageIExtractor(httpClient, article, config)
   }
 
   def getOutputFormatter: OutputFormatter = {
@@ -150,7 +156,7 @@ class CrawlingActor extends Actor with Logging {
   * cleans up any temp files we have laying around like temp images
   * removes any image in the temp dir that starts with the linkhash of the url we just parsed
   */
-  def releaseResources(article: Article): Unit = {
+  def releaseResources(article: Article) = {
     trace(logPrefix + "STARTING TO RELEASE ALL RESOURCES")
 
     val dir: File = new File(config.localStoragePath)

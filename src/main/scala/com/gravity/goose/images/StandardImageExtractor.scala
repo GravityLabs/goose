@@ -18,7 +18,6 @@
 package com.gravity.goose.images
 
 import org.jsoup.select.Elements
-import org.apache.http.client.methods.HttpHead
 import org.apache.http.protocol.{BasicHttpContext, HttpContext}
 import org.apache.http.client.protocol.ClientContext
 import org.apache.http.{Header, HttpEntity, HttpResponse}
@@ -33,6 +32,7 @@ import java.net.{MalformedURLException, URL}
 import com.gravity.goose.network.HtmlFetcher
 import java.io.{IOException, File}
 import java.util.regex.{Pattern, Matcher}
+import org.apache.http.client.methods.{HttpGet, HttpHead}
 
 /**
 * Created by Jim Plush
@@ -257,7 +257,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
 
     getImageCandidates(node) match {
       case Some(goodImages) => {
-        trace(logPrefix + "checkForLargeImages: After findImagesThatPassByteSizeTest we have: " + goodImages.size)
+        trace(logPrefix + "checkForLargeImages: After findImagesThatPassByteSizeTest we have: " + goodImages.size + " at parent depth: " + parentDepthLevel)
         val scoredImages = downloadImagesAndGetResults(goodImages, parentDepthLevel)
         var highScoreImage: Element = null
         scoredImages.foreach {
@@ -321,22 +321,29 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     val goodImages: ArrayList[Element] = new ArrayList[Element]
 
     images.foreach(image => {
-      if (cnt > 30) {
-        trace(logPrefix + "Abort! they have over 30 images near the top node: " + this.doc.baseUri)
-        return Some(goodImages)
-      }
-      val bytes: Int = getBytesForImage(image.attr("src"))
-      val MAX_BYTES_SIZE: Int = 15728640
-      if ((bytes == 0 || bytes > minBytesForImages) && bytes < MAX_BYTES_SIZE) {
-        trace(logPrefix + "findImagesThatPassByteSizeTest: Found potential image - size: " + bytes + " src: " + image.attr("src"))
-        goodImages.add(image)
-      }
-      else {
-        image.remove()
+      try {
+        if (cnt > 30) {
+          trace(logPrefix + "Abort! they have over 30 images near the top node: " + this.doc.baseUri)
+          return Some(goodImages)
+        }
+        val bytes: Int = getBytesForImage(image.attr("src"))
+
+        val MAX_BYTES_SIZE: Int = 15728640
+        if ((bytes == 0 || bytes > minBytesForImages) && bytes < MAX_BYTES_SIZE) {
+          trace(logPrefix + "findImagesThatPassByteSizeTest: Found potential image - size: " + bytes + " src: " + image.attr("src"))
+          goodImages.add(image)
+        }
+        else {
+          trace(logPrefix + " Removing image: " + image.attr("src"))
+          image.remove()
+        }
+      } catch {
+        case e: Exception => warn(e, e.toString)
       }
       cnt += 1
     })
 
+    trace(logPrefix + " Now leaving findImagesThatPassByteSizeTest")
     if (goodImages != null && goodImages.size > 0) Some(goodImages) else None
   }
 
@@ -472,32 +479,35 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   */
   private def getBytesForImage(src: String): Int = {
     var bytes: Int = 0
-    var httpget: HttpHead = null
+    var httpget: HttpGet = null
     try {
       var link: String = this.buildImagePath(src)
       link = link.replace(" ", "%20")
-      var localContext: HttpContext = new BasicHttpContext
+      val localContext: HttpContext = new BasicHttpContext
       localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
-      httpget = new HttpHead(link)
+      httpget = new HttpGet(link)
       var response: HttpResponse = null
       response = httpClient.execute(httpget, localContext)
-      var entity: HttpEntity = response.getEntity
+      val entity: HttpEntity = response.getEntity
       bytes = this.minBytesForImages + 1
       try {
-        var currentBytes: Int = entity.getContentLength.asInstanceOf[Int]
-        var contentType: Header = entity.getContentType
+        val currentBytes: Int = entity.getContentLength.asInstanceOf[Int]
+        val contentType: Header = entity.getContentType
         if (contentType.getValue.contains("image")) {
           bytes = currentBytes
         }
       }
       catch {
         case e: NullPointerException => {
+          warn(e, "SRC: " + src + " " + e.toString)
+          System.exit(1)
         }
       }
     }
     catch {
       case e: Exception => {
-        logger.error(e.toString)
+        warn(e, "BIG SRC: " + src + " " + e.toString)
+          System.exit(1)
       }
     }
     finally {
@@ -510,7 +520,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
         }
       }
     }
-    return bytes
+    bytes
   }
 
   /**

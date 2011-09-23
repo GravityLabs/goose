@@ -43,6 +43,15 @@ class Image {
    */
   var confidenceScore: Double = 0.0;
 
+  /**
+  * Height of the image in pixels
+  */
+  var height: Int = 0
+
+  /**
+   * width of the image in pixels
+   */
+  var width: Int = 0
 
   /**
    * what kind of image extraction was used for this? bestGuess, linkTag, openGraph tags?
@@ -53,7 +62,7 @@ class Image {
   /**
    * stores how many bytes this image is.
    */
-  var bytes: Int = 0;
+  var bytes: Long = 0;
 
 
   def getImageSrc = {

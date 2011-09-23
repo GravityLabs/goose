@@ -14,15 +14,15 @@ class GoldSitesTestIT {
 
   @Test
   def techCrunch() {
-    implicit val config = TestUtils.ADDITIONAL_DATA_CONFIG
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    //    implicit val config = TestUtils.NO_IMAGE_CONFIG
     val url = "http://techcrunch.com/2011/08/13/2005-zuckerberg-didnt-want-to-take-over-the-world/"
     val content = "The Huffington Post has come across this fascinating five-minute interview"
     val image = "http://tctechcrunch2011.files.wordpress.com/2011/08/screen-shot-2011-08-13-at-4-55-35-pm.png?w=288"
     val title = "2005 Zuckerberg Didn’t Want To Take Over The World"
     val article = TestUtils.getArticle(url)
-    val daterz = article.additionalData
-    println(daterz.mkString(";"))
-    TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
+//    TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
+//    TestUtils.printReport()
   }
 
 
@@ -35,6 +35,7 @@ class GoldSitesTestIT {
     val content = "Washington (CNN) -- Democrats pledged "
     val image = "http://i.cdn.turner.com/cnn/2010/POLITICS/08/13/democrats.social.security/story.kaine.gi.jpg"
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedStart = content, expectedImage = image)
+     TestUtils.printReport()
   }
 
   @Test
@@ -108,7 +109,7 @@ class GoldSitesTestIT {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://content.usatoday.com/communities/thehuddle/post/2010/08/brett-favre-practices-set-to-speak-about-return-to-minnesota-vikings/1"
     val article = TestUtils.getArticle(url)
-    val content = "Brett Favre says he couldn't give up on one more chance"
+    val content = "Brett Favre couldn't get away from the"
     val image = "http://i.usatoday.net/communitymanager/_photos/the-huddle/2010/08/18/favrespeaksx-inset-community.jpg"
     TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
   }
@@ -213,6 +214,52 @@ class GoldSitesTestIT {
       expectedStart = "SAN FRANCISCO (AP) — Steve Jobs, the mind behind the iPhone",
       expectedImage = "http://l.yimg.com/bt/api/res/1.2/Q00X5.OHr6E5RB_IQnkCAQ--/YXBwaWQ9eW5ld3M7Y2g9MTc4Mjtjcj0xO2N3PTI2MTY7ZHg9MDtkeT0wO2ZpPXVsY3JvcDtoPTQzMDtxPTg1O3c9NjMw/http://media.zenfs.com/en_us/News/ap_webfeeds/c21f27410259ce13f60e6a706700a61a.jpg")
   }
+
+  @Test
+  def businessInsider() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.businessinsider.com/closing-bell-september-20-2011-9"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "And now we're looking at two down days in a",
+      expectedImage = "http://static5.businessinsider.com/image/4df5d311ccd1d5591f190000-336-251/china-dive.jpg")
+    TestUtils.printReport()
+  }
+
+  @Test
+  def financialTimes() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.ft.com/intl/cms/s/2/4e268022-e472-11e0-92a3-00144feabdc0.htm"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Hewlett-Packard shares jumped 9 per cent",
+      expectedImage = "http://im.media.ft.com/content/images/88de8b54-3f2e-11e0-8e48-00144feabdc0.img")
+    TestUtils.printReport()
+  }
+
+  @Test
+  def cnbc() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+
+    val url: String = "http://www.cnbc.com/id/44613978"
+    val article = TestUtils.getArticle(url)
+
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Some traders found Wednesday's Fed statement to be a bit gloomier than expected.")
+    TestUtils.printReport()
+  }
+
+  @Test
+  def cnbc2() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.cnbc.com/id/44614459"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Some traders found Wednesday's Fed statement to be a bit gloomier than expected.",
+      expectedImage = "http://media.cnbc.com/i/CNBC/Sections/News_And_Analysis/__Story_Inserts/graphics/__FEDERAL_RESERVE/FED_RESERVE3.jpg")
+    TestUtils.printReport()
+  }
+
 
   @Test
   def politico() {

@@ -18,6 +18,7 @@
 
 package com.gravity.goose
 
+import network.HtmlFetcher
 import utils.{Logging}
 import java.io.File
 import akka.actor.Actor
@@ -44,6 +45,10 @@ class Goose(config: Configuration = new Configuration) extends Logging {
   def extractContent(url: String): Article = {
     val cc = new CrawlCandidate(config, url, null)
     sendToActor(cc)
+  }
+
+  def shutdownNetwork() {
+    HtmlFetcher.getHttpClient.getConnectionManager.shutdown()
   }
 
   def sendToActor(crawlCandidate: CrawlCandidate) = {

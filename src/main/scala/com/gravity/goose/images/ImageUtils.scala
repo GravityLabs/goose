@@ -26,13 +26,17 @@ package com.gravity.goose.images
 import javax.imageio.ImageIO
 import java.awt.color.CMMException
 import java.awt.image.BufferedImage
-import java.io.BufferedReader
-import java.io.File
-import java.io.IOException
-import java.io.InputStreamReader
-import java.util.ArrayList
-import java.util.HashMap
 import com.gravity.goose.utils.Logging
+import org.apache.http.client.HttpClient
+import org.apache.http.HttpEntity
+import org.apache.http.protocol.{BasicHttpContext, HttpContext}
+import org.apache.http.client.protocol.ClientContext
+import com.gravity.goose.network.HtmlFetcher
+import org.apache.http.client.methods.HttpGet
+import java.util.{Random, ArrayList, HashMap}
+import java.io._
+import com.gravity.goose.Configuration
+import com.gravity.goose.text.HashUtils
 
 object ImageUtils extends Logging {
   /**
@@ -44,21 +48,21 @@ object ImageUtils extends Logging {
   * @return
   */
   def getImageDimensions(identifyProgram: String, filePath: String): ImageDetails = {
-    var command: ArrayList[String] = new ArrayList[String](10)
+    val command: ArrayList[String] = new ArrayList[String](10)
     command.add(identifyProgram)
     command.add(filePath)
-    var imageInfo: String = execToString(command.toArray(new Array[String](1)).asInstanceOf[Array[String]])
-    var imageDetails: ImageDetails = new ImageDetails
+    val imageInfo: String = execToString(command.toArray(new Array[String](1)).asInstanceOf[Array[String]])
+    val imageDetails: ImageDetails = new ImageDetails
     if (imageInfo == null || imageInfo.contains("no decode delegate for this image format")) {
       throw new IOException("Unable to get Image Information (no decode delegate) for: " + filePath)
     }
     try {
-      var infoParts: Array[String] = imageInfo.split(" ")
+      val infoParts: Array[String] = imageInfo.split(" ")
       imageDetails.setMimeType(infoParts(1))
-      var dimensions: Array[String] = infoParts(2).split("x")
+      val dimensions: Array[String] = infoParts(2).split("x")
       imageDetails.setWidth(Integer.parseInt(dimensions(0)))
       imageDetails.setHeight(Integer.parseInt(dimensions(1)))
-      return imageDetails
+      imageDetails
     }
     catch {
       case e: NullPointerException => {
@@ -76,12 +80,12 @@ object ImageUtils extends Logging {
   def getImageDimensionsJava(filePath: String): HashMap[String, Integer] = {
     var image: BufferedImage = null
     try {
-      var f: File = new File(filePath)
+      val f: File = new File(filePath)
       image = ImageIO.read(f)
-      var results: HashMap[String, Integer] = new HashMap[String, Integer]
+      val results: HashMap[String, Integer] = new HashMap[String, Integer]
       results.put("height", image.getHeight)
       results.put("width", image.getWidth)
-      return results
+      results
     }
     catch {
       case e: CMMException => {
@@ -132,7 +136,7 @@ object ImageUtils extends Logging {
     finally {
       if (in != null) {
         try {
-          in.close
+          in.close()
         }
         catch {
           case e: IOException => {
@@ -140,10 +144,125 @@ object ImageUtils extends Logging {
         }
       }
       if (p != null) {
-        p.destroy
+        p.destroy()
       }
     }
-    return null
+    null
+  }
+
+  /**
+  * Writes an image src http string to disk as a temporary file and returns the LocallyStoredImage object that has the info you should need
+  * on the image
+  */
+  def storeImageToLocalFile(httpClient: HttpClient, linkhash: String, imageSrc: String, config: Configuration): Option[LocallyStoredImage] = {
+
+    try {
+      // check for a cache hit already on disk
+      readExistingFileInfo(linkhash, imageSrc, config) match {
+        case Some(locallyStoredImage) => {
+          trace("Image already cached on disk: " + imageSrc)
+          return Some(locallyStoredImage)
+        }
+        case None =>
+      }
+
+      trace("Not found locally...starting to download image: " + imageSrc)
+      fetchEntity(httpClient, imageSrc) match {
+        case Some(entity) => {
+          trace("Got entity for")
+          writeEntityContentsToDisk(entity, linkhash, imageSrc, config) match {
+            case Some(locallyStoredImage) => Some(locallyStoredImage)
+            case None => None
+          }
+        }
+        case None => trace("Unable to fetch entity for: " + imageSrc); None
+      }
+    } catch {
+      case e: Exception => {
+        info(e, e.toString)
+        None
+      }
+    }
+
+
+  }
+
+  /**
+  * returns what filename we think this file should be, lots of time you get sneaky gifs that pretend to be jpg's
+   * or even have .jpg extensions, so we use ImageMagick to tell us the truth
+  */
+  private def getFileExtensionName(imageDetails: ImageDetails) = {
+    val mimeType = imageDetails.getMimeType.toLowerCase match {
+      case "png" => ".png"
+      case "jpg" => ".jpg"
+      case "jpeg" => ".jpg"
+      case ".gif" => ".gif"
+      case _ => "NA"
+    }
+    mimeType
+  }
+
+  def readExistingFileInfo(linkhash: String, imageSrc: String, config: Configuration): Option[LocallyStoredImage] = {
+    val localImageName = getLocalFileName(linkhash, imageSrc, config)
+    val imageFile = new File(localImageName)
+    if (imageFile.exists()) {
+      try {
+        trace("Reading image from disk: %s".format(localImageName))
+        val imageDetails = getImageDimensions(config.imagemagickIdentifyPath, localImageName)
+        val fileExtension = getFileExtensionName(imageDetails)
+        Some(LocallyStoredImage(imageSrc, localImageName, linkhash, imageFile.length(), fileExtension, imageDetails.getHeight, imageDetails.getWidth))
+      } catch {
+        case e: Exception => None
+      }
+    } else {
+      None
+    }
+
+  }
+
+  def writeEntityContentsToDisk(entity: HttpEntity, linkhash: String, imageSrc: String, config: Configuration): Option[LocallyStoredImage] = {
+
+    val localSrcPath = getLocalFileName(linkhash, imageSrc, config)
+    val outstream: OutputStream = new FileOutputStream(localSrcPath)
+    entity.writeTo(outstream)
+    trace("Content Length: " + entity.getContentLength)
+    readExistingFileInfo(linkhash, imageSrc, config)
+
+  }
+
+  def getLocalFileName(linkhash: String, imageSrc: String, config: Configuration) = {
+    val imageHash = HashUtils.md5(imageSrc)
+    config.localStoragePath + "/" + linkhash + "_" + imageHash
+  }
+
+
+  def cleanImageSrcString(imgSrc: String): String = {
+    imgSrc.replace(" ", "%20")
+  }
+
+  def fetchEntity(httpClient: HttpClient, imageSrc: String): Option[HttpEntity] = {
+
+    val localContext: HttpContext = new BasicHttpContext
+    localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
+    val httpget = new HttpGet(imageSrc)
+    val response = HtmlFetcher.getHttpClient.execute(httpget, localContext)
+    val respStatus = response.getStatusLine.getStatusCode
+
+
+    if (respStatus != 200) {
+      None
+    } else {
+      try {
+        val entity = response.getEntity
+        if (entity != null) {
+          Some(entity)
+        } else {
+          None
+        }
+      } catch {
+        case e: Exception => warn(e, e.toString); httpget.abort(); None
+      }
+    }
   }
 
 

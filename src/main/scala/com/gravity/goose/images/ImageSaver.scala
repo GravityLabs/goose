@@ -84,6 +84,67 @@ object ImageSaver extends Logging {
     fileExtension
   }
 
+  def fetchEntity(httpClient: HttpClient, imageSrc: String): Option[HttpEntity] = {
+
+    val localContext: HttpContext = new BasicHttpContext
+    localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
+    val httpget = new HttpGet(imageSrc)
+    val response = httpClient.execute(httpget, localContext)
+    val respStatus: String = response.getStatusLine.toString
+    if (!respStatus.contains("200")) {
+      None
+    } else {
+      try {
+        Some(response.getEntity)
+      } catch {
+        case e: Exception => warn(e, e.toString); None
+      } finally {
+        httpget.abort()
+      }
+    }
+  }
+
+
+  def copyInputStreamToLocalImage(entity: HttpEntity, linkhash: String, config: Configuration): String = {
+    val generator: Random = new Random
+    val randInt: Int = generator.nextInt
+    val localSrcPath = config.localStoragePath + "/" + linkhash + "_" + randInt
+    val instream: InputStream = entity.getContent
+    val outstream: OutputStream = new FileOutputStream(localSrcPath)
+    try {
+      trace("Storing image locally: " + localSrcPath)
+      IOUtils.copy(instream, outstream)
+      val fileExtension = ImageSaver.getFileExtension(config, localSrcPath)
+      if (fileExtension == "" || fileExtension == null) {
+        trace("EMPTY FILE EXTENSION: " + localSrcPath)
+        return null
+      }
+      val f: File = new File(localSrcPath)
+      if (f.length < config.minBytesForImages) {
+        if (logger.isDebugEnabled) {
+          logger.debug("TOO SMALL AN IMAGE: " + localSrcPath + " bytes: " + f.length)
+        }
+        return null
+      }
+      val newFilename = localSrcPath + fileExtension
+      val newFile: File = new File(newFilename)
+      f.renameTo(newFile)
+      //      localSrcPath = localSrcPath + fileExtension
+      trace("Image successfully Written to Disk")
+      newFilename
+    }
+    catch {
+      case e: Exception => {
+        throw e
+      }
+    }
+    finally {
+      //            entity.consumeContent
+      instream.close()
+      outstream.close()
+    }
+  }
+
   /**
   * stores an image to disk and returns the path where the file was written
   *
@@ -92,88 +153,31 @@ object ImageSaver extends Logging {
   */
   def storeTempImage(httpClient: HttpClient, linkhash: String, imageSrcMaster: String, config: Configuration): String = {
     var imageSrc = imageSrcMaster
-    var localSrcPath: String = null
-    var httpget: HttpGet = null
-    var response: HttpResponse = null
+
+
     try {
       imageSrc = imageSrc.replace(" ", "%20")
-      if (logger.isDebugEnabled) {
-        logger.debug("Starting to download image: " + imageSrc)
-      }
-      var localContext: HttpContext = new BasicHttpContext
-      localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
-      httpget = new HttpGet(imageSrc)
-      response = httpClient.execute(httpget, localContext)
-      var respStatus: String = response.getStatusLine.toString
-      if (!respStatus.contains("200")) {
-        return null
-      }
-      var entity: HttpEntity = response.getEntity
-      var fileExtension: String = ""
-      try {
-        var contentType: Header = entity.getContentType
-      }
-      catch {
-        case e: Exception => {
-          logger.error(e.getMessage)
-        }
-      }
-      var generator: Random = new Random
-      var randInt: Int = generator.nextInt
-      localSrcPath = config.localStoragePath + "/" + linkhash + "_" + randInt
-      if (logger.isDebugEnabled) {
-        logger.debug("Storing image locally: " + localSrcPath)
-      }
-      if (entity != null) {
-        var instream: InputStream = entity.getContent
-        var outstream: OutputStream = new FileOutputStream(localSrcPath)
-        try {
-          try {
-            IOUtils.copy(instream, outstream)
-          }
-          catch {
-            case e: Exception => {
-              throw e
+      trace("Starting to download image: " + imageSrc)
+
+      fetchEntity(httpClient, imageSrc) match {
+        case Some(entity) => {
+
+            try {
+              return copyInputStreamToLocalImage(entity, linkhash, config)
             }
-          }
-          finally {
-            entity.consumeContent
-            instream.close
-            outstream.close
-          }
-          fileExtension = ImageSaver.getFileExtension(config, localSrcPath)
-          if (fileExtension == "" || fileExtension == null) {
-            if (logger.isDebugEnabled) {
-              logger.debug("EMPTY FILE EXTENSION: " + localSrcPath)
+            catch {
+              case e: SecretGifException => {
+                throw e
+              }
+              case e: Exception => {
+                logger.error(e.getMessage); null
+              }
             }
-            return null
-          }
-          var f: File = new File(localSrcPath)
-          if (f.length < config.minBytesForImages) {
-            if (logger.isDebugEnabled) {
-              logger.debug("TOO SMALL AN IMAGE: " + localSrcPath + " bytes: " + f.length)
-            }
-            return null
-          }
-          var newFile: File = new File(localSrcPath + fileExtension)
-          f.renameTo(newFile)
-          localSrcPath = localSrcPath + fileExtension
-          if (logger.isDebugEnabled) {
-            logger.debug("Image successfully Written to Disk")
-          }
+
         }
-        catch {
-          case e: IOException => {
-            logger.error(e.toString, e)
-          }
-          case e: SecretGifException => {
-            throw e
-          }
-          case e: Exception => {
-            logger.error(e.getMessage)
-          }
-        }
+        case None => trace("Unable to get entity for: " + imageSrc); null
       }
+
     }
     catch {
       case e: IllegalArgumentException => {
@@ -189,15 +193,16 @@ object ImageSaver extends Logging {
         logger.error(e.toString)
       }
       case e: Exception => {
-        e.printStackTrace
+        e.printStackTrace()
         logger.error(e.toString)
-        e.printStackTrace
+        e.printStackTrace()
       }
     }
     finally {
-      httpget.abort
+
     }
-    localSrcPath
+    null
+
   }
 
   private def raise(e: SecretGifException): Unit = {

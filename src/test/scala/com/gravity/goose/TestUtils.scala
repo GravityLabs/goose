@@ -23,13 +23,13 @@ object TestUtils {
   NO_IMAGE_CONFIG.enableImageFetching = false
 
   object additionalExt extends AdditionalDataExtractor {
-      override def extract(rootElement: Element) = {
-        println()
-        println("ADDITIONAL DATA EXTRACTOR CALLED")
-        println()
-        Map("test" -> "success")
-      }
+    override def extract(rootElement: Element) = {
+      println()
+      println("ADDITIONAL DATA EXTRACTOR CALLED")
+      println()
+      Map("test" -> "success")
     }
+  }
 
   val ADDITIONAL_DATA_CONFIG = new Configuration
   ADDITIONAL_DATA_CONFIG.setAdditionalDataExtractor(additionalExt)
@@ -40,6 +40,7 @@ object TestUtils {
   def getArticle(url: String, rawHTML: String = null)(implicit config: Configuration): Article = {
     val goose = new Goose(config)
     val article = goose.extractContent(url, rawHTML)
+//    goose.shutdownNetwork()
     article
   }
 

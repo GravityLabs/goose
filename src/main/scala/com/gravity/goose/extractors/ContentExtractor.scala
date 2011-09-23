@@ -179,6 +179,7 @@ trait ContentExtractor extends Logging {
   * and the number of consecutive paragraphs together, which should form the cluster of text that this node is around
   * also store on how high up the paragraphs are, comments are usually at the bottom and should get a lower score
   *
+  * // todo refactor this long method
   * @return
   */
 
@@ -219,9 +220,9 @@ trait ContentExtractor extends Logging {
       }
       if (numberOfNodes > 15) {
         if ((numberOfNodes - i) <= bottomNodesForNegativeScore) {
-          var booster: Float = bottomNodesForNegativeScore.asInstanceOf[Float] - (numberOfNodes - i).asInstanceOf[Float]
+          val booster: Float = bottomNodesForNegativeScore.asInstanceOf[Float] - (numberOfNodes - i).asInstanceOf[Float]
           boostScore = -Math.pow(booster, 2.asInstanceOf[Float]).asInstanceOf[Float]
-          var negscore: Float = Math.abs(boostScore) + negativeScoring
+          val negscore: Float = Math.abs(boostScore) + negativeScoring
           if (negscore > 40) {
             boostScore = 5
           }
@@ -313,6 +314,10 @@ trait ContentExtractor extends Logging {
     false
   }
 
+  def getShortText(e: String, max: Int): String = {
+    if (e.length > max) e.substring(0, max) + "..." else e
+  }
+
   /**
   * checks the density of links within a node, is there not much text and most of it contains linky shit?
   * if so it's no good
@@ -339,14 +344,7 @@ trait ContentExtractor extends Logging {
     val linkDivisor: Float = numberOfLinkWords / numberOfWords
     val score: Float = linkDivisor * numberOfLinks
 
-    var logText: String = null
-    if (e.text.length >= 51) {
-      logText = e.text.substring(0, 50)
-    }
-    else {
-      logText = e.text
-    }
-    trace(logPrefix + "Calulated link density score as: " + score + " for node: " + logText)
+    trace(logPrefix + "Calulated link density score as: " + score + " for node: " + getShortText(e.text, 50))
 
     if (score > 1) {
       return true
@@ -441,15 +439,11 @@ trait ContentExtractor extends Logging {
   def extractVideos(node: Element): List[Element] = {
     val candidates: ArrayList[Element] = new ArrayList[Element]
     val goodMovies = new ListBuffer[Element]
+    val youtubeStr = "youtube"
+    val vimdeoStr = "vimeo"
     try {
-      val embeds: Elements = node.parent.getElementsByTag("embed")
-      for (el <- embeds) {
-        candidates.add(el)
-      }
-      val objects: Elements = node.parent.getElementsByTag("object")
-      for (el <- objects) {
-        candidates.add(el)
-      }
+      node.parent.getElementsByTag("embed").foreach(candidates.add(_))
+      node.parent.getElementsByTag("object").foreach(candidates.add(_))
 
       trace(logPrefix + "extractVideos: Starting to extract videos. Found: " + candidates.size)
 
@@ -457,14 +451,14 @@ trait ContentExtractor extends Logging {
         val attrs: Attributes = el.attributes
         for (a <- attrs) {
           try {
-            if ((a.getValue.contains("youtube") || a.getValue.contains("vimeo")) && (a.getKey == "src")) {
+            if ((a.getValue.contains(youtubeStr) || a.getValue.contains(vimdeoStr)) && (a.getKey == "src")) {
               trace(logPrefix + "This page has a video!: " + a.getValue)
               goodMovies += el
             }
           }
           catch {
             case e: Exception => {
-              warn(e.toString)
+              info(logPrefix + "Error extracting movies: " + e.toString)
             }
           }
         }
@@ -609,14 +603,12 @@ trait ContentExtractor extends Logging {
     trace(logPrefix + "Starting to add siblings")
 
     val baselineScoreForSiblingParagraphs: Int = getBaselineScoreForSiblings(topNode)
-
     val results = walkSiblings(topNode) {
       currentNode => {
         getSiblingContent(currentNode, baselineScoreForSiblingParagraphs)
 
       }
     }.flatMap(itm => itm)
-
     topNode.child(0).before(results.mkString)
     topNode
   }
