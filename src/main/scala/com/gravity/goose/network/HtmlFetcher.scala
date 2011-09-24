@@ -52,6 +52,7 @@ import java.util.ArrayList
 import java.util.Date
 import java.util.List
 import com.gravity.goose.utils.Logging
+import com.gravity.goose.Configuration
 
 /**
 * User: Jim Plush
@@ -87,7 +88,7 @@ object HtmlFetcher extends Logging {
   * @throws MaxBytesException
   * @throws NotHtmlException
   */
-  def getHtml(url: String): Option[String] = {
+  def getHtml(config: Configuration, url: String): Option[String] = {
     var httpget: HttpGet = null
     var htmlResult: String = null
     var entity: HttpEntity = null
@@ -96,6 +97,9 @@ object HtmlFetcher extends Logging {
       val localContext: HttpContext = new BasicHttpContext
       localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
       httpget = new HttpGet(url)
+      HttpProtocolParams.setUserAgent(httpClient.getParams, config.getBrowserUserAgent());
+
+      info("Setting UserAgent To: " + HttpProtocolParams.getUserAgent(httpClient.getParams))
       val response: HttpResponse = httpClient.execute(httpget, localContext)
       entity = response.getEntity
       if (entity != null) {

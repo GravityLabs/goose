@@ -61,6 +61,13 @@ class Configuration {
   @BeanProperty
   var imagemagickIdentifyPath: String = "/opt/local/bin/identify"
 
+  /**
+  * used as the user agent that is sent with your web requests to extract an article
+  */
+  @BeanProperty
+  var browserUserAgent: String = "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8"
+
+
   var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
     def extract(rootElement: Element): Date = {
       null

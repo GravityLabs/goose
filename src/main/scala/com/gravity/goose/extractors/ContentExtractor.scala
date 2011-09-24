@@ -274,9 +274,13 @@ trait ContentExtractor extends Logging {
   }
 
   def printTraceLog(topNode: Element) {
-    trace(logPrefix + "Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id + "' class='" + topNode.attr("class") + "' ")
-    val text = if (topNode.text.trim.length > 100) topNode.text.trim.substring(0, 100) + "..." else topNode.text.trim
-    trace(logPrefix + "Text - " + text)
+    try {
+      trace(logPrefix + "Our TOPNODE: score='" + topNode.attr("gravityScore") + "' nodeCount='" + topNode.attr("gravityNodes") + "' id='" + topNode.id + "' class='" + topNode.attr("class") + "' ")
+      val text = if (topNode.text.trim.length > 100) topNode.text.trim.substring(0, 100) + "..." else topNode.text.trim
+      trace(logPrefix + "Text - " + text)
+    } catch {
+      case e: NullPointerException => warn(e, e.toString)
+    }
   }
 
   /**

@@ -50,6 +50,7 @@ class Crawler(config: Configuration) extends Logging {
       doc <- getDocument(parseCandidate.url.toString, rawHtml)
     } {
       trace("Crawling url: %s".format(parseCandidate.url))
+
       val extractor = getExtractor
       val docCleaner = getDocCleaner
       val outputFormatter = getOutputFormatter
@@ -110,8 +111,10 @@ class Crawler(config: Configuration) extends Logging {
     if (crawlCandidate.rawHTML != null) {
       Some(crawlCandidate.rawHTML)
     } else {
-      HtmlFetcher.getHtml(parsingCandidate.url.toString) match {
-        case Some(html) => Some(html)
+      HtmlFetcher.getHtml(config, parsingCandidate.url.toString) match {
+        case Some(html) => {
+          Some(html)
+        }
         case _ => None
       }
     }

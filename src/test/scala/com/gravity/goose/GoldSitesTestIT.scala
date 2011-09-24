@@ -264,12 +264,23 @@ class GoldSitesTestIT {
   @Test
   def nyTimes1() {
     implicit val config = TestUtils.DEFAULT_CONFIG
+    config.setBrowserUserAgent("grvGoose")
     val url: String = "http://www.nytimes.com/2011/09/20/arts/design/preserving-the-american-folk-art-museums-place-in-new-york.html?_r=1&ref=arts"
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Please. Someone, everyone, do something to save the American Folk Art Museum from dissolution and dispersa",
       expectedImage = "http://graphics8.nytimes.com/images/2011/09/20/arts/20folkart-web/20folkart-web-articleLarge.jpg")
     TestUtils.printReport()
+  }
+
+  @Test
+  def gooseRequestParameters() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    config.setBrowserUserAgent("grvGoose")
+    val url: String = "http://jimplush.com/public/uploads/goosetest.php"
+    val article = TestUtils.getArticle(url)
+    println(article.rawHtml)
+
   }
 
 
