@@ -38,31 +38,18 @@ import utils.{ParsingCandidate, URLHelper, Logging}
 
 case class CrawlCandidate(config: Configuration, url: String, rawHTML: String = null)
 
-class CrawlingActor extends Actor with Logging {
+class Crawler(config: Configuration) extends Logging {
 
   val logPrefix = "crawler: "
 
-  var config: Configuration = null
-
-  def receive = {
-    case cc: CrawlCandidate => {
-      config = cc.config
-      crawl(cc)
-    }
-    case _ => throw new Exception("unknown message sent to actor")
-  }
-
-
-  def crawl(crawlCandidate: CrawlCandidate) = {
+  def crawl(crawlCandidate: CrawlCandidate): Article = {
     val article = new Article()
     for {
       parseCandidate <- URLHelper.getCleanedUrl(crawlCandidate.url)
       rawHtml <- getHTML(crawlCandidate, parseCandidate)
       doc <- getDocument(parseCandidate.url.toString, rawHtml)
     } {
-
       trace("Crawling url: %s".format(parseCandidate.url))
-
       val extractor = getExtractor
       val docCleaner = getDocCleaner
       val outputFormatter = getOutputFormatter
@@ -81,9 +68,10 @@ class CrawlingActor extends Actor with Logging {
       article.canonicalLink = extractor.getCanonicalLink(article)
       article.domain = extractor.getDomain(article.finalUrl)
       article.tags = extractor.extractTags(article)
-
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
+
+
 
       extractor.calculateBestNodeBasedOnClustering(article) match {
         case Some(node: Element) => {
@@ -103,13 +91,19 @@ class CrawlingActor extends Actor with Logging {
           }
           article.topNode = extractor.postExtractionCleanup(article.topNode)
 
+
+
+
           article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
         }
         case _ => trace("NO ARTICLE FOUND");
       }
       releaseResources(article)
-      self.reply(article)
+      //      self.reply(article)
+      article
     }
+
+    article
   }
 
   def getHTML(crawlCandidate: CrawlCandidate, parsingCandidate: ParsingCandidate): Option[String] = {

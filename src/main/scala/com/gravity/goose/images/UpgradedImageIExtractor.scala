@@ -27,7 +27,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   /**
   * What's the minimum bytes for an image we'd accept is
   */
-  private val minBytesForImages: Int = 0
+  private val minBytesForImages: Int = 4000
   /**
   * location to store temporary image files if need be
   */

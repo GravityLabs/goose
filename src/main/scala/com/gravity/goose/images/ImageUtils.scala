@@ -37,6 +37,8 @@ import java.util.{Random, ArrayList, HashMap}
 import java.io._
 import com.gravity.goose.Configuration
 import com.gravity.goose.text.HashUtils
+import org.apache.http.util.EntityUtils
+import org.apache.commons.io.IOUtils
 
 object ImageUtils extends Logging {
   /**
@@ -169,10 +171,10 @@ object ImageUtils extends Logging {
       trace("Not found locally...starting to download image: " + imageSrc)
       fetchEntity(httpClient, imageSrc) match {
         case Some(entity) => {
-          trace("Got entity for")
+          trace("Got entity for %s".format(imageSrc))
           writeEntityContentsToDisk(entity, linkhash, imageSrc, config) match {
-            case Some(locallyStoredImage) => Some(locallyStoredImage)
-            case None => None
+            case Some(locallyStoredImage) => trace("Img Write successfull to disk"); Some(locallyStoredImage)
+            case None => trace("Unable to write contents to disk: %s".format(imageSrc)); None
           }
         }
         case None => trace("Unable to fetch entity for: " + imageSrc); None
@@ -224,7 +226,24 @@ object ImageUtils extends Logging {
 
     val localSrcPath = getLocalFileName(linkhash, imageSrc, config)
     val outstream: OutputStream = new FileOutputStream(localSrcPath)
-    entity.writeTo(outstream)
+    val instream: InputStream = entity.getContent
+     trace("Content Length: " + entity.getContentLength)
+    try {
+      val fileCopyBytes = IOUtils.copy(instream, outstream)
+      trace("%d bytes copied to disk".format(fileCopyBytes))
+    } catch {
+      case e: Exception => info(e, e.toString)
+    } finally {
+      try {
+        outstream.flush()
+        outstream.close()
+        instream.close()
+      } catch {
+        case e: Exception => info(e, e.toString)
+      }
+    }
+    //    entity.writeTo(outstream)
+    EntityUtils.consume(entity)
     trace("Content Length: " + entity.getContentLength)
     readExistingFileInfo(linkhash, imageSrc, config)
 

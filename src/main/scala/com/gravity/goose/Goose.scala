@@ -52,17 +52,9 @@ class Goose(config: Configuration = new Configuration) extends Logging {
   }
 
   def sendToActor(crawlCandidate: CrawlCandidate) = {
-    val result = crawlingActor !! crawlCandidate
-    result match {
-      case Some(article) => {
-        debug("Got a result of type: {0} from URL: {1}", article.asInstanceOf[AnyRef].getClass.getCanonicalName, crawlCandidate.url)
-        article.asInstanceOf[Article]
-      }
-      case _ => {
-        debug("DID NOT get a result back from URL: {0}", crawlCandidate.url)
-        null
-      }
-    }
+    val crawler = new Crawler(config)
+    val article = crawler.crawl(crawlCandidate)
+    article
   }
 
   def initializeEnvironment() {
@@ -94,7 +86,7 @@ object Goose {
   val logPrefix = "goose: "
 
   // create the crawling actor that will accept bulk crawls
-  val crawlingActor = Actor.actorOf[CrawlingActor]
-  crawlingActor.start()
+//  val crawlingActor = Actor.actorOf[CrawlingActor]
+//  crawlingActor.start()
 
 }
