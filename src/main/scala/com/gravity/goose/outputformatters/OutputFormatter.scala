@@ -86,11 +86,10 @@ trait OutputFormatter extends Logging {
   private def convertLinksToText: Unit = {
     trace(logPrefix + "Turning links to text")
 
-    var links: Elements = topNode.getElementsByTag("a")
-    import scala.collection.JavaConversions._
+    val links: Elements = topNode.getElementsByTag("a")
     for (item <- links) {
       if (item.getElementsByTag("img").size == 0) {
-        var tn: TextNode = new TextNode(item.text, topNode.baseUri)
+        val tn: TextNode = new TextNode(item.text, topNode.baseUri)
         item.replaceWith(tn)
       }
     }
@@ -116,24 +115,43 @@ trait OutputFormatter extends Logging {
   * so replace <br>, <i>, <strong>, etc.... with whatever text is inside them
   */
   private def replaceTagsWithText: Unit = {
-    var strongs: Elements = topNode.getElementsByTag("strong")
-    import scala.collection.JavaConversions._
-    for (item <- strongs) {
-      var tn: TextNode = new TextNode(item.text, topNode.baseUri)
-      item.replaceWith(tn)
-    }
-    var bolds: Elements = topNode.getElementsByTag("b")
-    import scala.collection.JavaConversions._
+
+
+    val bolds: Elements = topNode.getElementsByTag("b")
     for (item <- bolds) {
-      var tn: TextNode = new TextNode(item.text, topNode.baseUri)
+      val tn: TextNode = new TextNode(getTagCleanedText(item), topNode.baseUri)
       item.replaceWith(tn)
     }
-    var italics: Elements = topNode.getElementsByTag("i")
-    import scala.collection.JavaConversions._
+
+    val strongs: Elements = topNode.getElementsByTag("strong")
+    for (item <- strongs) {
+      val tn: TextNode = new TextNode(getTagCleanedText(item), topNode.baseUri)
+      item.replaceWith(tn)
+    }
+
+    val italics: Elements = topNode.getElementsByTag("i")
     for (item <- italics) {
-      var tn: TextNode = new TextNode(item.text, topNode.baseUri)
+      val tn: TextNode = new TextNode(getTagCleanedText(item), topNode.baseUri)
       item.replaceWith(tn)
+
     }
+
+  }
+
+  private def getTagCleanedText(item: Node): String = {
+
+    // used to remove tags within tags
+    val tagReplace = "<[^>]+>".r
+    val sb = new StringBuilder()
+    for (child <- item.childNodes()) {
+      if (child.isInstanceOf[TextNode]) {
+        sb.append(child.asInstanceOf[TextNode].getWholeText)
+      } else if (child.isInstanceOf[Element]) {
+        sb.append(child.asInstanceOf[Element].outerHtml())
+      }
+    }
+    val text = tagReplace replaceAllIn(sb.toString(), "")
+    text
   }
 
   /**

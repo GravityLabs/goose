@@ -273,6 +273,17 @@ class TextExtractions {
   }
 
   @Test
+  def cnbc1() {
+    val url = "http://www.cnbc.com/id/44613978"
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("cnbc1.txt")
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Some traders found Wednesday's Fed statement to be a bit gloomier than expected.")
+
+  }
+
+  @Test
   def issue24() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
     val html = getHtml("issue_24.txt")

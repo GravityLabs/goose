@@ -245,8 +245,8 @@ trait DocumentCleaner extends Logging {
   * go through all the div's nodes and clean up dangling text nodes and get rid of obvious jank
   */
   def getFlushedBuffer(replacementText: scala.StringBuilder, doc: Document) = {
-    val bufferedText = replacementText.toString().trim()
-    trace("Flushing TextNode Buffer: " + bufferedText)
+    val bufferedText = replacementText.toString()
+    trace("Flushing TextNode Buffer: " + bufferedText.trim())
     val newDoc: Document = new Document(doc.baseUri)
     val newPara: Element = newDoc.createElement("p")
     newPara.html(replacementText.toString())
@@ -289,7 +289,7 @@ trait DocumentCleaner extends Logging {
 
           var prevSibNode = kidTextNode.previousSibling()
           while (prevSibNode != null && prevSibNode.nodeName() == "a" && prevSibNode.attr("grv-usedalready") != "yes") {
-            replacementText.append(prevSibNode.outerHtml())
+            replacementText.append(" " +prevSibNode.outerHtml() + " ")
             nodesToRemove += prevSibNode
             prevSibNode.attr("grv-usedalready", "yes")
             prevSibNode = if (prevSibNode.previousSibling() == null) null else prevSibNode.previousSibling()
@@ -300,7 +300,7 @@ trait DocumentCleaner extends Logging {
           //          check the next set of links that might be after text (see businessinsider2.txt)
           var nextSibNode = kidTextNode.nextSibling()
           while (nextSibNode != null && nextSibNode.nodeName() == "a" && nextSibNode.attr("grv-usedalready") != "yes") {
-            replacementText.append(nextSibNode.outerHtml())
+            replacementText.append(" " + nextSibNode.outerHtml() + " ")
             nodesToRemove += nextSibNode
             nextSibNode.attr("grv-usedalready", "yes")
             nextSibNode = if (nextSibNode.nextSibling() == null) null else nextSibNode.nextSibling()
@@ -317,9 +317,11 @@ trait DocumentCleaner extends Logging {
 
     }
     // flush out anything still remaining
-    val newNode = getFlushedBuffer(replacementText, doc)
-    nodesToReturn += newNode
-    replacementText.clear()
+    if (replacementText.size > 0) {
+      val newNode = getFlushedBuffer(replacementText, doc)
+      nodesToReturn += newNode
+      replacementText.clear()
+    }
 
 
     nodesToRemove.foreach(_.remove())
