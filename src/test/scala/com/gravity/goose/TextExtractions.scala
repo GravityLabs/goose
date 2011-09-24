@@ -132,7 +132,7 @@ class TextExtractions {
     val html = getHtml("usatoday1.txt")
     val url: String = "http://content.usatoday.com/communities/thehuddle/post/2010/08/brett-favre-practices-set-to-speak-about-return-to-minnesota-vikings/1"
     val article = TestUtils.getArticle(url, rawHTML = html)
-    val content = "Brett Favre says he couldn't give up on one more chance"
+    val content = "Brett Favre says he couldn't give up on one more"
     TestUtils.runArticleAssertions(article = article, expectedStart = content)
   }
 
@@ -245,6 +245,41 @@ class TextExtractions {
     val article = TestUtils.getArticle(url, html)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "If the newest Census Bureau estimates stay close to form")
+  }
+
+
+  @Test
+  def businessinsider1() {
+    val url = "http://www.businessinsider.com/goldman-on-the-fed-announcement-2011-9"
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("businessinsider1.txt")
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "As everyone in the world was transfixed on the Fed")
+
+    println(article.cleanedArticleText)
+  }
+
+  @Test
+  def businessinsider2() {
+    val url = "http://www.businessinsider.com/goldman-on-the-fed-announcement-2011-9"
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("businessinsider2.txt")
+    val article = TestUtils.getArticle(url, html)
+
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "From Goldman on the FOMC operation twist announcement")
+
+  }
+
+  @Test
+  def issue24() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("issue_24.txt")
+    val expected = getHtml("issue_24_result.txt")
+    val url: String = "http://danielspicar.github.com/goose-bug.html"
+    val article = TestUtils.getArticle(url, html)
+    assertEquals("The beginning of the article text was not as expected!", expected, article.cleanedArticleText)
   }
 
 

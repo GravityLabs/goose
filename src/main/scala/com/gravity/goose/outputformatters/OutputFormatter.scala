@@ -71,14 +71,13 @@ trait OutputFormatter extends Logging {
   * @return
   */
   def convertToText: String = {
-    val paras = new ListBuffer[String]
-    val nodes: Elements = topNode.getAllElements
-    for (e <- nodes) {
-      if (e.tagName == "p") {
-        paras += StringEscapeUtils.unescapeHtml(e.text).trim
-      }
-    }
-    paras.mkString("\n\n")
+
+    val textElements = (topNode.children().map((e: Element) => {
+      StringEscapeUtils.unescapeHtml(e.text).trim
+    })).toList.mkString("\n\n")
+
+    textElements
+
   }
 
   /**

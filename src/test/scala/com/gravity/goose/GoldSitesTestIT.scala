@@ -21,8 +21,8 @@ class GoldSitesTestIT {
     val image = "http://tctechcrunch2011.files.wordpress.com/2011/08/screen-shot-2011-08-13-at-4-55-35-pm.png?w=288"
     val title = "2005 Zuckerberg Didn’t Want To Take Over The World"
     val article = TestUtils.getArticle(url)
-//    TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
-//    TestUtils.printReport()
+    TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
+    TestUtils.printReport()
   }
 
 
@@ -35,7 +35,7 @@ class GoldSitesTestIT {
     val content = "Washington (CNN) -- Democrats pledged "
     val image = "http://i.cdn.turner.com/cnn/2010/POLITICS/08/13/democrats.social.security/story.kaine.gi.jpg"
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedStart = content, expectedImage = image)
-     TestUtils.printReport()
+    TestUtils.printReport()
   }
 
   @Test
@@ -165,16 +165,6 @@ class GoldSitesTestIT {
       expectedImage = "http://www.blogcdn.com/www.engadget.com/media/2010/08/44ni600.jpg")
   }
 
-  @Test def apHosted() {
-    implicit val config = TestUtils.DEFAULT_CONFIG
-    val url = "http://hosted.ap.org/dynamic/stories/M/ML_LIBYA_HOTEL_FROM_HELL?SITE=CAVAN&SECTION=HOME&TEMPLATE=DEFAULT&CTIME=2011-08-24-13-16-25"
-    val title = "Latest from the Associated Press"
-    val content = "TRIPOLI, Libya (AP) -- Dozens of international journalists were freed"
-    val image = "http://hosted.ap.org/photos/0/0d100338-01a3-4e33-86cb-69e3dbb60c1f-small.jpg"
-    val article = TestUtils.getArticle(url)
-    TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
-  }
-
   @Test
   def time() {
     implicit val config = TestUtils.DEFAULT_CONFIG
@@ -232,7 +222,7 @@ class GoldSitesTestIT {
     val url: String = "http://www.ft.com/intl/cms/s/2/4e268022-e472-11e0-92a3-00144feabdc0.htm"
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
-      expectedStart = "Hewlett-Packard shares jumped 9 per cent",
+      expectedStart = "Hewlett-Packard shares jumped nearly 7 per",
       expectedImage = "http://im.media.ft.com/content/images/88de8b54-3f2e-11e0-8e48-00144feabdc0.img")
     TestUtils.printReport()
   }
@@ -257,6 +247,51 @@ class GoldSitesTestIT {
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Some traders found Wednesday's Fed statement to be a bit gloomier than expected.",
       expectedImage = "http://media.cnbc.com/i/CNBC/Sections/News_And_Analysis/__Story_Inserts/graphics/__FEDERAL_RESERVE/FED_RESERVE3.jpg")
+    TestUtils.printReport()
+  }
+
+  @Test
+  def yahooFinance() {
+    val url = "http://finance.yahoo.com/news/Mulling-Meg-Whitman-HP-apf-4116866737.html?x=0"
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "SAN FRANCISCO (AP) -- As trial balloons go",
+      expectedImage = "http://chart.finance.yahoo.com/instrument/1.0/HPQ/chart;range=1d/image;size=239x110?lang=en-US&region=US")
+    TestUtils.printReport()
+  }
+
+  @Test
+  def yahooFinance2() {
+    val url = "http://finance.yahoo.com/news/Stocks-plunge-after-Fed-apf-3386772167.html?x=0"
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "NEW YORK (AP) -- The Federal Reserve did what investors",
+      expectedImage = "http://l.yimg.com/a/p/fi/41/20/44.jpg")
+    TestUtils.printReport()
+  }
+
+  @Test
+  def businessinsider() {
+    val url = "http://www.businessinsider.com/meanwhile-developments-in-greece-2011-9"
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "As everyone in the world was transfixed on the Fed",
+      expectedImage = "http://static6.businessinsider.com/image/4e77323e69beddba4c00001c-400-300/greece-flag-water.jpg")
+    TestUtils.printReport()
+  }
+
+  @Test
+  def businessinsider2() {
+    val url = "http://www.businessinsider.com/goldman-on-the-fed-announcement-2011-9"
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val article = TestUtils.getArticle(url)
+
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "From Goldman on the FOMC operation twist announcement",
+      expectedImage = "http://static8.businessinsider.com/image/4e7a0dd26bb3f7da4800003d/twist.jpg")
     TestUtils.printReport()
   }
 

@@ -500,14 +500,14 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
       catch {
         case e: NullPointerException => {
           warn(e, "SRC: " + src + " " + e.toString)
-          System.exit(1)
+
         }
       }
     }
     catch {
       case e: Exception => {
         warn(e, "BIG SRC: " + src + " " + e.toString)
-          System.exit(1)
+
       }
     }
     finally {

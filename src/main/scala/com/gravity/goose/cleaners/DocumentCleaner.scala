@@ -25,6 +25,7 @@ import org.jsoup.nodes.{TextNode, Node, Element, Document}
 import com.gravity.goose.text.{string, ReplaceSequence}
 import scala.collection.JavaConversions._
 import com.gravity.goose.Article
+import collection.mutable.ListBuffer
 
 trait DocumentCleaner extends Logging {
 
@@ -42,7 +43,7 @@ trait DocumentCleaner extends Logging {
 
   def clean(article: Article): Document = {
 
-    trace(logPrefix + "Starting cleaning phase with DefaultDocumentCleaner")
+    trace("Starting cleaning phase with DefaultDocumentCleaner")
 
     var docToClean: Document = article.doc
     docToClean = cleanEmTags(docToClean)
@@ -73,7 +74,7 @@ trait DocumentCleaner extends Logging {
       val tn: TextNode = new TextNode(node.text, doc.baseUri)
       node.replaceWith(tn)
     }
-    trace(logPrefix + ems.size + " EM tags modified")
+    trace(ems.size + " EM tags modified")
     doc
   }
 
@@ -82,7 +83,7 @@ trait DocumentCleaner extends Logging {
   */
   private def removeDropCaps(doc: Document): Document = {
     val items: Elements = doc.select("span[class~=(dropcap|drop_cap)]")
-    trace(logPrefix + items.size + " dropcap tags removed")
+    trace(items.size + " dropcap tags removed")
     for (item <- items) {
       val tn: TextNode = new TextNode(item.text, doc.baseUri)
       item.replaceWith(tn)
@@ -97,50 +98,50 @@ trait DocumentCleaner extends Logging {
     for (item <- scripts) {
       item.remove()
     }
-    trace(logPrefix + scripts.size + " script tags removed")
+    trace(scripts.size + " script tags removed")
 
     val styles: Elements = doc.getElementsByTag("style")
     import scala.collection.JavaConversions._
     for (style <- styles) {
       style.remove()
     }
-    trace(logPrefix + styles.size + " style tags removed")
+    trace(styles.size + " style tags removed")
     doc
   }
 
   private def cleanBadTags(doc: Document): Document = {
     val children: Elements = doc.body.children
     val naughtyList: Elements = children.select(queryNaughtyIDs)
-    trace(logPrefix + naughtyList.size + " naughty ID elements found")
+    trace(naughtyList.size + " naughty ID elements found")
 
     import scala.collection.JavaConversions._
     for (node <- naughtyList) {
-      trace(logPrefix + "Removing node with id: " + node.id)
+      trace("Removing node with id: " + node.id)
       removeNode(node)
     }
 
     val naughtyList2: Elements = children.select(queryNaughtyIDs)
-    trace(logPrefix + naughtyList2.size + " naughty ID elements found after removal")
+    trace(naughtyList2.size + " naughty ID elements found after removal")
 
     val naughtyClasses: Elements = children.select(queryNaughtyClasses)
 
-    trace(logPrefix + naughtyClasses.size + " naughty CLASS elements found")
+    trace(naughtyClasses.size + " naughty CLASS elements found")
 
     for (node <- naughtyClasses) {
-      trace(logPrefix + "Removing node with class: " + node.className)
+      trace("Removing node with class: " + node.className)
       removeNode(node)
     }
 
     val naughtyClasses2: Elements = children.select(queryNaughtyClasses)
-    trace(logPrefix + naughtyClasses2.size + " naughty CLASS elements found after removal")
+    trace(naughtyClasses2.size + " naughty CLASS elements found after removal")
 
     val naughtyList5: Elements = children.select(queryNaughtyNames)
 
-    trace(logPrefix + naughtyList5.size + " naughty Name elements found")
+    trace(naughtyList5.size + " naughty Name elements found")
 
     for (node <- naughtyList5) {
 
-      trace(logPrefix + "Removing node with class: " + node.attr("class") + " id: " + node.id + " name: " + node.attr("name"))
+      trace("Removing node with class: " + node.attr("class") + " id: " + node.id + " name: " + node.attr("name"))
 
       removeNode(node)
     }
@@ -157,13 +158,13 @@ trait DocumentCleaner extends Logging {
     try {
       val naughtyList: Elements = doc.getElementsByAttributeValueMatching("id", pattern)
 
-      trace(logPrefix + naughtyList.size + " ID elements found against pattern: " + pattern)
+      trace(naughtyList.size + " ID elements found against pattern: " + pattern)
 
       for (node <- naughtyList) {
         removeNode(node)
       }
       val naughtyList3: Elements = doc.getElementsByAttributeValueMatching("class", pattern)
-      trace(logPrefix + naughtyList3.size + " CLASS elements found against pattern: " + pattern)
+      trace(naughtyList3.size + " CLASS elements found against pattern: " + pattern)
 
       for (node <- naughtyList3) {
         removeNode(node)
@@ -187,67 +188,42 @@ trait DocumentCleaner extends Logging {
   }
 
 
+  def replaceElementsWithPara(doc: Document, div: Element) {
+    val newDoc: Document = new Document(doc.baseUri)
+    val newNode: Element = newDoc.createElement("p")
+    newNode.append(div.html)
+    div.replaceWith(newNode)
+  }
+
+
   private def convertDivsToParagraphs(doc: Document, domType: String): Document = {
-    trace(logPrefix + "Starting to replace bad divs...")
+    trace("Starting to replace bad divs...")
     var badDivs: Int = 0
     var convertedTextNodes: Int = 0
     val divs: Elements = doc.getElementsByTag(domType)
+    var divIndex = 0
+
 
     for (div <- divs) {
       try {
         val divToPElementsMatcher: Matcher = divToPElementsPattern.matcher(div.html.toLowerCase)
         if (divToPElementsMatcher.find == false) {
-          val newDoc: Document = new Document(doc.baseUri)
-          val newNode: Element = newDoc.createElement("p")
-          newNode.append(div.html)
-          div.replaceWith(newNode)
-          ({
-            badDivs += 1;
-            badDivs
-          })
+          replaceElementsWithPara(doc, div)
+          badDivs += 1;
         }
         else {
-          val replacementText: StringBuilder = new StringBuilder
-          val nodesToRemove: ArrayList[Node] = new ArrayList[Node]
-          for {
-            kid <- div.childNodes;
-            if (kid.nodeName == "#text");
-            txtNode: TextNode = kid.asInstanceOf[TextNode];
-            text: String = txtNode.attr("text");
-            if (!string.isNullOrEmpty(text))
-          } {
-            val replaceText = tabsAndNewLinesReplcesments.replaceAll(text)
-            if (replaceText.length > 1) {
-              val previousSib: Node = kid.previousSibling
+          val replaceNodes = getReplacementNodes(doc, div)
 
-              trace(logPrefix + "PARENT CLASS: " + div.className + " NODENAME: " + kid.nodeName)
-              trace(logPrefix + "TEXTREPLACE: '" + replaceText.replace("\n", "").replace("<br>", "") + "'")
+          div.children().foreach(_.remove())
+          replaceNodes.foreach(node => {
 
-              if (previousSib != null) {
-                if (previousSib.nodeName == "a") {
-                  replacementText.append(previousSib.outerHtml)
-
-                  trace(logPrefix + "SIBLING NODENAME ADDITION: " + previousSib.nodeName + " TEXT: " + previousSib.outerHtml)
-                }
-              }
-              replacementText.append(replaceText)
-              nodesToRemove.add(kid)
-              ({
-                convertedTextNodes += 1;
-                convertedTextNodes
-              })
+            try {
+              div.appendChild(node)
+            } catch {
+              case e: Exception => info(e, e.toString)
             }
 
-          }
-          var newDoc: Document = new Document(doc.baseUri)
-          val newPara: Element = newDoc.createElement("p")
-          newPara.html(replacementText.toString())
-          div.childNode(0).before(newPara.outerHtml)
-          newDoc = null
-          import scala.collection.JavaConversions._
-          for (n <- nodesToRemove) {
-            n.remove()
-          }
+          })
         }
       }
       catch {
@@ -255,14 +231,101 @@ trait DocumentCleaner extends Logging {
           logger.error(e.toString)
         }
       }
+      divIndex += 1
     }
 
-    trace(logPrefix + "Found %d total %s with %d bad ones replaced and %d textnodes converted inside %s"
+    trace("Found %d total %s with %d bad ones replaced and %d textnodes converted inside %s"
         .format(divs.size, domType, badDivs, convertedTextNodes, domType))
+
 
     doc
   }
 
+  /**
+  * go through all the div's nodes and clean up dangling text nodes and get rid of obvious jank
+  */
+  def getFlushedBuffer(replacementText: scala.StringBuilder, doc: Document) = {
+    val bufferedText = replacementText.toString().trim()
+    trace("Flushing TextNode Buffer: " + bufferedText)
+    val newDoc: Document = new Document(doc.baseUri)
+    val newPara: Element = newDoc.createElement("p")
+    newPara.html(replacementText.toString())
+    newPara
+  }
+
+  def getReplacementNodes(doc: Document, div: Element) = {
+
+    val replacementText: StringBuilder = new StringBuilder
+    val nodesToReturn = new ListBuffer[Node]()
+
+    val nodesToRemove = new ListBuffer[Node]()
+
+    for {
+
+      kid <- div.childNodes()
+    } {
+
+
+      if (kid.nodeName() == "p" && replacementText.size > 0) {
+
+        // flush the buffer of text
+        val newNode = getFlushedBuffer(replacementText, doc)
+        nodesToReturn += newNode
+        replacementText.clear()
+
+        if (kid.isInstanceOf[Element]) {
+          val kidElem = kid.asInstanceOf[Element]
+          nodesToReturn += kidElem
+        }
+
+
+      } else if (kid.nodeName == "#text") {
+
+
+        val kidTextNode = kid.asInstanceOf[TextNode]
+        val kidText = kidTextNode.attr("text")
+        val replaceText = tabsAndNewLinesReplcesments.replaceAll(kidText)
+        if (replaceText.trim().length > 1) {
+
+          var prevSibNode = kidTextNode.previousSibling()
+          while (prevSibNode != null && prevSibNode.nodeName() == "a" && prevSibNode.attr("grv-usedalready") != "yes") {
+            replacementText.append(prevSibNode.outerHtml())
+            nodesToRemove += prevSibNode
+            prevSibNode.attr("grv-usedalready", "yes")
+            prevSibNode = if (prevSibNode.previousSibling() == null) null else prevSibNode.previousSibling()
+          }
+          // add the text of the node
+          replacementText.append(replaceText)
+
+          //          check the next set of links that might be after text (see businessinsider2.txt)
+          var nextSibNode = kidTextNode.nextSibling()
+          while (nextSibNode != null && nextSibNode.nodeName() == "a" && nextSibNode.attr("grv-usedalready") != "yes") {
+            replacementText.append(nextSibNode.outerHtml())
+            nodesToRemove += nextSibNode
+            nextSibNode.attr("grv-usedalready", "yes")
+            nextSibNode = if (nextSibNode.nextSibling() == null) null else nextSibNode.nextSibling()
+          }
+
+
+        }
+        nodesToRemove += kid
+
+      } else {
+        nodesToReturn += kid
+      }
+
+
+    }
+    // flush out anything still remaining
+    val newNode = getFlushedBuffer(replacementText, doc)
+    nodesToReturn += newNode
+    replacementText.clear()
+
+
+    nodesToRemove.foreach(_.remove())
+    nodesToReturn
+
+  }
 
 
 }
@@ -293,7 +356,7 @@ object DocumentCleaner {
   var sb: StringBuilder = new StringBuilder
 
   // create negative elements
-  sb.append("^side$|combx|retweet|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll|shoutbox|sponsor")
+  sb.append("^side$|combx|retweet|mediaarticlerelated|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll|shoutbox|sponsor")
   sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers")
   sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text")
 
