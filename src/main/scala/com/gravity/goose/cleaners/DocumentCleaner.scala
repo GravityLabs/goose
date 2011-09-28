@@ -55,8 +55,10 @@ trait DocumentCleaner extends Logging {
     docToClean = removeNodesViaRegEx(docToClean, entriesPattern)
     docToClean = removeNodesViaRegEx(docToClean, facebookPattern)
     docToClean = removeNodesViaRegEx(docToClean, twitterPattern)
+    docToClean = cleanUpSpanTagsInParagraphs(docToClean)
     docToClean = convertDivsToParagraphs(docToClean, "div")
-    docToClean = convertDivsToParagraphs(docToClean, "span")
+
+    //    docToClean = convertDivsToParagraphs(docToClean, "span")
     docToClean
   }
 
@@ -75,6 +77,22 @@ trait DocumentCleaner extends Logging {
       node.replaceWith(tn)
     }
     trace(ems.size + " EM tags modified")
+    doc
+  }
+
+  /**
+  * takes care of the situation where you have a span tag nested in a paragraph tag
+  * e.g. businessweek2.txt
+  */
+  private def cleanUpSpanTagsInParagraphs(doc: Document) = {
+    val spans: Elements = doc.getElementsByTag("span")
+    for (item <- spans) {
+      if (item.parent().nodeName() == "p") {
+        val tn: TextNode = new TextNode(item.text, doc.baseUri)
+        item.replaceWith(tn)
+        trace("Replacing nested span with TextNode: " + item.text())
+      }
+    }
     doc
   }
 
@@ -289,7 +307,7 @@ trait DocumentCleaner extends Logging {
 
           var prevSibNode = kidTextNode.previousSibling()
           while (prevSibNode != null && prevSibNode.nodeName() == "a" && prevSibNode.attr("grv-usedalready") != "yes") {
-            replacementText.append(" " +prevSibNode.outerHtml() + " ")
+            replacementText.append(" " + prevSibNode.outerHtml() + " ")
             nodesToRemove += prevSibNode
             prevSibNode.attr("grv-usedalready", "yes")
             prevSibNode = if (prevSibNode.previousSibling() == null) null else prevSibNode.previousSibling()

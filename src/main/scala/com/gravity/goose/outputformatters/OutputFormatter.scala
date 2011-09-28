@@ -162,7 +162,7 @@ trait OutputFormatter extends Logging {
       logger.debug("removeParagraphsWithFewWords starting...")
     }
     val allNodes: Elements = this.topNode.getAllElements
-    import scala.collection.JavaConversions._
+
     for (el <- allNodes) {
       try {
         val stopWords: WordStats = StopWords.getStopWordCount(el.text)
@@ -176,6 +176,13 @@ trait OutputFormatter extends Logging {
           logger.error(e.getMessage)
         }
       }
+    }
+
+    val moddedNodes: Elements = this.topNode.getElementsByTag("p")
+    // check for open parens as the first paragraph, e.g. businessweek4.txt (IT)
+    if (moddedNodes.first().text().trim().startsWith("(") && moddedNodes.first().text().trim().endsWith(")")) {
+      trace("Removing parenthesis paragraph that is first paragraph")
+      moddedNodes.first().remove()
     }
   }
 }

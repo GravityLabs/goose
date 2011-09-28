@@ -296,6 +296,20 @@ class GoldSitesTestIT {
     TestUtils.printReport()
   }
 
+  @Test
+  def cnbc3() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+
+    val url: String = "http://www.cnbc.com//id/44608735"
+    val article = TestUtils.getArticle(url)
+
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Existing home sales rose more than expected in August to the fastest annual",
+      expectedImage = "http://media.cnbc.com/i/CNBC/Sections/News_And_Analysis/__Story_Inserts/graphics/__REAL_ESTATE/home_sales13.jpg")
+    TestUtils.printReport()
+  }
+
+
   //  @Test
   //  def cnbc2() {
   //    // commented out while this issue is resolve: https://github.com/jhy/jsoup/issues/130
@@ -319,6 +333,19 @@ class GoldSitesTestIT {
       expectedImage = "http://chart.finance.yahoo.com/instrument/1.0/HPQ/chart;range=1d/image;size=239x110?lang=en-US&region=US")
     TestUtils.printReport()
   }
+
+
+  @Test
+  def time3() {
+    val url = "http://www.time.com/time/magazine/article/0,9171,804054,00.html"
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "The hemline could no longer be held. With wartime controls on",
+      expectedImage = null)
+    TestUtils.printReport()
+  }
+
 
   @Test
   def yahooFinance2() {

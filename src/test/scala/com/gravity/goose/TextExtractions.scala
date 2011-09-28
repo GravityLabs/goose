@@ -33,6 +33,30 @@ class TextExtractions {
   }
 
   @Test
+  def businessWeek2() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("businessweek2.txt")
+    val url: String = "http://www.businessweek.com/technology/here-comes-apples-real-tv-09132011.html"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "At Home Depot, we first realized we needed to have a real conversation with",
+      expectedImage = null)
+    TestUtils.printReport()
+  }
+
+   @Test
+  def businessWeek3() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("businessweek3.txt")
+    val url: String = "http://www.businessweek.com/management/five-social-media-lessons-for-business-09202011.html"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Get ready, America, because by Christmas 2012 you will have an Apple TV in your living room",
+      expectedImage = null)
+    TestUtils.printReport()
+  }
+
+  @Test
   def techcrunch1() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
     val html = getHtml("techcrunch1.txt")
