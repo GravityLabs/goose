@@ -235,7 +235,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Hewlett-Packard shares jumped nearly 7 per",
-      expectedImage = "http://im.media.ft.com/content/images/88de8b54-3f2e-11e0-8e48-00144feabdc0.img")
+      expectedImage = null)
     TestUtils.printReport()
   }
 
