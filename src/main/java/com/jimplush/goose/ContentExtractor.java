@@ -192,6 +192,7 @@ public class ContentExtractor {
           HttpClient httpClient = HtmlFetcher.getHttpClient();
           imageExtractor = getImageExtractor(httpClient, urlToCrawl);
           article.setTopImage(imageExtractor.getBestImage(doc, article.getTopNode()));
+          article.setImageCandidates(imageExtractor.getAllImages());
 
         }
 
@@ -393,6 +394,10 @@ public class ContentExtractor {
         // it's always the second one!!
         return TITLE_REPLACEMENTS.replaceAll(titlePieces[1]).trim();
     }
+    if (this.link.contains("mnartists.org") && titlePieces.length > 1) {
+        // it's always the second one!!
+        return TITLE_REPLACEMENTS.replaceAll(titlePieces[1]).trim();
+    }
 
     // take the largest split
     for (int i = 0; i < titlePieces.length; i++) {
@@ -436,7 +441,20 @@ public class ContentExtractor {
   private String getCanonicalLink(Document doc, String baseUrl) {
     Elements meta = doc.select("link[rel=canonical]");
     if (meta.size() > 0) {
-      String href = meta.first().attr("href");
+      String canonicalUrl = meta.first().attr("href");
+      URL url = null;
+      String href = string.empty;
+      try {
+        if (!canonicalUrl.startsWith("http://")) {
+            url = new URL(new URL("http://"+getDomain(baseUrl)), canonicalUrl);
+        } else {
+            url = new URL(canonicalUrl);
+        }
+        href = url.toString();
+      } catch (MalformedURLException e) {
+        logger.error(e.toString(), e);
+      }
+            
       return string.isNullOrEmpty(href) ? string.empty : href.trim();
     } else {
       return baseUrl;

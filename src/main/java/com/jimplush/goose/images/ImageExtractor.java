@@ -42,6 +42,6 @@ public interface ImageExtractor {
    * return all the image candidates we think we have
    * @return
    */
-  public ArrayList<Element> getAllImages();
+  public ArrayList<String> getAllImages();
 
 }

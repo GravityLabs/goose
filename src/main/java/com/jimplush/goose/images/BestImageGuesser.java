@@ -40,6 +40,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -90,6 +95,8 @@ public class BestImageGuesser implements ImageExtractor {
    * holds the result of our image extraction
    */
   Image image;
+  
+  ArrayList<String> images;
 
 
   /**
@@ -232,10 +239,41 @@ public class BestImageGuesser implements ImageExtractor {
     }
   }
 
-  public ArrayList<Element> getAllImages() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  public ArrayList<String> getAllImages() {
+    return this.images;  //To change body of implemented methods use File | Settings | File Templates.
   }
+  
+  public LinkedHashMap sortHashMapByValuesD(HashMap passedMap) {
+    List mapKeys = new ArrayList(passedMap.keySet());
+    List mapValues = new ArrayList(passedMap.values());
+    Collections.sort(mapValues, Collections.reverseOrder());
+    //Collections.sort(mapKeys);
+        
+    LinkedHashMap sortedMap = 
+        new LinkedHashMap();
+    
+    Iterator valueIt = mapValues.iterator();
+    while (valueIt.hasNext()) {
+        Object val = valueIt.next();
+        Iterator keyIt = mapKeys.iterator();
+        
+        while (keyIt.hasNext()) {
+            Object key = keyIt.next();
+            Object comp1 = passedMap.get(key);
+            Object comp2 = val;
+            
+            if (comp1.equals(comp2)){
+                //passedMap.remove(key);
+                mapKeys.remove(key);
+                sortedMap.put(key, (Float)val);
+                break;
+            }
 
+        }
+
+    }
+    return sortedMap;
+  }
 
   /**
    * although slow the best way to determine the best image is to download them and check the actual dimensions of the image when on disk
@@ -274,19 +312,20 @@ public class BestImageGuesser implements ImageExtractor {
     }
 
     HashMap<Element, Float> imageResults = downloadImagesAndGetResults(goodImages, parentDepth);
-
-
+    
+    LinkedHashMap sortedImages = sortHashMapByValuesD(imageResults);
+    
     // pick out image with high score
     Element highScoreImage = null;
-    for (Element image : imageResults.keySet()) {
+    int i = 0;
+    this.images = new ArrayList<String>();
+    for (Object obj : sortedImages.keySet()) {
+      Element image = (Element)obj;
+      //logger.error(image.attr("src"));
       if (highScoreImage == null) {
         highScoreImage = image;
-      } else {
-
-        if (imageResults.get(image) > imageResults.get(highScoreImage)) {
-          highScoreImage = image;
-        }
       }
+      this.images.add(image.attr("src"));
 
     }
     if (highScoreImage != null) {
