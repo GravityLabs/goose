@@ -44,7 +44,7 @@ class TextExtractions {
     TestUtils.printReport()
   }
 
-   @Test
+  @Test
   def businessWeek3() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
     val html = getHtml("businessweek3.txt")
@@ -315,6 +315,17 @@ class TextExtractions {
     val url: String = "http://danielspicar.github.com/goose-bug.html"
     val article = TestUtils.getArticle(url, html)
     assertEquals("The beginning of the article text was not as expected!", expected, article.cleanedArticleText)
+  }
+
+  @Test
+  def issue28() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("issue_28.txt")
+    val url: String = "http://www.telegraph.co.uk/foodanddrink/foodanddrinknews/8808120/Worlds-hottest-chilli-contest-leaves-two-in-hospital.html"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Emergency services were called to Kismot Restaurant's curry-eating challenge,",
+      expectedImage = null)
   }
 
 

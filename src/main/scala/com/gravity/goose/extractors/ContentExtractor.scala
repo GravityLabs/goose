@@ -612,7 +612,7 @@ trait ContentExtractor extends Logging {
         getSiblingContent(currentNode, baselineScoreForSiblingParagraphs)
 
       }
-    }.flatMap(itm => itm)
+    }.reverse.flatMap(itm => itm)
     topNode.child(0).before(results.mkString)
     topNode
   }
