@@ -307,6 +307,11 @@ class TextExtractions {
 
   }
 
+  /*
+  * --------------------------------------------------------
+  * Test Fixes for GitHub Issues Submitted
+  * --------------------------------------------------------
+  */
   @Test
   def issue24() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
@@ -315,6 +320,16 @@ class TextExtractions {
     val url: String = "http://danielspicar.github.com/goose-bug.html"
     val article = TestUtils.getArticle(url, html)
     assertEquals("The beginning of the article text was not as expected!", expected, article.cleanedArticleText)
+  }
+
+  @Test
+  def issue25() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("issue_25.txt")
+    val url: String = "http://www.accountancyage.com/aa/analysis/2111729/institutes-ifrs-bang"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "UK INSTITUTES have thrown their weight behind rapid adoption of international financial reporting standards in the US.")
   }
 
   @Test
