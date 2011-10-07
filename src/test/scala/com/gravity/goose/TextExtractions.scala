@@ -99,6 +99,16 @@ class TextExtractions {
     TestUtils.runArticleAssertions(article = article, expectedStart = content)
   }
 
+  @Test
+  def huffingtonPost2() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("huffpo2.txt")
+    val url: String = "http://www.huffingtonpost.com/2011/10/06/alabama-workers-immigration-law_n_997793.html"
+    val article = TestUtils.getArticle(url = url, rawHTML = html)
+    val content = "MONTGOMERY, Ala. -- Alabama's strict new immigration law may be backfiring."
+    TestUtils.runArticleAssertions(article = article, expectedStart = content)
+  }
+
 
   @Test
   def testHuffingtonPost() {

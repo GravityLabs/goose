@@ -18,7 +18,7 @@ class GoldSitesTestIT {
     //    implicit val config = TestUtils.NO_IMAGE_CONFIG
     val url = "http://techcrunch.com/2011/08/13/2005-zuckerberg-didnt-want-to-take-over-the-world/"
     val content = "The Huffington Post has come across this fascinating five-minute interview"
-    val image = "http://tctechcrunch2011.files.wordpress.com/2011/08/screen-shot-2011-08-13-at-4-55-35-pm.png?w=150"
+    val image = "http://tctechcrunch2011.files.wordpress.com/2011/08/screen-shot-2011-08-13-at-4-55-35-pm.png?w=288"
     val title = "2005 Zuckerberg Didn’t Want To Take Over The World"
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
@@ -35,6 +35,17 @@ class GoldSitesTestIT {
     val content = "Washington (CNN) -- Democrats pledged "
     val image = "http://i.cdn.turner.com/cnn/2010/POLITICS/08/13/democrats.social.security/story.kaine.gi.jpg"
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedStart = content, expectedImage = image)
+    TestUtils.printReport()
+  }
+
+  @Test
+  def cnn2() {
+    val url = "http://www.cnn.com/2011/POLITICS/10/06/tea.party.left/index.html?hpt=hp_t1"
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Washington (CNN) -- Wall Street should have seen it coming. After all, market forces were at work.",
+      expectedImage = "http://i.cdn.turner.com/cnn/2011/POLITICS/10/06/tea.party.left/t1larg.occupydc2.jpg")
     TestUtils.printReport()
   }
 
@@ -89,21 +100,52 @@ class GoldSitesTestIT {
     val url: String = "http://www.foxnews.com/politics/2010/08/14/russias-nuclear-help-iran-stirs-questions-improved-relations/"
     val article = TestUtils.getArticle(url)
     val content = "Russia's announcement that it will help Iran get nuclear fuel is raising questions"
-    val image = "http://a57.foxnews.com/static/managed/img/Politics/128/128/startsign.jpg"
+    val image = "http://a57.foxnews.com/static/managed/img/Politics/396/223/startsign.jpg"
     TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
 
   }
 
   @Test
-  def aolNews() {
+  def foxNews2() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.foxnews.com/politics/2011/10/06/obama-defends-528-million-federal-loan-to-bankrupt-solyndra/"
+    val article = TestUtils.getArticle(url)
+    val content = "The director of the controversial loan program that cleared the way for a $535"
+    val image = "http://a57.foxnews.com/static/managed/img/Politics/396/223/silver_jonathan.jpg"
+    TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
+  }
 
+  @Test
+  def msnbc() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://bottomline.msnbc.msn.com/_news/2011/10/06/8190264-even-without-jobs-apple-still-shines-analysts-say"
+    val article = TestUtils.getArticle(url)
+    val content = "The death of technology titan Steve Jobs, co-founder and former CEO of Apple"
+    val image = "http://msnbcmedia.msn.com/j/MSNBC/Components/Photo/_new/tz-biz-11106-applefuture-108p.photoblog600.jpg"
+    TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
+  }
+
+
+  @Test
+  def laTimes() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.latimes.com/business/la-fi-jobs-legacy-hiltzik-20111006,0,5186643.column"
+    val article = TestUtils.getArticle(url)
+    val content = "Everyone knows Steve Jobs pulled off one of the outstanding corporate turnarounds in U.S. history"
+    val image = "http://www.latimes.com/media/photo/2011-10/65235661.jpg"
+    TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
+    TestUtils.printReport()
+
+  }
+
+  @Test
+  def aolNews() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://www.aolnews.com/nation/article/the-few-the-proud-the-marines-getting-a-makeover/19592478"
     val article = TestUtils.getArticle(url)
     val content = "WASHINGTON (Aug. 13) -- Declaring \"the maritime soul of the Marine Corps\" is"
-    val image = "http://o.aolcdn.com/photo-hub/news_gallery/6/8/680919/1281734929876.JPEG%20"
+    val image = "http://o.aolcdn.com/photo-hub/news_gallery/6/8/680919/1281734929876.JPEG"
     TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
-
   }
 
   @Test
@@ -112,7 +154,7 @@ class GoldSitesTestIT {
     val url: String = "http://online.wsj.com/article/SB10001424052748704532204575397061414483040.html"
     val article = TestUtils.getArticle(url)
     val content = "The Obama administration has paid out less than a third of the nearly $230 billion"
-    val image = "http://s.wsj.net/public/resources/images/OB-JO759_0814st_A_20100814143158.jpg"
+    val image = "http://si.wsj.net/public/resources/images/OB-JO747_stimul_G_20100814113803.jpg"
     TestUtils.runArticleAssertions(article = article, expectedStart = content, expectedImage = image)
   }
 
@@ -136,6 +178,17 @@ class GoldSitesTestIT {
       expectedImage = "http://i.usatoday.net/communitymanager/_photos/drive-on/2010/08/18/cruzex-wide-community.jpg")
   }
 
+  @Test
+  def usaToday3() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.usatoday.com/money/perfi/funds/story/2011-10-05/3q-mutual-fund-report/50674776/1"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Timothy McIntosh, a Tampa financial planner, has always been able to soothe his customers after a rough patch in the stock market. Until now.",
+      expectedImage = "http://i.usatoday.net/money/_photos/2011/10/05/many-quit-stocks-is-it-time-to-buy-blen936-x.jpg")
+    TestUtils.printReport()
+  }
+
 
   @Test
   def espn() {
@@ -144,7 +197,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "If you believe what college football coaches have said about sports",
-      expectedImage = "http://a.espncdn.com/photo/2010/0813/pg2_g_bush3x_300.jpg")
+      expectedImage = "http://a.espncdn.com/photo/2010/0813/ncf_i_mpouncey1_300.jpg")
   }
 
   @Test
@@ -154,7 +207,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "The Supreme Court sounded ",
-      expectedImage = "http://media3.washingtonpost.com/wp-srv/images/twp-50x50.jpg")
+      expectedImage = "http://media3.washingtonpost.com/wp-dyn/content/photo/2010/10/09/PH2010100904575.jpg")
   }
 
   @Test
@@ -164,7 +217,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Today's 5.9 magnitude earthquake was felt throughout the Mid-Atlantic",
-      expectedImage = "http://cache.gizmodo.com/assets/images/4/2011/08/fb_aftershock-earthquake-in-new-york-original.jpg")
+      expectedImage = "http://cache.gawkerassets.com/assets/images/4/2011/08/medium_aftershock-earthquake-in-new-york-original.jpg")
   }
 
   @Test
@@ -174,7 +227,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Streaming and downloading TV content to mobiles is nice",
-      expectedImage = "http://www.blogcdn.com/www.engadget.com/media/2010/08/44ni600_thumbnail.jpg")
+      expectedImage = "http://www.blogcdn.com/www.engadget.com/media/2010/08/44ni600.jpg")
   }
 
   @Test
@@ -194,7 +247,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Despite what the jeers of jaded Californians might suggest",
-      expectedImage = "http://timenewsfeed.files.wordpress.com/2011/08/newsfeed_0824.jpg?w=150")
+      expectedImage = "http://timenewsfeed.files.wordpress.com/2011/08/newsfeed_0824.jpg?w=455")
   }
 
   @Test
@@ -208,13 +261,45 @@ class GoldSitesTestIT {
   }
 
   @Test
+  def wired() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.wired.com/epicenter/2011/10/steve-jobs-disability/"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "When I heard that Steve Jobs had passed away, I was boarding a train from New York to Philadelphia to visit my son.",
+      expectedImage = "http://www.wired.com/images_blogs/epicenter/2011/10/Apple-Siri-Blind-660x375.jpg")
+  }
+
+  @Test
+  def ap() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://hosted2.ap.org/APDEFAULT/bbd825583c8542898e6fa7d440b9febc/Article_2011-10-06-Kids-Concussions/id-6cb44517aaec4303936fa07d5490dce6"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "(AP) — The number of athletic children going to hospitals with concussions is up 60 percent in the past decade",
+      expectedImage = null)
+    TestUtils.printReport()
+  }
+
+
+  @Test
   def yahoo() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://news.yahoo.com/apple-says-steve-jobs-resigning-ceo-224628633.html"
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "SAN FRANCISCO (AP) — Steve Jobs, the mind behind the iPhone",
-      expectedImage = "http://l.yimg.com/bt/api/res/1.2/tpBeOZTrnbvphk34ZpAXnQ--/YXBwaWQ9eW5ld3M7Zmk9ZmlsbDtoPTkwO3E9ODU7dz05MA--/http://media.zenfs.com/en_us/News/ap_webfeeds/c21f27410259ce13f60e6a706700a61a.jpg.cf.png")
+      expectedImage = "http://l.yimg.com/bt/api/res/1.2/Q00X5.OHr6E5RB_IQnkCAQ--/YXBwaWQ9eW5ld3M7Y2g9MTc4Mjtjcj0xO2N3PTI2MTY7ZHg9MDtkeT0wO2ZpPXVsY3JvcDtoPTQzMDtxPTg1O3c9NjMw/http://media.zenfs.com/en_us/News/ap_webfeeds/c21f27410259ce13f60e6a706700a61a.jpg")
+  }
+
+  @Test
+  def abcnews() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://abcnews.go.com/Technology/steve-jobs-fire-company/story?id=14683754"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Steve Jobs was just 30 years old, wildly successful, fabulously wealthy and a global celebrity. And then it all came crashing down.",
+      expectedImage = "http://a.abcnews.com/images/Technology/gty_steve_jobs_port_4_dm_111006_wg.jpg")
   }
 
   @Test
@@ -224,7 +309,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "And now we're looking at two down days in a",
-      expectedImage = "http://static7.businessinsider.com/image/4df5d311ccd1d5591f190000/major-rally-collapses-ahead-of-huge-day-heres-what-you-need-to-know.jpg")
+      expectedImage = "http://static5.businessinsider.com/image/4df5d311ccd1d5591f190000-336-251/china-dive.jpg")
     TestUtils.printReport()
   }
 
@@ -251,6 +336,18 @@ class GoldSitesTestIT {
   }
 
   @Test
+  def huffpo() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.huffingtonpost.com/2011/10/06/alabama-workers-immigration-law_n_997793.html"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "MONTGOMERY, Ala. -- Alabama's strict new immigration law may be backfiring.",
+      expectedImage = "http://i.huffpost.com/gen/369284/thumbs/r-ALABAMA-WORKERS-IMMIGRATION-LAW-large570.jpg")
+    TestUtils.printReport()
+  }
+
+
+  @Test
   def huffpoBusiness2() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://www.huffingtonpost.com/2011/09/21/us-sees-challenges-in-s_n_974724.html"
@@ -269,9 +366,22 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Please. Someone, everyone, do something to save the American Folk Art Museum from dissolution and dispersa",
-      expectedImage = "http://graphics8.nytimes.com/images/2011/09/20/arts/design/20folkart1/20folkart1-thumbStandard.jpg")
+      expectedImage = "http://graphics8.nytimes.com/images/2011/09/20/arts/20folkart-web/20folkart-web-articleLarge.jpg")
     TestUtils.printReport()
   }
+
+  @Test
+  def nyTimes2() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    config.setBrowserUserAgent("grvGoose")
+    val url: String = "http://www.nytimes.com/2011/10/07/health/07prostate.html?_r=1&hp"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Healthy men should no longer receive a P.S.A. blood test to screen for prostate cancer because the test does not save lives",
+      expectedImage = null)
+    TestUtils.printReport()
+  }
+
 
   @Test
   def gooseRequestParameters() {
@@ -365,7 +475,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "As everyone in the world was transfixed on the Fed",
-      expectedImage = "http://static5.businessinsider.com/image/4e77323e69beddba4c00001c/meanwhile-developments-in-greece.jpg")
+      expectedImage = "http://static6.businessinsider.com/image/4e77323e69beddba4c00001c-400-300/greece-flag-water.jpg")
     TestUtils.printReport()
   }
 
@@ -377,7 +487,7 @@ class GoldSitesTestIT {
 
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "From Goldman on the FOMC operation twist announcement",
-      expectedImage = "http://static8.businessinsider.com/image/4e7a0dd26bb3f7da4800003d/goldman-4-key-points-on-the-fomc-announcement.jpg")
+      expectedImage = "http://static8.businessinsider.com/image/4e7a0dd26bb3f7da4800003d/twist.jpg")
     TestUtils.printReport()
   }
 

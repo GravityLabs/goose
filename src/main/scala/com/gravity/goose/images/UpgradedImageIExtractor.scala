@@ -10,6 +10,7 @@ import org.jsoup.select.Elements
 import scala.collection.JavaConversions._
 import java.util.ArrayList
 import collection.mutable.{ListBuffer, HashMap}
+import com.gravity.goose.utils.FileHelper
 
 /**
 * Created by Jim Plush
@@ -18,6 +19,10 @@ import collection.mutable.{ListBuffer, HashMap}
 */
 
 class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: Configuration) extends ImageExtractor {
+
+  import UpgradedImageIExtractor._
+
+  loadCustomSiteMapping()
 
   /**
   * holds the document that we're extracting the image from
@@ -46,8 +51,9 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   * this lists all the known bad button names that we have
   */
   var matchBadImageNames: Matcher = null
+
   val NODE_ID_FORMAT: String = "tag: %s class: %s ID: %s"
-  val KNOWN_IMG_DOM_NAMES = "yn-story-related-media" :: "cnn_strylccimg300cntr" :: "big_photo" :: "ap-smallphoto-a" :: Nil
+
 
   var sb: StringBuilder = new StringBuilder
   // create negative elements
@@ -464,12 +470,24 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     }
   }
 
+
+  def getCleanDomain() = {
+    article.domain.replace("www.", "")
+  }
+
   /**
   * in here we check for known image contains from sites we've checked out like yahoo, techcrunch, etc... that have
   * known  places to look for good images.
   * //todo enable this to use a series of settings files so people can define what the image ids/classes are on specific sites
   */
   def checkForKnownElements(): Option[Image] = {
+
+    val domain = getCleanDomain()
+    if (customSiteMapping.contains(domain)) {
+      for (className <- customSiteMapping(domain).split("\\|")) {
+        KNOWN_IMG_DOM_NAMES += className
+      }
+    }
 
     var knownImage: Element = null
     trace("Checking for known images from large sites")
@@ -543,5 +561,29 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     newImage
   }
 
+
+}
+
+object UpgradedImageIExtractor {
+
+  // custom site mapping is for major sites that we know what they generally
+  // place images into, allows for higher accuracy of image extraction
+  val customSiteMapping = new HashMap[String, String]()
+
+  val KNOWN_IMG_DOM_NAMES = new ListBuffer[String]()
+  KNOWN_IMG_DOM_NAMES += "yn-story-related-media"
+  KNOWN_IMG_DOM_NAMES += "cnn_strylccimg300cntr"
+  KNOWN_IMG_DOM_NAMES += "big_photo"
+  KNOWN_IMG_DOM_NAMES += "ap-smallphoto-a"
+
+
+  def loadCustomSiteMapping() {
+    val dataFile = FileHelper.loadResourceFile("/com/gravity/goose/images/known-image-css.txt", UpgradedImageIExtractor.getClass)
+    val lines = dataFile.split("\n")
+    for (line <- lines) {
+      val Array(domain, css) = line.split("\\^")
+      customSiteMapping += domain -> css
+    }
+  }
 
 }
