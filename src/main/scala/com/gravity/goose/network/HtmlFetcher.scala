@@ -101,6 +101,10 @@ object HtmlFetcher extends Logging {
 
       info("Setting UserAgent To: " + HttpProtocolParams.getUserAgent(httpClient.getParams))
       val response: HttpResponse = httpClient.execute(httpget, localContext)
+
+      // TODO: Only continue with a 200 status code and handle all other cases
+      if (response.getStatusLine.getStatusCode == 404) throw new NotFoundException
+
       entity = response.getEntity
       if (entity != null) {
         instream = entity.getContent
@@ -143,6 +147,10 @@ object HtmlFetcher extends Logging {
       }
       case e: SocketTimeoutException => {
         trace(e.toString)
+      }
+      case e: NotFoundException => {
+        logger.warn("SERVER RETURNED 404 FOR LINK: " + url)
+        return None
       }
       case e: Exception => {
         trace("FAILURE FOR LINK: " + url + " " + e.toString)
