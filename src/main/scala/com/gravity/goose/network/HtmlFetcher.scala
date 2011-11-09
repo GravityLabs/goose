@@ -99,7 +99,7 @@ object HtmlFetcher extends Logging {
       httpget = new HttpGet(url)
       HttpProtocolParams.setUserAgent(httpClient.getParams, config.getBrowserUserAgent());
 
-      info("Setting UserAgent To: " + HttpProtocolParams.getUserAgent(httpClient.getParams))
+      trace("Setting UserAgent To: " + HttpProtocolParams.getUserAgent(httpClient.getParams))
       val response: HttpResponse = httpClient.execute(httpget, localContext)
 
       // TODO: Only continue with a 200 status code and handle all other cases
@@ -118,8 +118,8 @@ object HtmlFetcher extends Logging {
         catch {
           case e: Exception => {
             if (logger.isDebugEnabled) {
-              logger.debug("Unable to get charset for: " + url)
-              logger.debug("Encoding Type is: " + encodingType)
+              trace("Unable to get charset for: " + url)
+              trace("Encoding Type is: " + encodingType)
             }
           }
         }
