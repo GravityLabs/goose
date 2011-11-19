@@ -25,18 +25,9 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   loadCustomSiteMapping()
 
   /**
-  * holds the document that we're extracting the image from
-  */
-  private var doc: Document = null
-
-  /**
   * What's the minimum bytes for an image we'd accept is
   */
   private val minBytesForImages: Int = 4000
-  /**
-  * location to store temporary image files if need be
-  */
-  private var tempStoragePath: String = null
 
   /**
   * the webpage url that we're extracting content from
@@ -341,7 +332,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     images.foreach(image => {
       try {
         if (cnt > 30) {
-          trace("Abort! they have over 30 images near the top node: " + this.doc.baseUri)
+          trace("Abort! they have over 30 images near the top node: ")
           return Some(goodImages)
         }
         val imageSrc = image.attr("src")
