@@ -290,7 +290,17 @@ class GoldSitesTestIT {
       expectedStart = "When I heard that Steve Jobs had passed away, I was boarding a train from New York to Philadelphia to visit my son.",
       expectedImage = "http://www.wired.com/images_blogs/epicenter/2011/10/Apple-Siri-Blind-660x375.jpg")
   }
-
+  @Test
+  def msn() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://lifestyle.msn.com/your-life/your-money-today/article.aspx?cp-documentid=31244150"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "\"Head to the supermarket an hour before closing time. Some stores mark down ",
+      expectedImage = "http://blu.stb.s-msn.com/i/6D/1235D306AF18A532BCDC8EB1CC42.jpg")
+    TestUtils.printReport()
+  }
+  
   @Test
   def ap() {
     implicit val config = TestUtils.DEFAULT_CONFIG

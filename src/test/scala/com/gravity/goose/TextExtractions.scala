@@ -231,6 +231,29 @@ class TextExtractions {
   }
 
   @Test
+  def msn1() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("msn1.txt")
+    val expected = getHtml("msn1_result.txt")
+    val url: String = "http://lifestyle.msn.com/your-life/your-money-today/article.aspx?cp-documentid=31244150"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = expected)
+  }
+
+  @Test
+  def guardian1() {
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("guardian1.txt")
+    val expected = getHtml("guardian1_result.txt")
+    val url: String = "http://www.guardian.co.uk/film/2011/nov/18/kristen-wiig-bridesmaids"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = expected)
+  }
+
+
+  @Test
   def time() {
     implicit val config = TestUtils.NO_IMAGE_CONFIG
     val html = getHtml("time1.txt")
