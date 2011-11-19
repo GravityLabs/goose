@@ -56,7 +56,7 @@ trait ContentExtractor extends Logging {
     val doc = article.doc
 
     try {
-      var titleElem: Elements = doc.getElementsByTag("title")
+      val titleElem: Elements = doc.getElementsByTag("title")
       if (titleElem == null || titleElem.isEmpty) return string.empty
       var titleText: String = titleElem.first.text
       if (string.isNullOrEmpty(titleText)) return string.empty
@@ -104,11 +104,11 @@ trait ContentExtractor extends Logging {
   def doTitleSplits(title: String, splitter: StringSplitter): String = {
     var largetTextLen: Int = 0
     var largeTextIndex: Int = 0
-    var titlePieces: Array[String] = splitter.split(title)
+    val titlePieces: Array[String] = splitter.split(title)
     var i: Int = 0
     while (i < titlePieces.length) {
 
-      var current: String = titlePieces(i)
+      val current: String = titlePieces(i)
       if (current.length > largetTextLen) {
         largetTextLen = current.length
         largeTextIndex = i
@@ -228,9 +228,9 @@ trait ContentExtractor extends Logging {
 
       trace(logPrefix + "Location Boost Score: " + boostScore + " on interation: " + i + "' id='" + node.parent.id + "' class='" + node.parent.attr("class"))
 
-      var nodeText: String = node.text
-      var wordStats: WordStats = StopWords.getStopWordCount(nodeText)
-      var upscore: Int = (wordStats.getStopWordCount + boostScore).asInstanceOf[Int]
+      val nodeText: String = node.text
+      val wordStats: WordStats = StopWords.getStopWordCount(nodeText)
+      val upscore: Int = (wordStats.getStopWordCount + boostScore).asInstanceOf[Int]
       updateScore(node.parent, upscore)
       updateScore(node.parent.parent, upscore / 2)
       updateNodeCount(node.parent, 1)
@@ -259,9 +259,7 @@ trait ContentExtractor extends Logging {
         topNode = e
       }
     }
-
     printTraceLog(topNode)
-
     if (topNode == null) None else Some(topNode)
   }
 
@@ -273,7 +271,7 @@ trait ContentExtractor extends Logging {
         trace(logPrefix + "Text - " + text)
       }
     } catch {
-      case e: NullPointerException => warn(e.toString)
+      case e: NullPointerException => warn("printTraceLog: " + e.toString)
     }
   }
 
@@ -446,7 +444,7 @@ trait ContentExtractor extends Logging {
       trace(logPrefix + "extractVideos: Starting to extract videos. Found: " + candidates.size)
 
       for (el <- candidates) {
-        val attrs: Attributes = el.attributes
+        val attrs: Attributes = el.attributes()
         for (a <- attrs) {
           try {
             if ((a.getValue.contains(youtubeStr) || a.getValue.contains(vimdeoStr)) && (a.getKey == "src")) {
@@ -474,6 +472,24 @@ trait ContentExtractor extends Logging {
     goodMovies.toList
   }
 
+  def isTableTagAndNoParagraphsExist(e: Element): Boolean = {
+
+    val subParagraphs: Elements = e.getElementsByTag("p")
+    for (p <- subParagraphs) {
+      if (p.text.length < 25) {
+        p.remove()
+      }
+    }
+    val subParagraphs2: Elements = e.getElementsByTag("p")
+    if (subParagraphs2.size == 0 && !(e.tagName == "td")) {
+      trace("Removing node because it doesn't have any paragraphs")
+      true
+    } else {
+      false
+    }
+  }
+
+
   /**
   * remove any divs that looks like non-content, clusters of links, or paras with no gusto
   *
@@ -483,67 +499,38 @@ trait ContentExtractor extends Logging {
   def postExtractionCleanup(targetNode: Element): Element = {
 
     trace(logPrefix + "Starting cleanup Node")
-
     val node = addSiblings(targetNode)
-    val nodes: Elements = node.children
     for {
-      e <- nodes
+      e <- node.children
       if (e.tagName != "p")
     } {
       trace(logPrefix + "CLEANUP  NODE: " + e.id + " class: " + e.attr("class"))
-      var removed = false // total hack just to convert over from java to scala real quick
-
-      val highLinkDensity: Boolean = isHighLinkDensity(e)
-      if (highLinkDensity) {
-        trace(logPrefix + "REMOVING  NODE FOR LINK DENSITY: " + e.id + " class: " + e.attr("class"))
-        e.remove()
-        removed = true
-      } else {
-        val subParagraphs: Elements = e.getElementsByTag("p")
-        import scala.collection.JavaConversions._
-        for (p <- subParagraphs) {
-          if (p.text.length < 25) {
-            p.remove()
-            removed = true
-          }
+      if (isHighLinkDensity(e) || isTableTagAndNoParagraphsExist(e) || !isNodeScoreThreshholdMet(node, e)) {
+        try {
+          e.remove()
+        } catch {
+          case ex: IllegalArgumentException => trace("Cannot remove node: " + ex.toString)
         }
-
-        if (!removed) {
-          val subParagraphs2: Elements = e.getElementsByTag("p")
-          if (subParagraphs2.size == 0 && !(e.tagName == "td")) {
-            if (logger.isDebugEnabled) {
-              logger.debug("Removing node because it doesn't have any paragraphs")
-            }
-            e.remove()
-            removed = true
-          }
-        }
-
-
-        val topNodeScore: Int = getScore(node)
-        val currentNodeScore: Int = getScore(e)
-        val thresholdScore: Float = (topNodeScore * .08).asInstanceOf[Float]
-
-        trace(logPrefix + "topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore)
-
-
-        if (currentNodeScore < thresholdScore) {
-          if (!(e.tagName == "td")) {
-            trace(logPrefix + "Removing node due to low threshold score")
-            try {
-              e.remove()
-            } catch {
-              case ex: IllegalArgumentException => trace(logPrefix + " " + ex.toString)
-            }
-          }
-          else {
-            trace(logPrefix + "Not removing TD node")
-          }
-        }
-
       }
     }
     node
+  }
+
+
+  def isNodeScoreThreshholdMet(node: Element, e: Element): Boolean = {
+    val topNodeScore: Int = getScore(node)
+    val currentNodeScore: Int = getScore(e)
+    val thresholdScore: Float = (topNodeScore * .08).asInstanceOf[Float]
+
+    trace(logPrefix + "topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore)
+
+    if ((currentNodeScore < thresholdScore) && e.tagName != "td") {
+      trace(logPrefix + "Removing node due to low threshold score")
+      false
+    } else {
+      trace(logPrefix + "Not removing TD node")
+      true
+    }
   }
 
   /**
@@ -624,12 +611,12 @@ trait ContentExtractor extends Logging {
     var base: Int = 100000
     var numberOfParagraphs: Int = 0
     var scoreOfParagraphs: Int = 0
-    var nodesToCheck: Elements = topNode.getElementsByTag("p")
-    import scala.collection.JavaConversions._
+    val nodesToCheck: Elements = topNode.getElementsByTag("p")
+
     for (node <- nodesToCheck) {
-      var nodeText: String = node.text
-      var wordStats: WordStats = StopWords.getStopWordCount(nodeText)
-      var highLinkDensity: Boolean = isHighLinkDensity(node)
+      val nodeText: String = node.text
+      val wordStats: WordStats = StopWords.getStopWordCount(nodeText)
+      val highLinkDensity: Boolean = isHighLinkDensity(node)
       if (wordStats.getStopWordCount > 2 && !highLinkDensity) {
         numberOfParagraphs += 1;
         scoreOfParagraphs += wordStats.getStopWordCount
@@ -645,7 +632,7 @@ trait ContentExtractor extends Logging {
   }
 
   private def debugNode(e: Element): String = {
-    var sb: StringBuilder = new StringBuilder
+    val sb: StringBuilder = new StringBuilder
     sb.append("GravityScore: '")
     sb.append(e.attr("gravityScore"))
     sb.append("' paraNodeCount: '")
