@@ -353,5 +353,17 @@ class TextExtractions {
       expectedImage = null)
   }
 
+  @Test
+  def issue32() {
+    // this link is an example of web devs putting content not in paragraphs but embedding them in span tags with br's
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("issue_32.txt")
+    val url: String = "http://www.tulsaworld.com/site/articlepath.aspx?articleid=20111118_61_A16_Opposi344152&rss_lnk=7"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Opposition to a proposal to remove certain personal data",
+      expectedImage = null)
+  }
+
 
 }

@@ -179,10 +179,12 @@ trait OutputFormatter extends Logging {
     }
 
     val moddedNodes: Elements = this.topNode.getElementsByTag("p")
-    // check for open parens as the first paragraph, e.g. businessweek4.txt (IT)
-    if (moddedNodes.first().text().trim().startsWith("(") && moddedNodes.first().text().trim().endsWith(")")) {
-      trace("Removing parenthesis paragraph that is first paragraph")
-      moddedNodes.first().remove()
+    if (topNode != null && moddedNodes.first() != null) {
+      // check for open parens as the first paragraph, e.g. businessweek4.txt (IT)
+      if (moddedNodes.first().text().trim().startsWith("(") && moddedNodes.first().text().trim().endsWith(")")) {
+        trace("Removing parenthesis paragraph that is first paragraph")
+        moddedNodes.first().remove()
+      }
     }
   }
 }

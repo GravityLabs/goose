@@ -57,6 +57,7 @@ trait DocumentCleaner extends Logging {
     docToClean = removeNodesViaRegEx(docToClean, twitterPattern)
     docToClean = cleanUpSpanTagsInParagraphs(docToClean)
     docToClean = convertDivsToParagraphs(docToClean, "div")
+    docToClean = convertDivsToParagraphs(docToClean, "span")
 
     //    docToClean = convertDivsToParagraphs(docToClean, "span")
     docToClean

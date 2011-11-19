@@ -261,6 +261,17 @@ class GoldSitesTestIT {
   }
 
   @Test
+  def tulsaWorld() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://www.tulsaworld.com/site/articlepath.aspx?articleid=20111118_61_A16_Opposi344152&rss_lnk=7"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "Opposition to a proposal to remove certain personal data")
+
+  }
+
+
+  @Test
   def cnet() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url: String = "http://news.cnet.com/8301-30686_3-20014053-266.html?tag=topStories1"
