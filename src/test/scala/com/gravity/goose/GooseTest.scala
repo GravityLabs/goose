@@ -41,7 +41,7 @@ class GooseTest {
     val url = "http://nolove888.com/2011/08/13/LINKNOTEXISTS"
     val goose = new Goose(config)
     val article = goose.extractContent(url)
-    assertNull(article)
+    assertNull(article.topNode)
   }
 
 
