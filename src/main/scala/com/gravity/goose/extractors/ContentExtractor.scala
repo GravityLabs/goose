@@ -212,10 +212,7 @@ trait ContentExtractor extends Logging {
       if (isOkToBoost(node)) {
         if (cnt >= 0) {
           boostScore = ((1.0 / startingBoost) * 50).asInstanceOf[Float]
-          ({
-            startingBoost += 1;
-            startingBoost
-          })
+          startingBoost += 1;
         }
       }
       if (numberOfNodes > 15) {
@@ -244,14 +241,9 @@ trait ContentExtractor extends Logging {
       if (!parentNodes.contains(node.parent.parent)) {
         parentNodes.add(node.parent.parent)
       }
-      ({
-        cnt += 1;
-        cnt
-      })
-      ({
-        i += 1;
-        i
-      })
+
+      cnt += 1;
+      i += 1;
     }
     var topNodeScore: Int = 0
     for (e <- parentNodes) {
@@ -639,10 +631,7 @@ trait ContentExtractor extends Logging {
       var wordStats: WordStats = StopWords.getStopWordCount(nodeText)
       var highLinkDensity: Boolean = isHighLinkDensity(node)
       if (wordStats.getStopWordCount > 2 && !highLinkDensity) {
-        ({
-          numberOfParagraphs += 1;
-          numberOfParagraphs
-        })
+        numberOfParagraphs += 1;
         scoreOfParagraphs += wordStats.getStopWordCount
       }
     }
