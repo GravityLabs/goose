@@ -557,7 +557,7 @@ public class GoldSitesTest extends TestCase {
     runArticleAssertions(
         article,
         "Social networking is here to stay",
-        "http://i-beta.crackedcdn.com/phpimages/article/2/1/5/45215.jpg?v=1");
+        "http://i.crackedcdn.com/phpimages/article/2/1/5/45215.jpg?v=1");
   }
 
   public void testTrailsCom() {
