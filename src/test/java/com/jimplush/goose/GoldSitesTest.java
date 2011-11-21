@@ -145,14 +145,6 @@ public class GoldSitesTest extends TestCase {
     runArticleAssertions(article, "If you believe what college football coaches have said about sports", "http://a.espncdn.com/photo/2010/0813/ncf_i_mpouncey1_300.jpg");
   }
 
-  public void testESPN2() {
-
-    String url = "http://sports.espn.go.com/golf/pgachampionship10/news/story?id=5463456";
-    Article article = getArticle(url);
-
-    runArticleAssertions(article, "SHEBOYGAN, Wis. -- The only number that matters at the PGA Championship", "http://a.espncdn.com/media/motion/2010/0813/dm_100814_pga_rinaldi.jpg");
-  }
-
   public void testWashingtonPost() {
 
     String url = "http://www.washingtonpost.com/wp-dyn/content/article/2010/12/08/AR2010120803185.html";
