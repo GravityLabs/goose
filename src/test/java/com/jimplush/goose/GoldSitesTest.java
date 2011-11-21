@@ -640,7 +640,7 @@ public class GoldSitesTest extends TestCase {
     runArticleAssertions(
         article,
         "Christ, did they all get implants?",
-        "http://cdn03.cdn.thesuperficial.com/wp-content/uploads/2011/04/0418-teen-mom-leah-messer-divorce-14-480x720.jpg");
+        "http://cdn03.cdn.thesuperficial.com/wp-content/uploads/2011/04/0418-teen-mom-leah-messer-divorce-14-400x470.jpg");
   }
 
   public void testScribd() {
