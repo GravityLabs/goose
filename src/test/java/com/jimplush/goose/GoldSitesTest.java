@@ -302,7 +302,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.newsweek.com/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring.html";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "The video shows a gun barrel jutting from the rear", "http://www.newsweek.com/content/newsweek/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring/_jcr_content/body/mainimage.img.jpg/1286654107500.jpg");
+    runArticleAssertions(article, "The video shows a gun barrel jutting from the rear", "http://www.thedailybeast.com/content/newsweek/2010/10/09/how-moscow-s-war-on-islamist-rebels-is-backfiring/_jcr_content/body/mainimage.img.jpg/1286654107500.jpg");
   }
 
   public void testLifeHacker() {
