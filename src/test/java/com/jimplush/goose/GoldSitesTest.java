@@ -283,10 +283,10 @@ public class GoldSitesTest extends TestCase {
 
   public void testYahooNews() {
 
-    String url = "http://news.yahoo.com/s/ap/20110319/ap_on_re_af/af_libya";
+    String url = "http://news.yahoo.com/winners-losers-deficit-supercommittee-deadlock-110000379.html";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "BENGHAZI, Libya – The U.S. and European nations pounded Libya", "http://d.yimg.com/a/p/ap/20110319/capt.1e039fdbcbe544ba84c6de6cb3e39d83-1e039fdbcbe544ba84c6de6cb3e39d83-0.jpg?x=213&y=160&xc=1&yc=1&wc=409&hc=307&q=85&sig=NPqjSiOj_KpSiJFh3BU_Qg--");
+    runArticleAssertions(article, "With the deficit supercommittee charged with finding $1.2 trillion in savings teetering on the brink of failure", "http://l.yimg.com/bt/api/res/1.2/hWA73epNP1wC3uFj7OAGuQ--/YXBwaWQ9eW5ld3M7Zmk9ZmlsbDtoPTE1MDtweG9mZj01MDtweW9mZj0wO3c9MTUw/http://l.yimg.com/os/mit/media/p/common/images/y-bang-90323.png");
   }
 
   public void testPolitico() {
