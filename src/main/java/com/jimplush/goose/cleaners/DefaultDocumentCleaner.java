@@ -343,7 +343,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
   private void safelyRemoveNode(Element node) {
     if (tagWhitelist.contains(node.tagName())) return;
     
-    node.remove();
+    removeNode(node);
   }
   /**
    * removes nodes that may have a certain pattern that matches against a class or id tag
