@@ -22,7 +22,7 @@ public class GermanGoldSitesTest extends TestCase {
         "Nordkoreas Netz-Kriminelle: Die Hacker vom B&uuml;ro 39",
         "Sie sollen über Jahre hinweg Multiplayer-Rollenspiele manipuliert und Millionen Dollar erbeutet haben",
         "Für Nordkoreas Atomprogramm jedenfalls wären die Gelder der Gaming-Hacker wohl nicht mehr als ein Almosen.",
-        "http://www.spiegel.de/images/image-64859-thumb-fxjx.jpg"),
+        null),
     HEISE(
         "http://www.heise.de/newsticker/meldung/HP-Chef-Wir-erleben-einen-entscheidenden-Moment-in-unserer-Geschichte-1327391.html",
         "HP-Chef: &quot;Wir erleben einen entscheidenden Moment in unserer Geschichte&quot;",
@@ -40,7 +40,7 @@ public class GermanGoldSitesTest extends TestCase {
         "Von wegen Ruhestand: 660 000 Rentner brauchen Neben-Job",
         "Eine wachsende Zahl von Rentnern muss einem Zeitungsbericht zufolge zusätzlich arbeiten oder die staatliche Grundsicherung beantragen, um über die Runden zu kommen.",
         "teilte das Sozialministerium dem Bericht zufolge mit.",
-        "http://bilder.bild.de/fotos/rentner-22430705-mfbq-19522260/Bild/2.bild.jpg"),
+        null),
     SZ("http://www.sueddeutsche.de/sport/-fc-koeln-am-tabellenende-fussball-revolution-am-niederrhein-1.1133417",
         "Fu&szlig;ball-Revolution am Niederrhein",
         "Ein Wochenende genügt, um die Machtverhältnisse am Niederrhein zu erschüttern",
@@ -51,7 +51,32 @@ public class GermanGoldSitesTest extends TestCase {
         "Rebellen erreichen das Zentrum von Tripolis",
         "Die 42-jährige Herrschaft von Libyens Machthaber Muammar al Gaddafi steht offenbar kurz vor dem Zusammenbruch",
         "Südafrika dementierte die Berichte jedoch und teilte mit, Gaddafi habe nicht um Asyl gebeten.",
+        null),
+    STERN1(
+        "http://www.stern.de/tv/sterntv/stern-tv-test-die-verkaufstricks-der-supermaerkte-1719541.html",
+        "stern TV-Test: Die Verkaufstricks der Superm&auml;rkte - Stern TV",
+        "Was liegt wo? Wie wird es beleuchtet? Und wie kann man teure Markenware am besten unter die Kunden bringen?",
+        "6. Günstige Produkte stehen im Supermarktregal unten, teure in Blickhöhe.",
+        null),
+    STERN2(
+        "http://www.stern.de/tv/sterntv/fairer-preis-fuers-mobiliar-wohnungsaufloeser-im-test-1719558.html",
+        "Fairer Preis f&uuml;rs Mobiliar?: Wohnungsaufl&ouml;ser im Test - Stern TV",
+        "Eine neue Liebe, ein besserer Job oder einfach nur mehr Platz",
+        "Nur das Angebot eines Unternehmens war mit 3500 Euro halbwegs angemessen.",
+        null),
+    STERN3(
+        "http://www.stern.de/tv/sterntv/tageloehner-und-multijobber-ich-will-kein-sozialschmarotzer-sein-1719551.html",
+        "Tagel&ouml;hner und Multijobber: &quot;Ich will kein Sozialschmarotzer sein!&quot; - Stern TV",
+        "Arbeiten um jeden Preis, wenn es sein muss rund um die Uhr, sechs Tage die Woche: Für Manuela Kopp ist das der Alltag.",
+        "und einfach zu Hause bleiben\", erzählt er bei stern TV.",
+        null),
+    T3N(
+        "http://t3n.de/news/android-verdoppelt-marktanteil-liegt-ios-343437/",
+        "Android verdoppelt Marktanteil und liegt vor iOS",
+        "Android liegt jetzt weltweit vor iOS.",
+        "iOS folgt auf dem dritten Platz mit 15 Prozent noch nach Symbian mit 16,9 Prozent.",
         null);
+    
     
     private final String url, title, start, end, image;
 
@@ -88,7 +113,7 @@ public class GermanGoldSitesTest extends TestCase {
   }
 
   public void testSpiegelOnline() {
-    Article article = getArticle(Site.SPIEGEL_ONLINE, true);
+    Article article = getArticle(Site.SPIEGEL_ONLINE, false);
     
     runArticleAssertions(Site.SPIEGEL_ONLINE, article);
   }
@@ -106,7 +131,7 @@ public class GermanGoldSitesTest extends TestCase {
   }
   
   public void testBild() {
-    Article article = getArticle(Site.BILD, true);
+    Article article = getArticle(Site.BILD, false);
 
     runArticleAssertions(Site.BILD, article);
   }
@@ -120,8 +145,23 @@ public class GermanGoldSitesTest extends TestCase {
   public void testTagesschau() {
     Article article = getArticle(Site.TAGESSCHAU, false);
 
-
     runArticleAssertions(Site.TAGESSCHAU, article);
+  }
+
+  public void testStern() {
+    Article article = getArticle(Site.STERN1, false);
+    runArticleAssertions(Site.STERN1, article);
+
+    Article article2 = getArticle(Site.STERN2, false);
+    runArticleAssertions(Site.STERN2, article2);
+
+    Article article3 = getArticle(Site.STERN3, false);
+    runArticleAssertions(Site.STERN3, article3);
+  }
+  
+  public void testT3n() {
+    Article article = getArticle(Site.T3N, false);
+    runArticleAssertions(Site.T3N, article);
   }
 
   private Article getArticle(Site site, boolean fetchImages) {
