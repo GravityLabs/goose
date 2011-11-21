@@ -537,7 +537,7 @@ public class GoldSitesTest extends TestCase {
     runArticleAssertions(
         article,
         "Childhood obesity increases a young person",
-        "http://photos.demandstudios.com/getty/article/184/46/87576279_XS.jpg");
+        "http://photos2.demandstudios.com/DM-Resize/photos.demandstudios.com/getty/article/184/46/87576279_XS.jpg?h=10000&w=267&keep_ratio=1");
   }
 
   public void testLiveStrong2() {
