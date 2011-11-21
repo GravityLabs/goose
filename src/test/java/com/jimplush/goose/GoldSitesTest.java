@@ -353,7 +353,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.thedailybeast.com/blogs-and-stories/2010-11-01/ted-sorensen-speechwriter-behind-jfks-best-jokes/?cid=topic:featured1";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "Legendary Kennedy speechwriter Ted Sorensen passed", "http://www.tdbimg.com/files/2010/11/01/img-article---katz-ted-sorensen_163531624950.jpg");
+    runArticleAssertions(article, "Today, as wordsmiths, politicos and Kennedyophiles", "http://www.tdbimg.com/files/2010/11/01/img-article---katz-ted-sorensen_163531624950.jpg");
   }
 
   public void testBloomberg() {
