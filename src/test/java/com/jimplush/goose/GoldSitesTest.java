@@ -439,14 +439,14 @@ public class GoldSitesTest extends TestCase {
 
   public void testMSNBC() {
 
-    String url = "http://www.msnbc.msn.com/id/43085992/ns/business-stocks_and_economy/";
+    String url = "http://www.msnbc.msn.com/id/45357269/ns/business-forbes_com/#.TspQjPHTRQI";
     Article article = getArticle(url);
 
     runArticleAssertions(
         article,
-        "LinkedIn share price soars in market debut",
-        "There was an unmistakable echo of the dot-com boom Thursday",
-        "http://msnbcmedia1.msn.com/j/MSNBC/Components/Photo/_new/110519_linkedin_hmed_0755p.grid-6x2.jpg");
+        "The Smart Fortwo and other car flops of 2011",
+        "John McElroy, the loquacious host of the Autoline Detroit TV and radio shows, is optimistic about the auto industry.",
+        "http://msnbcmedia1.msn.com/j/MSNBC/Components/Photo/_new/car flops-1.grid-6x2.jpg");
 
   }
 
