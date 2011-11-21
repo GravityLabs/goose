@@ -28,6 +28,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,13 +67,23 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
   private static final Pattern facebookPattern = Pattern.compile("[^-]facebook");
   private static final Pattern twitterPattern = Pattern.compile("[^-]twitter");
 
+  private static final Set<String> tagWhitelist = new HashSet<String>() {
+
+    private static final long serialVersionUID = 1L;
+
+    {
+      add("body");
+      add("article");
+    }
+  };
+  
   static {
 
     StringBuilder sb = new StringBuilder();
     // create negative elements
     sb.append("^side$|combx|retweet|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|meta$|scroll|shoutbox|sponsor");
     sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers");
-    sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text");
+    sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text|.*next.*");
     regExRemoveNodes = sb.toString();
     queryNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]";
     queryNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]";
@@ -277,7 +289,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       if (logger.isDebugEnabled()) {
         logger.debug("Cleaning: Removing node with id: " + node.id());
       }
-      removeNode(node);
+      safelyRemoveNode(node);
     }
     if (logger.isDebugEnabled()) {
       Elements naughtyList2 = children.select(queryNaughtyIDs);
@@ -292,7 +304,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       if (logger.isDebugEnabled()) {
         logger.debug("clean: Removing node with class: " + node.className());
       }
-      removeNode(node);
+      safelyRemoveNode(node);
     }
     if (logger.isDebugEnabled()) {
       Elements naughtyList4 = children.select(queryNaughtyClasses);
@@ -308,7 +320,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
       if (logger.isDebugEnabled()) {
         logger.debug("clean: Removing node with class: " + node.attr("class") + " id: " + node.id() + " name: " + node.attr("name"));
       }
-      removeNode(node);
+      safelyRemoveNode(node);
     }
 
     return doc;
@@ -325,6 +337,15 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
   }
 
   /**
+   * Removes nodes but makes sure not to remove to much.
+   * @param node
+   */
+  private void safelyRemoveNode(Element node) {
+    if (tagWhitelist.contains(node.tagName())) return;
+    
+    node.remove();
+  }
+  /**
    * removes nodes that may have a certain pattern that matches against a class or id tag
    *
    * @param pattern
@@ -337,7 +358,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
         logger.debug("regExRemoveNodes: " + naughtyList.size() + " ID elements found against pattern: " + pattern);
       }
       for (Element node : naughtyList) {
-        removeNode(node);
+        safelyRemoveNode(node);
       }
 
       Elements naughtyList3 = doc.getElementsByAttributeValueMatching("class", pattern);
@@ -345,7 +366,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
         logger.debug("regExRemoveNodes: " + naughtyList3.size() + " CLASS elements found against pattern: " + pattern);
       }
       for (Element node : naughtyList3) {
-        removeNode(node);
+        safelyRemoveNode(node);
       }
     } catch (IllegalArgumentException e) {
       e.printStackTrace();
