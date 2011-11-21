@@ -671,7 +671,6 @@ public class GoldSitesTest extends TestCase {
         "http://www.theotherendoftheleash.com/theotherendoftheleash/uploads/2010/02/monkey-hugs-dog.jpg");
   }
 
-  // todo we're mssing the first actual paragraph
   public void testCatster() {
     String url = "http://blogs.catster.com/kitty-news-network/2011/05/03/survey-cat-owners-prefer-the-adoption-option/";
     Article article = getArticle(url);
@@ -679,7 +678,7 @@ public class GoldSitesTest extends TestCase {
     runArticleAssertions(
         article,
         "There’s good news in the air for shelter cats",
-        "http://b1.cdnsters.com/kitty-news-network/files/2011/05/thomas-and-dahlia-300x225.jpg");
+        "http://blogs.catster.com/kitty-news-network/files/2011/05/thomas-and-dahlia-300x225.jpg");
   }
 
   public void testScribd3() {
