@@ -348,15 +348,6 @@ public class GoldSitesTest extends TestCase {
     runArticleAssertions(article, "Many of you have written or tweeted to ask whether I'll be covering more", "http://i2.cdn.turner.com/si/2011/writers/peter_king/05/08/mmqb/jake-locker.jpg");
   }
 
-  public void testStarMagazine() {
-
-    String url = "http://www.starmagazine.com/news/17510?cid=RSS";
-    Article article = getArticle(url);
-
-    runArticleAssertions(article, "The Real Reason Rihanna Skipped Katy's Wedding: No Cell Phone Reception!", "Rihanna has admitted the real reason she was a no show at her", "http://www.starmagazine.com/sites/starmagazine.com/files/imagecache/node_page_image/article_images/Rihanna_1010_230.jpg");
-
-  }
-
   public void testDailyBeast() {
 
     String url = "http://www.thedailybeast.com/blogs-and-stories/2010-11-01/ted-sorensen-speechwriter-behind-jfks-best-jokes/?cid=topic:featured1";
