@@ -307,7 +307,7 @@ public class GoldSitesTest extends TestCase {
 
   public void testLifeHacker() {
 
-    String url = "http://lifehacker.com/#!5659837/build-a-rocket-stove-to-heat-your-home-with-wood-scraps";
+    String url = "http://lifehacker.com/5659837/build-a-rocket-stove-to-heat-your-home-with-wood-scraps";
     Article article = getArticle(url);
 
     runArticleAssertions(article, "If you find yourself with lots of leftover wood", "http://cache.gawker.com/assets/images/lifehacker/2010/10/rocket-stove-finished.jpeg");
