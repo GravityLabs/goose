@@ -547,7 +547,7 @@ public class GoldSitesTest extends TestCase {
     runArticleAssertions(
         article,
         "Resistance bands or tubes are named because",
-        "http://photos.demandstudios.com/getty/article/142/66/86504893_XS.jpg");
+        "http://photos2.demandstudios.com/DM-Resize/photos.demandstudios.com/getty/article/142/66/86504893_XS.jpg?h=10000&w=267&keep_ratio=1");
   }
 
   public void testCracked() {
