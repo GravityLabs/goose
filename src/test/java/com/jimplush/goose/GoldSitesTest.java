@@ -476,7 +476,7 @@ public class GoldSitesTest extends TestCase {
 
   public void testGawker() {
 
-    String url = "http://gawker.com/#!5777023/charlie-sheen-is-going-to-haiti-with-sean-penn";
+    String url = "http://gawker.com/5777023/charlie-sheen-is-going-to-haiti-with-sean-penn";
     Article article = getArticle(url);
 
     runArticleAssertions(
