@@ -370,7 +370,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.bloomberg.com/news/2010-11-01/china-becomes-boss-in-peru-on-50-billion-mountain-bought-for-810-million.html";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "The Chinese entrepreneur and the Peruvian shopkeeper", "http://www.bloomberg.com/apps/data?pid=avimage&iid=iimODmqjtcQU");
+    runArticleAssertions(article, "The Chinese entrepreneur and the Peruvian shopkeeper", "http://www.bloomberg.com/image/i88bsAgSGvSY.jpg");
   }
 
   public void testScientificDaily() {
