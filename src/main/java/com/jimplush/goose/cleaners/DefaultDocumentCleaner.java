@@ -252,7 +252,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
    * remove those css drop caps where they put the first letter in big text in the 1st paragraph
    */
   private Document removeDropCaps(Document doc) {
-    Elements items = doc.select("span[class~=(dropcap|drop_cap)]");
+    Elements items = doc.select("span[class~=(dropcap|drop_cap|firstLetter)]");
     if (logger.isDebugEnabled()) {
       logger.debug("Cleaning " + items.size() + " dropcap tags");
     }
