@@ -385,7 +385,7 @@ public class GoldSitesTest extends TestCase {
     String url = "http://www.thefrisky.com/post/246-rachel-dratch-met-her-baby-daddy-in-a-bar/?eref=RSS";
     Article article = getArticle(url);
 
-    runArticleAssertions(article, "Rachel Dratch Met Her Baby Daddy At A Bar", "Rachel Dratch had been keeping the identity of her baby daddy ", "http://cdn.thefrisky.com/images/uploads/rachel_dratch_102810_m.jpg");
+    runArticleAssertions(article, "Rachel Dratch Met Her Baby Daddy At A Bar", "Rachel Dratch had been keeping the identity of her baby daddy ", "http://cdn04.cdnwp.thefrisky.com/wp-content/uploads/2010/10/28/rachel_dratch_102810_m-200x300.jpg");
   }
 
   public void testUniverseToday() {
