@@ -20,6 +20,8 @@ package com.jimplush.goose.cleaners;
 
 import com.jimplush.goose.texthelpers.ReplaceSequence;
 import com.jimplush.goose.texthelpers.string;
+import com.jimplush.goose.util.JsoupUtils;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -58,7 +60,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
   /**
    * regex to detect if there are block level elements inside of a div element
    */
-  private static final Pattern divToPElementsPattern = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul)");
+  private static final Pattern divToPElementsPattern = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul|h1|h2|h3|h4|h5|h6)");
 
   private static final ReplaceSequence tabsAndNewLinesReplcesments;
   private static final Pattern captionPattern = Pattern.compile("^caption$");
@@ -83,7 +85,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
     // create negative elements
     sb.append("^side$|combx|retweet|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|meta$|scroll|shoutbox|sponsor");
     sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers");
-    sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text|.*next.*");
+    sb.append("|communitypromo|subscribe|vcard|articleheadings|date|print|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text|.*next.*|sidebar^$");
     regExRemoveNodes = sb.toString();
     queryNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]";
     queryNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]";
@@ -113,9 +115,28 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
     // turn any divs that aren't used as true layout items with block level elements inside them into paragraph tags
     docToClean = convertDivsToParagraphs(docToClean, "div");
-    docToClean = convertDivsToParagraphs(docToClean, "span");
+    docToClean = unwrapElementsWithTag(docToClean, "span");
 
+    removeEmptyElements(docToClean, "p");
+    removeEmptyElements(docToClean, "a");
+    
+    return docToClean;
+  }
 
+  private void removeEmptyElements(Document docToClean, String tagName) {
+    Elements paragraphs = docToClean.getElementsByTag(tagName);
+    for (Element p : paragraphs) {
+      if (p.text().trim().length() == 0 && p.children().size() == 0) {
+        JsoupUtils.removeNode(p);
+      }
+    }
+  }
+
+  private Document unwrapElementsWithTag(Document docToClean, String tagName) {
+    Elements tagItems = docToClean.getElementsByTag(tagName);
+    for (Element item : tagItems) {
+      item.unwrap();
+    }
     return docToClean;
   }
 
@@ -150,9 +171,7 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
           StringBuilder replacementText = new StringBuilder();
 
-          //cleanTags(div);
           Document newDoc = new Document(doc.baseUri());
-
 
           for (Node kid : div.childNodes()) {
 
@@ -189,27 +208,16 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
                 kid.replaceWith(newPara);
                 convertedTextNodes++;
               }
-
             }
-
-
           }
-
-
         }
       } catch (NullPointerException e) {
         logger.error(e.toString());
       }
-
     }
-
     if (logger.isDebugEnabled()) {
       logger.debug("Found " + divs.size() + " total divs with " + badDivs + " bad divs replaced and " + convertedTextNodes + " textnodes converted inside divs");
     }
-
-
-
-
     return doc;
   }
 
@@ -328,23 +336,15 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
   }
 
   /**
-   * Apparently jsoup expects the node's parent to not be null and throws if it is. Let's be safe.
-   * @param node the node to remove from the doc
-   */
-  private void removeNode(Element node) {
-    if (node == null || node.parent() == null) return;
-    node.remove();
-  }
-
-  /**
    * Removes nodes but makes sure not to remove to much.
    * @param node
    */
   private void safelyRemoveNode(Element node) {
     if (tagWhitelist.contains(node.tagName())) return;
     
-    removeNode(node);
+    JsoupUtils.removeNode(node);
   }
+  
   /**
    * removes nodes that may have a certain pattern that matches against a class or id tag
    *

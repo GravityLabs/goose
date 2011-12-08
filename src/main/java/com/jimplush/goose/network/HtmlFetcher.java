@@ -186,6 +186,7 @@ public class HtmlFetcher {
       }
       throw new NotHtmlException();
     }
+    logger.debug(htmlResult);
 
 
     InputStream is;

@@ -21,6 +21,7 @@ package com.jimplush.goose.outputformatters; /**
  */
 
 import com.jimplush.goose.texthelpers.StopWords;
+import com.jimplush.goose.texthelpers.TextScorer;
 import com.jimplush.goose.texthelpers.WordStats;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.jsoup.nodes.Element;
@@ -106,7 +107,7 @@ public class DefaultOutputFormatter implements OutputFormatter {
       }
     }
 
-    return sb.toString();
+    return sb.toString().replace("\u00a0", " ").trim();
   }
 
   /**
@@ -137,7 +138,7 @@ public class DefaultOutputFormatter implements OutputFormatter {
     Elements gravityItems = this.topNode.select("*[gravityScore]");
     for (Element item : gravityItems) {
       int score = Integer.parseInt(item.attr("gravityScore"));
-      if (score < 1) {
+      if (score < 0) {
         item.remove();
       }
     }
@@ -148,23 +149,14 @@ public class DefaultOutputFormatter implements OutputFormatter {
    * so replace <br>, <i>, <strong>, etc.... with whatever text is inside them
    */
   private void replaceTagsWithText() {
-
-    Elements strongs = topNode.getElementsByTag("strong");
-    for (Element item : strongs) {
-      TextNode tn = new TextNode(item.text(), topNode.baseUri());
-      item.replaceWith(tn);
-    }
-
-    Elements bolds = topNode.getElementsByTag("b");
-    for (Element item : bolds) {
-      TextNode tn = new TextNode(item.text(), topNode.baseUri());
-      item.replaceWith(tn);
-    }
-
-    Elements italics = topNode.getElementsByTag("i");
-    for (Element item : italics) {
-      TextNode tn = new TextNode(item.text(), topNode.baseUri());
-      item.replaceWith(tn);
+    String[] tagNames = {"strong", "b", "i", "span" };
+    
+    for (String tagName : tagNames) {
+      Elements tagItems = topNode.getElementsByTag(tagName);
+      for (Element item : tagItems) {
+        TextNode tn = new TextNode(item.text(), topNode.baseUri());
+        item.replaceWith(tn);
+      }
     }
   }
 
@@ -178,13 +170,12 @@ public class DefaultOutputFormatter implements OutputFormatter {
 
     Elements allNodes = this.topNode.getAllElements();
     for (Element el : allNodes) {
-
+      if (el.getElementsByTag("a").size() == 0) {
+        continue;
+      }
       try {
-        // get stop words that appear in each node
-
-        WordStats wordStats = stopWords.getStopWordCount(el.text());
-
-        if (wordStats.getStopWordCount() < 5 && el.getElementsByTag("object").size() == 0 && el.getElementsByTag("embed").size() == 0) {
+        int score = TextScorer.score(el.text());
+        if (score < 3 && el.getElementsByTag("object").size() == 0 && el.getElementsByTag("embed").size() == 0) {
           el.remove();
         }
       } catch (IllegalArgumentException e) {

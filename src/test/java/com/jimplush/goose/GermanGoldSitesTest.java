@@ -44,7 +44,7 @@ public class GermanGoldSitesTest extends TestCase {
     SZ("http://www.sueddeutsche.de/sport/-fc-koeln-am-tabellenende-fussball-revolution-am-niederrhein-1.1133417",
         "Fu&szlig;ball-Revolution am Niederrhein",
         "Ein Wochenende genügt, um die Machtverhältnisse am Niederrhein zu erschüttern",
-        "Und wenn's nur für einen einzigen Freitagabend ist.", // last space is non breaking
+        "Und wenn's nur für einen einzigen Freitagabend ist.",
         null),
     TAGESSCHAU(
         "http://www.tagesschau.de/ausland/libyen1238.html",
@@ -56,7 +56,7 @@ public class GermanGoldSitesTest extends TestCase {
         "http://www.stern.de/tv/sterntv/stern-tv-test-die-verkaufstricks-der-supermaerkte-1719541.html",
         "stern TV-Test: Die Verkaufstricks der Superm&auml;rkte - Stern TV",
         "Was liegt wo? Wie wird es beleuchtet? Und wie kann man teure Markenware am besten unter die Kunden bringen?",
-        "6. Günstige Produkte stehen im Supermarktregal unten, teure in Blickhöhe.",
+        "und noch zwei Produkte ungeplant gekauft.",
         null),
     STERN2(
         "http://www.stern.de/tv/sterntv/fairer-preis-fuers-mobiliar-wohnungsaufloeser-im-test-1719558.html",
@@ -233,7 +233,7 @@ public class GermanGoldSitesTest extends TestCase {
       assertNotNull("Resulting article text was NULL!", articleText);
       assertTrue("Article text was not as long as expected ending!", expectedEnd.length() <= articleText.length());
       assertTrue(articleText.length() - expectedEnd.length() > 0);
-      String actual = articleText.substring(articleText.length() - expectedEnd.length() - 2, articleText.length()).trim();
+      String actual = articleText.substring(articleText.length() - expectedEnd.length(), articleText.length()).trim();
       assertEquals("The ending of the article text was not as expected!", expectedEnd, actual);
     }
   }

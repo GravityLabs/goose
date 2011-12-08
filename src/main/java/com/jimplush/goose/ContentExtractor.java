@@ -25,6 +25,8 @@ import com.jimplush.goose.network.*;
 import com.jimplush.goose.outputformatters.DefaultOutputFormatter;
 import com.jimplush.goose.outputformatters.OutputFormatter;
 import com.jimplush.goose.texthelpers.*;
+import com.jimplush.goose.util.JsoupUtils;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.client.HttpClient;
 import org.jsoup.nodes.*;
@@ -202,7 +204,6 @@ public class ContentExtractor {
 
         article.setCleanedArticleText(outputFormatter.getFormattedText(article.getTopNode()));
 
-
         if (logger.isDebugEnabled()) {
           logger.debug("FINAL EXTRACTION TEXT: \n" + article.getCleanedArticleText());
         }
@@ -225,7 +226,7 @@ public class ContentExtractor {
       logger.error("URL: " + urlToCrawl + " did not contain valid HTML to parse, exiting. " + e.toString());
     } catch (Exception e) {
       logger.error("General Exception occured on url: " + urlToCrawl + " " + e.toString());
-//      throw new RuntimeException(e);
+      throw new RuntimeException(e);
     }
 
 
@@ -463,13 +464,7 @@ public class ContentExtractor {
 
 
     for (Element node : nodesToCheck) {
-
-      String nodeText = node.text();
-      WordStats wordStats = config.getStopWords().getStopWordCount(nodeText);
-      boolean highLinkDensity = isHighLinkDensity(node);
-
-
-      if (wordStats.getStopWordCount() > 2 && !highLinkDensity) {
+      if (!isHighLinkDensity(node)) {
 
         nodesWithText.add(node);
       }
@@ -519,11 +514,10 @@ public class ContentExtractor {
       if (logger.isDebugEnabled()) {
         logger.debug("Location Boost Score: " + boostScore + " on interation: " + i + "' id='" + node.parent().id() + "' class='" + node.parent().attr("class"));
       }
-      String nodeText = node.text();
-      WordStats wordStats = config.getStopWords().getStopWordCount(nodeText);
-      int upscore = (int) (wordStats.getStopWordCount() + boostScore);
+      int upscore = (int) (TextScorer.score(node.text()) + boostScore);
+      
       updateScore(node.parent(), upscore);
-      updateScore(node.parent().parent(), upscore / 2);
+      updateScore(node.parent().parent(), Math.max(0, upscore / 2 - 1));
       updateNodeCount(node.parent(), 1);
       updateNodeCount(node.parent().parent(), 1);
 
@@ -585,8 +579,6 @@ public class ContentExtractor {
 
 
     return topNode;
-
-
   }
 
   /**
@@ -601,7 +593,6 @@ public class ContentExtractor {
     nodesToCheck.addAll(doc.getElementsByTag("pre"));
     nodesToCheck.addAll(doc.getElementsByTag("td"));
     return nodesToCheck;
-
   }
 
   /**
@@ -653,6 +644,14 @@ public class ContentExtractor {
 
     return false;
   }
+  
+  private static float textQuality(String s) {
+    if (s == null || s.length() == 0) {
+      return 0;
+    }
+    
+    return 0;
+  }
 
   /**
    * alot of times the first paragraph might be the caption under an image so we'll want to make sure if we're going to
@@ -679,8 +678,8 @@ public class ContentExtractor {
         }
 
         String paraText = sibling.text();
-        WordStats wordStats = config.getStopWords().getStopWordCount(paraText);
-        if (wordStats.getStopWordCount() > 5) {
+        int paraScore = TextScorer.score(paraText);
+        if (paraScore > 2) {
           if (logger.isDebugEnabled()) {
             logger.debug("We're gonna boost this node, seems contenty");
           }
@@ -830,15 +829,28 @@ public class ContentExtractor {
 
     node = addSiblings(node);
 
+    // remove all nodes before a h1
+    for (Element h1 : node.getElementsByTag("h1")) {
+      Element previous = h1.previousElementSibling();
+      while(previous != null) {
+        JsoupUtils.removeNode(previous);
+        previous = h1.previousElementSibling();
+      }
+      JsoupUtils.removeNode(h1);
+      continue;
+    }
+    
     Elements nodes = node.children();
     for (Element e : nodes) {
-      if (e.tagName().equals("p")) {
-        continue;
+      boolean highLinkDensity = isHighLinkDensity(e);
+      if (e.tagName().equals("p") && !highLinkDensity && e.text().length() > 25) {
+        if (TextScorer.score(e.text()) > 0) {
+          continue;
+        }
       }
       if (logger.isDebugEnabled()) {
         logger.debug("CLEANUP  NODE: " + e.id() + " class: " + e.attr("class"));
       }
-      boolean highLinkDensity = isHighLinkDensity(e);
       if (highLinkDensity) {
         if (logger.isDebugEnabled()) {
           logger.debug("REMOVING  NODE FOR LINK DENSITY: " + e.id() + " class: " + e.attr("class"));
@@ -865,7 +877,7 @@ public class ContentExtractor {
         if (logger.isDebugEnabled()) {
           logger.debug("Removing node because it doesn't have any paragraphs");
         }
-        e.remove();
+        JsoupUtils.removeNode(e);
         continue;
       }
 
@@ -881,7 +893,7 @@ public class ContentExtractor {
           if (logger.isDebugEnabled()) {
             logger.debug("Removing node due to low threshold score");
           }
-          e.remove();
+          JsoupUtils.removeNode(e);
         } else {
           if (logger.isDebugEnabled()) {
             logger.debug("Not removing TD node");
@@ -910,14 +922,27 @@ public class ContentExtractor {
     }
     int baselineScoreForSiblingParagraphs = getBaselineScoreForSiblings(node);
 
+    // A h1 element is a good indicator that we already have more than the article body
+    if (node.getElementsByTag("h1").size() > 0) {
+      return node;
+    }
+    
     Element currentSibling = node.previousElementSibling();
     while (currentSibling != null) {
       if (logger.isDebugEnabled()) {
         logger.debug("SIBLINGCHECK: " + debugNode(currentSibling));
       }
 
+      if ( currentSibling.tagName().equals("header")) {
+        break;
+      }
+      
+      if (currentSibling.className().matches(".*meta.*|.*info.*")) {
+        currentSibling = currentSibling.previousElementSibling();
+        continue;
+      }
+      
       if (currentSibling.tagName().equals("p")) {
-
         node.child(0).before(currentSibling.outerHtml());
         currentSibling = currentSibling.previousElementSibling();
         continue;
@@ -931,11 +956,10 @@ public class ContentExtractor {
         continue;
       }
       for (Element firstParagraph : potentialParagraphs) {
-        WordStats wordStats = config.getStopWords().getStopWordCount(firstParagraph.text());
+        int paragraphScore = TextScorer.score(firstParagraph.text());
 
-        int paragraphScore = wordStats.getStopWordCount();
-
-        if ((float) (baselineScoreForSiblingParagraphs * .30) < paragraphScore) {
+        double tagPenalty = Math.pow(1.1, firstParagraph.getAllElements().size());
+        if ((float) (baselineScoreForSiblingParagraphs * 0.3 * tagPenalty) < paragraphScore) {
           if (logger.isDebugEnabled()) {
             logger.debug("This node looks like a good sibling, adding it");
           }
@@ -971,16 +995,13 @@ public class ContentExtractor {
     Elements nodesToCheck = topNode.getElementsByTag("p");
 
     for (Element node : nodesToCheck) {
-
       String nodeText = node.text();
-      WordStats wordStats = config.getStopWords().getStopWordCount(nodeText);
+      int textScore = TextScorer.score(nodeText); 
       boolean highLinkDensity = isHighLinkDensity(node);
-
-
-      if (wordStats.getStopWordCount() > 2 && !highLinkDensity) {
-
+      
+      if (textScore > 2 && !highLinkDensity) {
         numberOfParagraphs++;
-        scoreOfParagraphs += wordStats.getStopWordCount();
+        scoreOfParagraphs += textScore;
       }
 
     }

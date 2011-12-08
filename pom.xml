@@ -4,7 +4,7 @@
 
   <groupId>com.jimplush</groupId>
   <artifactId>goose</artifactId>
-  <version>1.4.1</version>
+  <version>1.4.1.1</version>
   <packaging>jar</packaging>
 
   <name>goose</name>
@@ -37,7 +37,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.5.2</version>
+      <version>1.6.1</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
