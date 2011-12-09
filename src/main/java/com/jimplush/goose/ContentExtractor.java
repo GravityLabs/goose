@@ -66,6 +66,7 @@ public class ContentExtractor {
 
   private static final ReplaceSequence TITLE_REPLACEMENTS = ReplaceSequence.create("&raquo;").append("»");
   private static final StringSplitter PIPE_SPLITTER = new StringSplitter("\\|");
+  private static final StringSplitter EMDASH_SPLITTER = new StringSplitter("—");
   private static final StringSplitter DASH_SPLITTER = new StringSplitter(" - ");
   private static final StringSplitter ARROWS_SPLITTER = new StringSplitter("»");
   private static final StringSplitter COLON_SPLITTER = new StringSplitter(":");
@@ -336,7 +337,11 @@ public class ContentExtractor {
       if (string.isNullOrEmpty(titleText)) return string.empty;
 
       boolean usedDelimeter = false;
-
+      
+      if (titleText.contains("—")) {
+        titleText = doTitleSplits(titleText, EMDASH_SPLITTER);
+        usedDelimeter = true;
+      }
       if (titleText.contains("|")) {
         titleText = doTitleSplits(titleText, PIPE_SPLITTER);
         usedDelimeter = true;
@@ -395,8 +400,8 @@ public class ContentExtractor {
         return TITLE_REPLACEMENTS.replaceAll(titlePieces[2]).trim();
     }
     if (this.link.contains("blogs.walkerart.org") && titlePieces.length > 1) {
-        // it's always the second one!!
-        return TITLE_REPLACEMENTS.replaceAll(titlePieces[1]).trim();
+        // it's always the first one!!
+        return TITLE_REPLACEMENTS.replaceAll(titlePieces[0]).trim();
     }
     if (this.link.contains("mnartists.org") && titlePieces.length > 1) {
         // it's always the second one!!
