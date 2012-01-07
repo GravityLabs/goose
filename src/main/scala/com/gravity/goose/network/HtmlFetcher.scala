@@ -55,23 +55,23 @@ import com.gravity.goose.utils.Logging
 import com.gravity.goose.Configuration
 
 /**
-* User: Jim Plush
-* Date: 12/16/10
-* This guy is kind of a doozy because goose is meant to pull millions of articles per day so the legitimacy of these links
-* is in question. For example many times you'll see mp3, mov, wav, etc.. files mislabeled as HTML with HTML content types,
-* only through inspection of the actual content will you learn what the real type of content is. Also spam sites could
-* contain up to 1GB of text that is just wasted resources so we set a max bytes level on how much content we're going
-* to try and pull back before we say screw it.
-*/
+ * User: Jim Plush
+ * Date: 12/16/10
+ * This guy is kind of a doozy because goose is meant to pull millions of articles per day so the legitimacy of these links
+ * is in question. For example many times you'll see mp3, mov, wav, etc.. files mislabeled as HTML with HTML content types,
+ * only through inspection of the actual content will you learn what the real type of content is. Also spam sites could
+ * contain up to 1GB of text that is just wasted resources so we set a max bytes level on how much content we're going
+ * to try and pull back before we say screw it.
+ */
 object HtmlFetcher extends Logging {
   /**
-  * holds a reference to our override cookie store, we don't want to store
-  * cookies for head requests, only slows shit down
-  */
+   * holds a reference to our override cookie store, we don't want to store
+   * cookies for head requests, only slows shit down
+   */
   var emptyCookieStore: CookieStore = null
   /**
-  * holds the HttpClient object for making requests
-  */
+   * holds the HttpClient object for making requests
+   */
   private var httpClient: HttpClient = null
   initClient()
 
@@ -81,22 +81,30 @@ object HtmlFetcher extends Logging {
   }
 
   /**
-  * makes an http fetch to go retreive the HTML from a url, store it to disk and pass it off
-  *
-  * @param url
-  * @return
-  * @throws MaxBytesException
-  * @throws NotHtmlException
-  */
+   * makes an http fetch to go retreive the HTML from a url, store it to disk and pass it off
+   *
+   * @param url
+   * @return
+   * @throws MaxBytesException
+   * @throws NotHtmlException
+   */
   def getHtml(config: Configuration, url: String): Option[String] = {
     var httpget: HttpGet = null
     var htmlResult: String = null
     var entity: HttpEntity = null
     var instream: InputStream = null
+
+    // Identified the the apache http client does not drop URL fragments before opening the request to the host
+    // more info: http://stackoverflow.com/questions/4251841/400-error-with-httpclient-for-a-link-with-an-anchor
+    val cleanUrl = {
+      val foundAt = url.indexOf("#")
+      if (foundAt >= 0) url.substring(0, foundAt) else url
+    }
+
     try {
       val localContext: HttpContext = new BasicHttpContext
       localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
-      httpget = new HttpGet(url)
+      httpget = new HttpGet(cleanUrl)
       HttpProtocolParams.setUserAgent(httpClient.getParams, config.getBrowserUserAgent());
 
       trace("Setting UserAgent To: " + HttpProtocolParams.getUserAgent(httpClient.getParams))
@@ -118,7 +126,7 @@ object HtmlFetcher extends Logging {
         catch {
           case e: Exception => {
             if (logger.isDebugEnabled) {
-              trace("Unable to get charset for: " + url)
+              trace("Unable to get charset for: " + cleanUrl)
               trace("Encoding Type is: " + encodingType)
             }
           }
@@ -131,7 +139,7 @@ object HtmlFetcher extends Logging {
         }
       }
       else {
-        trace("Unable to fetch URL Properly: " + url)
+        trace("Unable to fetch URL Properly: " + cleanUrl)
       }
     }
     catch {
@@ -139,7 +147,7 @@ object HtmlFetcher extends Logging {
         logger.warn(e.toString + " " + e.getMessage)
       }
       case e: MaxBytesException => {
-        trace("GRVBIGFAIL: " + url + " Reached max bytes size")
+        trace("GRVBIGFAIL: " + cleanUrl + " Reached max bytes size")
         throw e
       }
       case e: SocketException => {
@@ -149,11 +157,11 @@ object HtmlFetcher extends Logging {
         trace(e.toString)
       }
       case e: NotFoundException => {
-        logger.warn("SERVER RETURNED 404 FOR LINK: " + url)
+        logger.warn("SERVER RETURNED 404 FOR LINK: " + cleanUrl)
         return None
       }
       case e: Exception => {
-        trace("FAILURE FOR LINK: " + url + " " + e.toString)
+        trace("FAILURE FOR LINK: " + cleanUrl + " " + e.toString)
         return None
       }
     }
@@ -201,7 +209,7 @@ object HtmlFetcher extends Logging {
           if (htmlResult.contains("<title>") == true && htmlResult.contains("<p>") == true) {
             return Some(htmlResult)
           }
-          trace("GRVBIGFAIL: " + mimeType + " - " + url)
+          trace("GRVBIGFAIL: " + mimeType + " - " + cleanUrl)
           throw new NotHtmlException
         }
       }
@@ -269,12 +277,12 @@ object HtmlFetcher extends Logging {
   }
 
   /**
-  * reads bytes off the string and returns a string
-  *
-  * @param is
-  * @param maxBytes The max bytes that we want to read from the input stream
-  * @return String
-  */
+   * reads bytes off the string and returns a string
+   *
+   * @param is
+   * @param maxBytes The max bytes that we want to read from the input stream
+   * @return String
+   */
   def convertStreamToString(is: InputStream, maxBytes: Int, encodingType: String): String = {
     val buf: Array[Char] = new Array[Char](2048)
     var r: Reader = null
