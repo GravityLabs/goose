@@ -46,6 +46,7 @@ To use goose from the command line:
 ##Regarding the port from JAVA to Scala
 
 Here are some of the reasons for the port to Scala:
+
  - Gravity has moved more towards Scala development internally so maintenance started to become an issue
  - There wasn't enough contribution to warrant keeping it in Java
  - The packages were all namespaced under a person's name and not the company's name
