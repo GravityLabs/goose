@@ -462,8 +462,9 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
 
-  def getCleanDomain() = {
-    article.domain.replace("www.", "")
+  def getCleanDomain = {
+    // just grab the very end of the domain
+    article.domain.split("\\.").reverse.take(2).reverse.mkString(".")
   }
 
   /**
@@ -473,7 +474,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   */
   def checkForKnownElements(): Option[Image] = {
 
-    val domain = getCleanDomain()
+    val domain = getCleanDomain
     if (customSiteMapping.contains(domain)) {
       for (className <- customSiteMapping(domain).split("\\|")) {
         KNOWN_IMG_DOM_NAMES += className
@@ -532,7 +533,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   * This method will take an image path and build out the absolute path to that image
   * using the initial url we crawled so we can find a link to the image if they use relative urls like ../myimage.jpg
   *
-  * @param image
+  * @param imageSrc
   * @return
   */
   private def buildImagePath(imageSrc: String): String = {

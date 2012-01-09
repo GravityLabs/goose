@@ -6,11 +6,11 @@ import com.gravity.goose.extractors.AdditionalDataExtractor
 import org.jsoup.nodes.Element
 
 /**
- * Created by Jim Plush
- * User: jim
- * Date: 8/16/11
- * This class hits live websites and is only run manually, not part of the tests lifecycle
- */
+  * Created by Jim Plush
+  * User: jim
+  * Date: 8/16/11
+  * This class hits live websites and is only run manually, not part of the tests lifecycle
+  */
 class GoldSitesTestIT {
 
   @Test
@@ -290,6 +290,7 @@ class GoldSitesTestIT {
       expectedStart = "When I heard that Steve Jobs had passed away, I was boarding a train from New York to Philadelphia to visit my son.",
       expectedImage = "http://www.wired.com/images_blogs/epicenter/2011/10/Apple-Siri-Blind-660x375.jpg")
   }
+
   @Test
   def msn() {
     implicit val config = TestUtils.DEFAULT_CONFIG
@@ -300,7 +301,7 @@ class GoldSitesTestIT {
       expectedImage = "http://blu.stb.s-msn.com/i/6D/1235D306AF18A532BCDC8EB1CC42.jpg")
     TestUtils.printReport()
   }
-  
+
   @Test
   def ap() {
     implicit val config = TestUtils.DEFAULT_CONFIG
@@ -533,6 +534,34 @@ class GoldSitesTestIT {
       expectedImage = "http://images.politico.com/global/news/100927_obama22_ap_328.jpg")
   }
 
+  @Test
+  def buzznetImages() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://newageamazon.buzznet.com/user/journal/17025056/doubt-gives-hope-new-album/"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "We've had so many false hopes with the new No Doubt CD.",
+      expectedImage = "http://img.buzznet.com/assets/imgx/2/0/8/2/2/2/1/3/orig-20822213.jpg")
+  }
 
+  @Test
+  def timeImages() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://swampland.time.com/2012/01/09/hecklers-and-hostile-crowds-stymie-santorum-in-new-hampshire/"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "It was a scene fit for a front-runner: an overflow crowd spilling out the doors of a Rockwellian",
+      expectedImage = "http://timeswampland.files.wordpress.com/2012/01/sl_santprotest_0109_blog.jpg?w=600&h=400&crop=1")
+  }
+
+  @Test
+  def cnnMoneyImages() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    val url: String = "http://money.cnn.com/2012/01/09/pf/suze_orman_prepaid_card/index.htm?iid=HP_LN"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "NEW YORK (CNNMoney) -- CNBC's outspoken financial adviser, Suze",
+      expectedImage = "http://i2.cdn.turner.com/money/2012/01/09/pf/suze_orman_prepaid_card/suze-orman.top.jpg")
+  }
 }
 
