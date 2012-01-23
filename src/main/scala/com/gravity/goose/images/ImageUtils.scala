@@ -23,6 +23,7 @@ package com.gravity.goose.images
  * Date: 8/18/11
  */
 
+import javax.activation.MimetypesFileTypeMap
 import javax.imageio.ImageIO
 import java.awt.color.CMMException
 import java.awt.image.BufferedImage
@@ -50,27 +51,15 @@ object ImageUtils extends Logging {
   * @return
   */
   def getImageDimensions(identifyProgram: String, filePath: String): ImageDetails = {
-    val command: ArrayList[String] = new ArrayList[String](10)
-    command.add(identifyProgram)
-    command.add(filePath)
-    val imageInfo: String = execToString(command.toArray(new Array[String](1)).asInstanceOf[Array[String]])
+
+    val (mimeType, width, height) = getImageDimensionsJava(filePath)
     val imageDetails: ImageDetails = new ImageDetails
-    if (imageInfo == null || imageInfo.contains("no decode delegate for this image format")) {
-      throw new IOException("Unable to get Image Information (no decode delegate) for: " + filePath)
-    }
-    try {
-      val infoParts: Array[String] = imageInfo.split(" ")
-      imageDetails.setMimeType(infoParts(1))
-      val dimensions: Array[String] = infoParts(2).split("x")
-      imageDetails.setWidth(Integer.parseInt(dimensions(0)))
-      imageDetails.setHeight(Integer.parseInt(dimensions(1)))
-      imageDetails
-    }
-    catch {
-      case e: NullPointerException => {
-        throw new IOException("Unable to get Image Information for: " + filePath)
-      }
-    }
+
+    imageDetails.setMimeType(mimeType)
+    imageDetails.setWidth(width)
+    imageDetails.setHeight(height)
+
+    imageDetails
   }
 
   /**
@@ -79,15 +68,13 @@ object ImageUtils extends Logging {
   * @param filePath
   * @return
   */
-  def getImageDimensionsJava(filePath: String): HashMap[String, Integer] = {
+  def getImageDimensionsJava(filePath: String): (String, Integer,Integer) = {
     var image: BufferedImage = null
     try {
       val f: File = new File(filePath)
       image = ImageIO.read(f)
-      val results: HashMap[String, Integer] = new HashMap[String, Integer]
-      results.put("height", image.getHeight)
-      results.put("width", image.getWidth)
-      results
+      val mimeType : String = new MimetypesFileTypeMap().getContentType(f)
+      (mimeType, image.getWidth, image.getHeight)
     }
     catch {
       case e: CMMException => {
