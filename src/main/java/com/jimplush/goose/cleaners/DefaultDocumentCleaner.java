@@ -285,6 +285,10 @@ public class DefaultDocumentCleaner implements DocumentCleaner {
 
 
   private Document cleanBadTags(Document doc) {
+    // Framesets do not have a body tag!
+    if(doc.body() == null) {
+      return doc;
+    }
     // only select elements WITHIN the body to avoid removing the body itself
     Elements children = doc.body().children();
     

@@ -4,7 +4,7 @@
 
   <groupId>com.jimplush</groupId>
   <artifactId>goose</artifactId>
-  <version>1.4.1.1</version>
+  <version>1.4.1.2</version>
   <packaging>jar</packaging>
 
   <name>goose</name>
@@ -62,6 +62,14 @@
   -->
   <build>
     <plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<configuration>
+				<source>1.5</source>
+				<target>1.5</target>
+			</configuration>
+		</plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
