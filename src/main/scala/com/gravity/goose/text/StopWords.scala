@@ -40,21 +40,11 @@ object StopWords {
     val candidateWords = extractCandidateWords(content)
     val stopWordsInContent = seqAsJavaList(candidateWords.filter(w => STOP_WORDS.contains(w.toLowerCase)).map(_.toLowerCase))
 
-    wordStats(candidateWords, stopWordsInContent)
+    new WordStats(stopWordsInContent, candidateWords.length)
   }
 
   private def extractCandidateWords(content: String): Array[String] = {
     val strippedContent = PUNCTUATION.replaceAll(content)
     string.SPACE_SPLITTER.split(strippedContent)
   }
-
-  private def wordStats(candidateWords: Array[String], stopWordsInContent: List[String]): WordStats = {
-    val ws = new WordStats
-    ws.setWordCount(candidateWords.length)
-    ws.setStopWordCount(stopWordsInContent.size)
-    ws.setStopWords(stopWordsInContent)
-    ws
-  }
-
-
 }

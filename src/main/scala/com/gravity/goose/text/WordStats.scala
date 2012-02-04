@@ -30,22 +30,23 @@ object WordStats {
   var EMPTY: WordStats = new WordStats
 }
 
-class WordStats {
-
+class WordStats(_stopWords:List[String], _wordCount:Int) {
   import WordStats._
-
+  def this() = this(new ArrayList(), 0)
   /**
   * total number of stopwords or good words that we can calculate
   */
-  var stopWordCount: Int = 0
+  var stopWordCount : Int = _stopWords.size()
+
   /**
   * total number of words on a node
   */
-  var wordCount: Int = 0
+  var wordCount: Int = _wordCount
+
   /**
   * holds an actual list of the stop words we found
   */
-  var stopWords: List[String] = new ArrayList[String]
+  var stopWords: List[String] = _stopWords
 
   def getStopWords: List[String] = {
     stopWords
