@@ -32,7 +32,6 @@ object WordStats {
 
 class WordStats {
 
-
   import WordStats._
 
   /**

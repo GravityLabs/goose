@@ -26,35 +26,33 @@ package com.gravity.goose.text
 
 import java.util._
 import com.gravity.goose.utils.FileHelper
+import  scala.collection.JavaConversions._
 
 object StopWords {
-
   // the confusing pattern below is basically just match any non-word character excluding white-space.
   private val PUNCTUATION: StringReplacement = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty)
 
   val STOP_WORDS = FileHelper.loadResourceFile("stopwords-en.txt", StopWords.getClass).split("\n").toSet
 
+  def getStopWordCount(content: String): WordStats = {
+    if (string.isNullOrEmpty(content)) return WordStats.EMPTY
 
-  def removePunctuation(str: String): String = {
-    PUNCTUATION.replaceAll(str)
+    val candidateWords = extractCandidateWords(content)
+    val stopWordsInContent = seqAsJavaList(candidateWords.filter(w => STOP_WORDS.contains(w.toLowerCase)).map(_.toLowerCase))
+
+    wordStats(candidateWords, stopWordsInContent)
   }
 
-  def getStopWordCount(content: String): WordStats = {
+  private def extractCandidateWords(content: String): Array[String] = {
+    val strippedContent = PUNCTUATION.replaceAll(content)
+    string.SPACE_SPLITTER.split(strippedContent)
+  }
 
-    if (string.isNullOrEmpty(content)) return WordStats.EMPTY
-    val ws: WordStats = new WordStats
-    val strippedInput: String = removePunctuation(content)
-
-    val candidateWords: Array[String] = string.SPACE_SPLITTER.split(strippedInput)
-
-    val overlappingStopWords: List[String] = new ArrayList[String]
-
-    candidateWords.foreach(w => {
-       if (STOP_WORDS.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)
-    })
+  private def wordStats(candidateWords: Array[String], stopWordsInContent: List[String]): WordStats = {
+    val ws = new WordStats
     ws.setWordCount(candidateWords.length)
-    ws.setStopWordCount(overlappingStopWords.size)
-    ws.setStopWords(overlappingStopWords)
+    ws.setStopWordCount(stopWordsInContent.size)
+    ws.setStopWords(stopWordsInContent)
     ws
   }
 
