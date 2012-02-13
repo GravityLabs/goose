@@ -2,8 +2,8 @@ package com.gravity.goose
 
 import org.junit.Test
 import org.junit.Assert._
-import com.gravity.goose.extractors.AdditionalDataExtractor
 import org.jsoup.nodes.Element
+import com.gravity.goose.extractors.{VoicesContentExtractor, AdditionalDataExtractor}
 
 /**
   * Created by Jim Plush
@@ -562,6 +562,20 @@ class GoldSitesTestIT {
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "NEW YORK (CNNMoney) -- CNBC's outspoken financial adviser, Suze",
       expectedImage = "http://i2.cdn.turner.com/money/2012/01/09/pf/suze_orman_prepaid_card/suze-orman.top.jpg")
+  }
+
+  @Test
+  def yahooVoices() {
+    implicit val config = {
+      val myConfig = new Configuration
+      myConfig.enableImageFetching = false
+      myConfig.setContentExtractor(new VoicesContentExtractor)
+      myConfig
+    }
+    val url: String = "http://voices.yahoo.com/article/9330101/lovess-demise-10882501.html"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article, expectedTitle = "Loves's Demise",
+      expectedStart = "Do we not love like lovers in demise? We both know our love has faded away;")
   }
 }
 

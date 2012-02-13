@@ -147,7 +147,7 @@ class Crawler(config: Configuration) extends Logging {
   }
 
   def getExtractor: ContentExtractor = {
-    new StandardContentExtractor
+    config.contentExtractor
   }
 
   /**
