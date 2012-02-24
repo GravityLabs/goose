@@ -19,7 +19,6 @@
 package com.gravity.goose
 
 import images.Image
-import utils.Logging
 import org.jsoup.nodes.{Element, Document}
 import java.util.Date
 import scala.collection._
@@ -30,7 +29,7 @@ import scala.collection._
 * Date: 8/14/11
 */
 
-class Article extends Logging {
+class Article {
 
   /**
   * title of the article

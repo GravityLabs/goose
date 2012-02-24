@@ -90,7 +90,7 @@ class GoldSitesTestIT {
     implicit val config = TestUtils.DEFAULT_CONFIG
     val url = "http://www.deseretnews.com/article/705388385/High-school-basketball-Top-Utah-prospects-representing-well.html"
     val article = TestUtils.getArticle(url)
-    val content = "In going up against some of the top AAU basketball teams in"
+    val content = "Utah isn't known nationally for producing top basketball talent"
     TestUtils.runArticleAssertions(article, expectedStart = content)
 
   }
@@ -277,7 +277,7 @@ class GoldSitesTestIT {
     val url: String = "http://news.cnet.com/8301-30686_3-20014053-266.html?tag=topStories1"
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
-      expectedStart = "NEW YORK--Verizon Communications is prepping a new",
+      expectedStart = "The phone company is adding bells and whistles to",
       expectedImage = "http://i.i.com.com/cnwk.1d/i/tim//2010/08/18/Verizon_iPad_and_live_TV_610x458.JPG")
   }
 

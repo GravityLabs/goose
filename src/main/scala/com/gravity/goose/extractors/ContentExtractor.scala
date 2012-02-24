@@ -20,7 +20,6 @@ package com.gravity.goose.extractors
 import com.gravity.goose.Article
 import com.gravity.goose.text._
 import com.gravity.goose.utils.Logging
-import org.apache.commons.lang.StringEscapeUtils
 import java.net.URL
 import java.util.ArrayList
 import collection.JavaConversions._
@@ -33,11 +32,16 @@ import collection.mutable.{Buffer, ListBuffer, HashSet}
 * User: jim
 * Date: 8/15/11
 */
-
-trait ContentExtractor extends Logging {
-  // PRIVATE PROPERTIES BELOW
-
+object ContentExtractor extends Logging {
   val logPrefix = "ContentExtractor: "
+}
+
+trait ContentExtractor {
+  import ContentExtractor._
+
+  def getLogger() = logger
+
+  // PRIVATE PROPERTIES BELOW
 
   val MOTLEY_REPLACEMENT: StringReplacement = StringReplacement.compile("&#65533;", string.empty)
   val ESCAPED_FRAGMENT_REPLACEMENT: StringReplacement = StringReplacement.compile("#!", "?_escaped_fragment_=")

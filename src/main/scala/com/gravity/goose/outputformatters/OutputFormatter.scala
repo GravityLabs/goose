@@ -21,10 +21,9 @@ package com.gravity.goose.outputformatters
 import org.jsoup.nodes._
 import org.apache.commons.lang.StringEscapeUtils
 import org.jsoup.select.Elements
-import com.gravity.goose.utils.Logging
-import com.gravity.goose.text.{StopWords, WordStats}
+import com.gravity.goose.text.StopWords
 import scala.collection.JavaConversions._
-import collection.mutable.ListBuffer
+import org.slf4j.Logger
 
 /**
 * Created by Jim Plush
@@ -32,16 +31,17 @@ import collection.mutable.ListBuffer
 * Date: 8/17/11
 */
 
-trait OutputFormatter extends Logging {
+trait OutputFormatter {
   val logPrefix = "outformat: "
 
-  private var topNode: Element = null
+  // used to remove tags within tags
+  val tagReplace = "<[^>]+>".r
 
-  def getTopNode = Option(topNode)
+  def logger: Logger
 
-  private def selectElements(query: String): Elements = getTopNode match {
-    case Some(n) => n.select(query)
-    case None => new Elements(List.empty[Element])
+  private def selectElements(query: String, topNode: Element): Elements = topNode match {
+    case null => new Elements(List.empty[Element])
+    case n => n.select(query)
   }
   
   /**
@@ -50,11 +50,10 @@ trait OutputFormatter extends Logging {
   * @return the prepared Element
   */
   @Deprecated def getFormattedElement(topNode: Element): Element = {
-    this.topNode = topNode
-    removeNodesWithNegativeScores()
-    convertLinksToText()
-    replaceTagsWithText()
-    removeParagraphsWithFewWords()
+    removeNodesWithNegativeScores(topNode)
+    convertLinksToText(topNode)
+    replaceTagsWithText(topNode)
+    removeParagraphsWithFewWords(topNode)
     topNode
   }
 
@@ -64,12 +63,11 @@ trait OutputFormatter extends Logging {
   * @return a formatted string with all HTML removed
   */
   def getFormattedText(topNode: Element): String = {
-    this.topNode = topNode
-    removeNodesWithNegativeScores()
-    convertLinksToText()
-    replaceTagsWithText()
-    removeParagraphsWithFewWords()
-    convertToText
+    removeNodesWithNegativeScores(topNode)
+    convertLinksToText(topNode)
+    replaceTagsWithText(topNode)
+    removeParagraphsWithFewWords(topNode)
+    convertToText(topNode)
   }
 
   /**
@@ -78,32 +76,29 @@ trait OutputFormatter extends Logging {
   *
   * @return
   */
-  def convertToText: String = getTopNode match {
-    case Some(node) => {
+  def convertToText(topNode: Element): String = topNode match {
+    case null => ""
+    case node => {
       (node.children().map((e: Element) => {
         StringEscapeUtils.unescapeHtml(e.text).trim
       })).toList.mkString("\n\n")
     }
-    case None => ""
 
   }
 
   /**
   * cleans up and converts any nodes that should be considered text into text
   */
-  private def convertLinksToText() {
-    trace(logPrefix + "Turning links to text")
+  private def convertLinksToText(topNode: Element) {
+    if (topNode != null) {
+      logger.trace(logPrefix + "Turning links to text")
+      val baseUri = topNode.baseUri()
 
-    getTopNode.foreach {
-      case node: Element => {
-        val baseUri = node.baseUri()
-
-        val links = node.getElementsByTag("a")
-        for (item <- links) {
-          if (item.getElementsByTag("img").isEmpty) {
-            val tn = new TextNode(item.text, baseUri)
-            item.replaceWith(tn)
-          }
+      val links = topNode.getElementsByTag("a")
+      for (item <- links) {
+        if (item.getElementsByTag("img").isEmpty) {
+          val tn = new TextNode(item.text, baseUri)
+          item.replaceWith(tn)
         }
       }
     }
@@ -114,14 +109,14 @@ trait OutputFormatter extends Logging {
   * if there are elements inside our top node that have a negative gravity score, let's
   * give em the boot
   */
-  private def removeNodesWithNegativeScores() {
+  private def removeNodesWithNegativeScores(topNode: Element) {
     def tryInt(text: String): Int = try {
       Integer.parseInt(text)
     } catch {
       case _: Exception => 0
     }
 
-    val gravityItems = selectElements("*[gravityScore]")
+    val gravityItems = selectElements("*[gravityScore]", topNode)
     for (item <- gravityItems) {
       val score = tryInt(item.attr("gravityScore"))
       if (score < 1) {
@@ -134,37 +129,31 @@ trait OutputFormatter extends Logging {
   * replace common tags with just text so we don't have any crazy formatting issues
   * so replace <br>, <i>, <strong>, etc.... with whatever text is inside them
   */
-  private def replaceTagsWithText() {
-    getTopNode.foreach {
-      case node: Element => {
-        val baseUri = node.baseUri()
-        val bolds = node.getElementsByTag("b")
-        for (item <- bolds) {
-          val tn = new TextNode(getTagCleanedText(item), baseUri)
-          item.replaceWith(tn)
-        }
+  private def replaceTagsWithText(topNode: Element) {
+    if (topNode != null) {
+      val baseUri = topNode.baseUri()
+      val bolds = topNode.getElementsByTag("b")
+      for (item <- bolds) {
+        val tn = new TextNode(getTagCleanedText(item), baseUri)
+        item.replaceWith(tn)
+      }
 
-        val strongs = node.getElementsByTag("strong")
-        for (item <- strongs) {
-          val tn = new TextNode(getTagCleanedText(item), baseUri)
-          item.replaceWith(tn)
-        }
+      val strongs = topNode.getElementsByTag("strong")
+      for (item <- strongs) {
+        val tn = new TextNode(getTagCleanedText(item), baseUri)
+        item.replaceWith(tn)
+      }
 
-        val italics = node.getElementsByTag("i")
-        for (item <- italics) {
-          val tn = new TextNode(getTagCleanedText(item), baseUri)
-          item.replaceWith(tn)
+      val italics = topNode.getElementsByTag("i")
+      for (item <- italics) {
+        val tn = new TextNode(getTagCleanedText(item), baseUri)
+        item.replaceWith(tn)
 
-        }
       }
     }
-
   }
 
   private def getTagCleanedText(item: Node): String = {
-
-    // used to remove tags within tags
-    val tagReplace = "<[^>]+>".r
     val sb = new StringBuilder()
 
     item.childNodes().foreach {
@@ -184,42 +173,39 @@ trait OutputFormatter extends Logging {
   /**
   * remove paragraphs that have less than x number of words, would indicate that it's some sort of link
   */
-  private def removeParagraphsWithFewWords() {
-    if (logger.isDebugEnabled) {
-      logger.debug("removeParagraphsWithFewWords starting...")
-    }
+  private def removeParagraphsWithFewWords(topNode: Element) {
+    if (topNode != null) {
+      if (logger.isDebugEnabled) {
+        logger.debug("removeParagraphsWithFewWords starting...")
+      }
 
-    getTopNode.foreach {
-      case node: Element => {
-        val allNodes = node.getAllElements
+      val allNodes = topNode.getAllElements
 
-        for (el <- allNodes) {
-          try {
-            val stopWords = StopWords.getStopWordCount(el.text)
-            if (stopWords.getStopWordCount < 3 && el.getElementsByTag("object").size == 0 && el.getElementsByTag("embed").size == 0) {
-              logger.debug("removeParagraphsWithFewWords - swcnt: %d removing text: %s".format(stopWords.getStopWordCount, el.text()))
-              el.remove()
-            }
-          }
-          catch {
-            case e: IllegalArgumentException => {
-              logger.error(e.getMessage)
-            }
+      for (el <- allNodes) {
+        try {
+          val stopWords = StopWords.getStopWordCount(el.text)
+          if (stopWords.getStopWordCount < 3 && el.getElementsByTag("object").size == 0 && el.getElementsByTag("embed").size == 0) {
+            logger.debug("removeParagraphsWithFewWords - swcnt: %d removing text: %s".format(stopWords.getStopWordCount, el.text()))
+            el.remove()
           }
         }
+        catch {
+          case e: IllegalArgumentException => {
+            logger.error(e.getMessage)
+          }
+        }
+      }
 
-        Option(node.getElementsByTag("p").first()).foreach {
-          case firstModdedNode: Element => {
-            // check for open parens as the first paragraph, e.g. businessweek4.txt (IT)
-            val trimmed = firstModdedNode.text().trim()
-            if (trimmed.startsWith("(") && trimmed.endsWith(")")) {
-              trace("Removing parenthesis paragraph that is first paragraph")
-              firstModdedNode.remove()
-            }
+      Option(topNode.getElementsByTag("p").first()).foreach {
+        case firstModdedNode: Element => {
+          // check for open parens as the first paragraph, e.g. businessweek4.txt (IT)
+          val trimmed = firstModdedNode.text().trim()
+          if (trimmed.startsWith("(") && trimmed.endsWith(")")) {
+            logger.trace("Removing parenthesis paragraph that is first paragraph")
+            firstModdedNode.remove()
           }
         }
       }
     }
-
   }
 }

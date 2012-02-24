@@ -19,17 +19,14 @@
 package com.gravity.goose
 
 import network.HtmlFetcher
-import utils.{Logging}
 import java.io.File
-import akka.actor.Actor
 
 /**
  * Created by Jim Plush - Gravity.com
  * Date: 8/14/11
  */
-class Goose(config: Configuration = new Configuration) extends Logging {
+class Goose(config: Configuration = new Configuration) {
 
-  import Goose._
 
   initializeEnvironment()
 

@@ -27,12 +27,12 @@ import com.gravity.goose.{Article, Configuration}
 import java.util.ArrayList
 import collection.mutable.HashMap
 import scala.collection.JavaConversions._
-import com.gravity.goose.text.{string, HashUtils}
+import com.gravity.goose.text.string
 import java.net.{MalformedURLException, URL}
 import com.gravity.goose.network.HtmlFetcher
 import java.io.{IOException, File}
 import java.util.regex.{Pattern, Matcher}
-import org.apache.http.client.methods.{HttpGet, HttpHead}
+import org.apache.http.client.methods.HttpGet
 
 /**
 * Created by Jim Plush
@@ -138,7 +138,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
         if (item.attr("content").length < 1) {
           return false
         }
-        var imagePath: String = this.buildImagePath(item.attr("content"))
+        val imagePath: String = this.buildImagePath(item.attr("content"))
         this.image.imageSrc = imagePath
         this.image.imageExtractionType = "opengraph"
         this.image.confidenceScore = 100
@@ -147,11 +147,11 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
 
         return true
       }
-      return false
+      false
     }
     catch {
       case e: Exception => {
-        e.printStackTrace
+        e.printStackTrace()
         return false
       }
     }
@@ -164,7 +164,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   */
   private def checkForLinkTag: Boolean = {
     try {
-      var meta: Elements = doc.select("link[rel~=image_src]")
+      val meta: Elements = doc.select("link[rel~=image_src]")
       import scala.collection.JavaConversions._
       for (item <- meta) {
         if (item.attr("href").length < 1) {
@@ -387,17 +387,6 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   }
 
   /**
-  * returns a string with debug info about this node
-  *
-  * @param node
-  * @return
-  */
-  private def getNodeIds(node: Element): String = {
-    val stuff: String = String.format(NODE_ID_FORMAT, node.tagName, node.className, node.id)
-    stuff
-  }
-
-  /**
   * in here we check for known image contains from sites we've checked out like yahoo, techcrunch, etc... that have
   * known  places to look for good images.
   * //todo enable this to use a series of settings files so people can define what the image ids/classes are on specific sites
@@ -512,7 +501,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     }
     finally {
       try {
-        httpget.abort
+        httpget.abort()
       }
       catch {
         case e: NullPointerException => {
@@ -588,7 +577,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
             if (logger.isDebugEnabled) {
               logger.debug(image.attr("src") + " seems like a fishy image dimension wise, skipping it")
             }
-            image.remove
+            image.remove()
             continueVar = false
           }
         }
@@ -664,15 +653,15 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     minBytesForImages
   }
 
-  def setMinBytesForImages(minBytesForImages: Int): Unit = {
+  def setMinBytesForImages(minBytesForImages: Int) {
     this.minBytesForImages = minBytesForImages
   }
 
   def getTempStoragePath: String = {
-    return tempStoragePath
+    tempStoragePath
   }
 
-  def setTempStoragePath(tempStoragePath: String): Unit = {
+  def setTempStoragePath(tempStoragePath: String) {
     this.tempStoragePath = tempStoragePath
   }
 

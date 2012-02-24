@@ -20,14 +20,13 @@ package com.gravity.goose.cleaners
 import com.gravity.goose.utils.Logging
 import org.jsoup.select.Elements
 import java.util.regex.{Matcher, Pattern}
-import java.util.ArrayList
 import org.jsoup.nodes.{TextNode, Node, Element, Document}
-import com.gravity.goose.text.{string, ReplaceSequence}
+import com.gravity.goose.text.ReplaceSequence
 import scala.collection.JavaConversions._
 import com.gravity.goose.Article
 import collection.mutable.ListBuffer
 
-trait DocumentCleaner extends Logging {
+trait DocumentCleaner {
 
   /**
   * User: Jim Plush
@@ -352,7 +351,7 @@ trait DocumentCleaner extends Logging {
 }
 
 
-object DocumentCleaner {
+object DocumentCleaner extends Logging {
   /**
   * this regex is used to remove undesirable nodes from our doc
   * indicate that something maybe isn't content but more of a comment, footer or some other undesirable node
@@ -378,7 +377,7 @@ object DocumentCleaner {
 
   // create negative elements
   sb.append("^side$|combx|retweet|mediaarticlerelated|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll|shoutbox|sponsor")
-  sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers")
+  sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers|remember-tool-tip")
   sb.append("|communitypromo|runaroundLeft|subscribe|vcard|articleheadings|date|^print$|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text")
 
   regExRemoveNodes = sb.toString()

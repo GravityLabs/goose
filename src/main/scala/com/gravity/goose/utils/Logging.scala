@@ -35,7 +35,7 @@ import java.text.MessageFormat
  * The code was initially taken from this location at Stack Overflow:
  * From http://stackoverflow.com/questions/978252/logging-in-scala/981942#981942
  */
-trait Logging {
+trait Logging extends CanLog {
 
   val logger: Logger = Logging.getLogger(this)
 
@@ -83,4 +83,28 @@ object Logging {
   }
 
   def getLogger(logging: AnyRef) = LoggerFactory.getLogger(loggerNameForClass(logging.getClass.getName))
+}
+
+trait CanLog {
+  def logger: Logger
+
+  def trace(msg: String, refs: Any*)
+
+  def trace(t: Throwable, msg: String, refs: Any*)
+
+  def info(msg: String, refs: Any*)
+
+  def info(t: Throwable, msg: String, refs: Any*)
+
+  def warn(msg: String, refs: Any*)
+
+  def warn(t: Throwable, msg: String, refs: Any*)
+
+  def critical(msg: String, refs: Any*)
+
+  def critical(t: Throwable, msg: String, refs: Any*)
+
+  def debug(msg: String, refs: Any*)
+
+  def debug(t: Throwable, msg: String, refs: Any*)
 }

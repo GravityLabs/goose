@@ -18,17 +18,16 @@
 
 package com.gravity.goose
 
-import akka.actor.Actor
 import cleaners.{StandardDocumentCleaner, DocumentCleaner}
-import extractors.{StandardContentExtractor, ContentExtractor}
-import images.{UpgradedImageIExtractor, StandardImageExtractor, ImageExtractor}
+import extractors.ContentExtractor
+import images.{UpgradedImageIExtractor, ImageExtractor}
 import network.HtmlFetcher
-import outputformatters.{StandardOutputFormatter, OutputFormatter}
 import org.apache.http.client.HttpClient
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.Jsoup
 import java.io.File
 import utils.{ParsingCandidate, URLHelper, Logging}
+import com.gravity.goose.outputformatters.{StandardOutputFormatter, OutputFormatter}
 
 /**
  * Created by Jim Plush
@@ -38,9 +37,9 @@ import utils.{ParsingCandidate, URLHelper, Logging}
 
 case class CrawlCandidate(config: Configuration, url: String, rawHTML: String = null)
 
-class Crawler(config: Configuration) extends Logging {
+class Crawler(config: Configuration) {
 
-  val logPrefix = "crawler: "
+  import Crawler._
 
   def crawl(crawlCandidate: CrawlCandidate): Article = {
     val article = new Article()
@@ -127,7 +126,7 @@ class Crawler(config: Configuration) extends Logging {
   }
 
   def getOutputFormatter: OutputFormatter = {
-    new StandardOutputFormatter
+    StandardOutputFormatter
   }
 
   def getDocCleaner: DocumentCleaner = {
@@ -169,4 +168,8 @@ class Crawler(config: Configuration) extends Logging {
     })
   }
 
+}
+
+object Crawler extends Logging {
+  val logPrefix = "crawler: "
 }

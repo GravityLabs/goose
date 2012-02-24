@@ -17,8 +17,8 @@
  */
 package com.gravity.goose.images
 
-import com.gravity.goose.utils.Logging
 import org.jsoup.nodes.{Element, Document}
+import com.gravity.goose.utils.{Logging, CanLog}
 
 /**
 * Created by Jim Plush
@@ -29,10 +29,56 @@ import org.jsoup.nodes.{Element, Document}
 // represents a file stored on disk that we've downloaded
 case class LocallyStoredImage(imgSrc: String, localFileName: String, linkhash: String, bytes: Long, fileExtension: String = "", height: Int = 0, width: Int = 0)
 
-trait ImageExtractor extends Logging {
-
-  val logPrefix = "images: "
+trait ImageExtractor extends CanLog {
 
   def getBestImage(doc: Document, topNode: Element): Image
+
+  def logPrefix: String = ImageExtractor.loggingPrefix
+
+  def critical(msg: String, refs: Any*) {
+    ImageExtractor.critical(msg, refs: _*)
+  }
+
+  def critical(t: Throwable, msg: String, refs: Any*) {
+    ImageExtractor.critical(t, msg, refs: _*)
+  }
+
+  def debug(msg: String, refs: Any*) {
+    ImageExtractor.debug(msg, refs: _*)
+  }
+
+  def debug(t: Throwable, msg: String, refs: Any*) {
+    ImageExtractor.debug(t, msg, refs: _*)
+  }
+
+  def info(msg: String, refs: Any*) {
+    ImageExtractor.info(msg, refs: _*)
+  }
+
+  def info(t: Throwable, msg: String, refs: Any*) {
+    ImageExtractor.info(t, msg, refs: _*)
+  }
+
+  def logger = ImageExtractor.logger
+
+  def trace(msg: String, refs: Any*) {
+    ImageExtractor.trace(msg, refs: _*)
+  }
+
+  def trace(t: Throwable, msg: String, refs: Any*) {
+    ImageExtractor.trace(t, msg, refs: _*)
+  }
+
+  def warn(msg: String, refs: Any*) {
+    ImageExtractor.warn(msg, refs: _*)
+  }
+
+  def warn(t: Throwable, msg: String, refs: Any*) {
+    ImageExtractor.warn(t, msg, refs: _*)
+  }
+}
+
+object ImageExtractor extends Logging {
+  val loggingPrefix = "images: "
 }
 

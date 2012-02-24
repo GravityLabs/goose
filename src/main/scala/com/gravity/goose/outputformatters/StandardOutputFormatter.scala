@@ -18,12 +18,12 @@
 
 package com.gravity.goose.outputformatters
 
+import com.gravity.goose.utils.Logging
+
 /**
  * Created by Jim Plush
  * User: jim
  * Date: 8/17/11
  */
 
-class StandardOutputFormatter extends OutputFormatter {
-
-}
+object StandardOutputFormatter extends OutputFormatter with Logging

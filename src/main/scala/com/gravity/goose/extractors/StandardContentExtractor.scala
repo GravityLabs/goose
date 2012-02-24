@@ -26,9 +26,4 @@ import com.gravity.goose.utils.Logging
  * Date: 8/15/11
  */
 
-class StandardContentExtractor extends ContentExtractor with Logging {
-
-
-
-
-}
+object StandardContentExtractor extends ContentExtractor
