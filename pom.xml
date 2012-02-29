@@ -17,6 +17,11 @@
       <name>Akka Maven Repository</name>
       <url>http://akka.io/repository</url>
     </repository>
+    <repository>
+      <id>acceso</id>
+      <name>Acceso Maven Repository</name>
+      <url>http://artifactory.acceso.int/repo</url>
+    </repository>
   </repositories>
 
   <dependencies>
@@ -106,14 +111,18 @@
       </exclusions>
     </dependency>
    
-
     <dependency>
-	<groupId>com.googlecode.juniversalchardet</groupId>
-	<artifactId>juniversalchardet</artifactId>
-	<version>1.0.3</version>
-	<scope>compile</scope>
+		<groupId>com.acceso</groupId>
+		<artifactId>language-identifier</artifactId>
+		<version>0.1-SNAPSHOT</version>
+		<scope>compile</scope>
     </dependency>
-
+    <dependency>
+		<groupId>com.googlecode.juniversalchardet</groupId>
+		<artifactId>juniversalchardet</artifactId>
+		<version>1.0.3</version>
+		<scope>compile</scope>
+    </dependency>
   </dependencies>
 
   <!--

@@ -26,8 +26,8 @@ package com.gravity.goose.text
 
 import java.util._
 import com.gravity.goose.utils.FileHelper
-
 import scala.collection.immutable.Map
+import com.acceso.languageidentification.LingpipeLanguageIdentifier
 
 object StopWords {
   
@@ -40,7 +40,8 @@ object StopWords {
 		  				"es" -> FileHelper.loadResourceFile("es.txt", StopWords.getClass).split("\n").toSet,
 		  				"fr" -> FileHelper.loadResourceFile("fr.txt", StopWords.getClass).split("\n").toSet,
 		  				"it" -> FileHelper.loadResourceFile("it.txt", StopWords.getClass).split("\n").toSet,
-		  				"pt" -> FileHelper.loadResourceFile("pt.txt", StopWords.getClass).split("\n").toSet);
+		  				"pt" -> FileHelper.loadResourceFile("pt.txt", StopWords.getClass).split("\n").toSet,
+		  				"all" -> FileHelper.loadResourceFile("all.txt", StopWords.getClass).split("\n").toSet);
 
   def removePunctuation(str: String): String = {
     PUNCTUATION.replaceAll(str)
@@ -56,7 +57,7 @@ object StopWords {
 
     val overlappingStopWords: List[String] = new ArrayList[String]
     
-    val languageCode : String = detectLanguage(content)
+    val languageCode : String = getLanguageCode(content)
     val stopWords = STOP_WORDS(languageCode)
 
     candidateWords.foreach(w => {
@@ -70,10 +71,19 @@ object StopWords {
   
   /**
    * This method returns the code of the language identified in the content
-   * passed as parameter.
+   * passed as parameter, or 'all' if no language is identified.
    */
-  def detectLanguage(content: String): String = {
-    return "en" // TODO Fixme using some automatic language detector library
+  def getLanguageCode(content: String): String = {
+    var l = LingpipeLanguageIdentifier.getInstance()
+    var language : Locale = l.identify(content, 0.8)
+    
+    if(language != null && STOP_WORDS.contains(language.getLanguage())) {
+      // We have detected a language
+      return language.getLanguage()
+    } else {
+      // We have not detected a language or we have detected a no supported language
+      return "all" 
+    }
   }
 
 
