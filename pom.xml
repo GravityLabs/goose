@@ -10,6 +10,8 @@
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.5</maven.compiler.source>
+    <maven.compiler.target>1.5</maven.compiler.target>
   </properties>
   <repositories>
     <repository>
@@ -136,7 +138,7 @@
         <version>2.6</version>
         <configuration>
           <useFile>false</useFile>
-          <disableXmlReport>true</disableXmlReport>
+          <disableXmlReport>false</disableXmlReport>
           <includes>
             <include>**/*Test.*</include>
           </includes>
