@@ -72,6 +72,10 @@ class Article {
   */
   var topImage: Image = new Image
 
+  /**
+  * holds all cadidate images from article
+  */
+  var allImages: List[Image] = Nil 
 
   /**
   * holds a set of tags that may have been in the artcle, these are not meta keywords

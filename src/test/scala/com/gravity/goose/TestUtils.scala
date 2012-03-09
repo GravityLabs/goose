@@ -48,6 +48,7 @@ object TestUtils {
     articleReport.append("URL:      ").append(TAB).append(article.finalUrl).append(NL)
     articleReport.append("TITLE:    ").append(TAB).append(article.title).append(NL)
     articleReport.append("IMAGE:    ").append(TAB).append(article.topImage.getImageSrc).append(NL)
+    articleReport.append("All_IMGS: ").append(TAB).append(article.allImages).append(NL)
     articleReport.append("IMGKIND:  ").append(TAB).append(article.topImage.imageExtractionType).append(NL)
     articleReport.append("CONTENT:  ").append(TAB).append(article.cleanedArticleText.replace("\n", "    ")).append(NL)
     articleReport.append("METAKW:   ").append(TAB).append(article.metaKeywords).append(NL)

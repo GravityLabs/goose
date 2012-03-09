@@ -45,6 +45,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
 
   val NODE_ID_FORMAT: String = "tag: %s class: %s ID: %s"
 
+  var imageCandidates: ArrayList[Element] = new ArrayList
 
   var sb: StringBuilder = new StringBuilder
   // create negative elements
@@ -118,6 +119,8 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
             mainImage.imageSrc = highScoreImage._1.imgSrc
             mainImage.imageExtractionType = "bigimage"
             mainImage.bytes = highScoreImage._1.bytes
+            mainImage.width = highScoreImage._1.width
+            mainImage.height = highScoreImage._1.height
             mainImage.confidenceScore = if (scoredImages.size > 0) (100 / scoredImages.size) else 0
             trace("IMAGE COMPLETE: High Score Image is: " + mainImage.imageSrc + " Score is: " + highScoreImage._2)
             return Some(mainImage)
@@ -226,8 +229,33 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     imageResults
   }
 
-  def getAllImages: ArrayList[Element] = {
-    null
+  def getAllImages(topNode: Element, parentDepthLevel: Int = 0, siblingDepthLevel: Int = 0): List[Image] = {
+    trace("getting All Images")
+    var images: ListBuffer[Image] = new ListBuffer()
+    getImageCandidates(topNode) match {
+      case Some(candidateImages) => {
+        for {
+          cadidateImg <- candidateImages
+          locallyStoredImg <- getLocallyStoredImage(buildImagePath(cadidateImg.attr("src")))
+        } {
+          var img = new Image 
+          img.imageSrc = locallyStoredImg.imgSrc
+          img.width = locallyStoredImg.width
+          img.height = locallyStoredImg.height
+          img.bytes = locallyStoredImg.bytes
+          images += img
+        } 
+        return images.toList
+      }
+      case None => {
+        getDepthLevel(topNode, parentDepthLevel, siblingDepthLevel) match {
+          case Some(depthObj) => {
+            return getAllImages(depthObj.node, depthObj.parentDepth, depthObj.siblingDepth)
+          }
+          case None => return images.toList
+        }
+      } 
+    }
   }
 
   /**
@@ -313,7 +341,8 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       filteredImages <- filterBadNames(images)
       goodImages <- findImagesThatPassByteSizeTest(filteredImages)
     } {
-      return Some(filteredImages)
+      //return Some(filteredImages)
+      return Some(goodImages)
     }
     None
 

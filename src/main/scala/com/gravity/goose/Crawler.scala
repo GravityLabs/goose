@@ -28,6 +28,7 @@ import org.jsoup.Jsoup
 import java.io.File
 import utils.{ParsingCandidate, URLHelper, Logging}
 import com.gravity.goose.outputformatters.{StandardOutputFormatter, OutputFormatter}
+import scala.collection.JavaConversions._
 
 /**
  * Created by Jim Plush
@@ -83,6 +84,9 @@ class Crawler(config: Configuration) {
             val imageExtractor = getImageExtractor(article)
             try {
               article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+              if (config.enableAllImagesFetching) {
+                article.allImages = imageExtractor.getAllImages(article.topNode)
+              }
             } catch {
               case e: Exception => {
                 warn(e, e.toString)

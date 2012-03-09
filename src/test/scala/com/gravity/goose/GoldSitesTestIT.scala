@@ -14,6 +14,32 @@ import com.gravity.goose.extractors.{VoicesContentExtractor, AdditionalDataExtra
 class GoldSitesTestIT {
 
   @Test
+  def ego() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+    //    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val url = "http://ego.globo.com/famosos/noticia/2012/02/jaque-khury-vai-praia-no-rio.html"
+    val content = "Jaque Khury foi à praia da Barra da Tijuca, na Zona Oeste do Rio"
+    val image = "http://s.glbimg.com/jo/eg/f/620x0/2012/02/28/5_2.jpg"
+    val title = "Amores brutos: Jaque Khury brinca de luta em praia com o namorado"
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image)
+    TestUtils.printReport()
+  }
+
+//  @Test
+//  def folha() {
+//    implicit val config = TestUtils.DEFAULT_CONFIG
+//    //    implicit val config = TestUtils.NO_IMAGE_CONFIG
+//    val url = "http://www1.folha.uol.com.br/cotidiano/1056128-problema-em-check-in-da-tam-afeta-aeroportos-em-todo-o-pais.shtml"
+//    val content = "Uma falha do sistema de check-in da TAM provoca transtornos para quem tenta embarcar nos aviões da companhia na manhã desta sexta-feira."
+//    val image = "http://f.i.uol.com.br/folha/cotidiano/images/12062207.jpeg"
+//    val title = "Problema em check-in da TAM afeta aeroportos em todo o país"
+//    val article = TestUtils.getArticle(url)
+//    TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image)
+//    TestUtils.printReport()
+//  }
+
+  @Test
   def techCrunch() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     //    implicit val config = TestUtils.NO_IMAGE_CONFIG

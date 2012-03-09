@@ -51,15 +51,21 @@ class Configuration {
   @BeanProperty
   var enableImageFetching: Boolean = true
   /**
+  * set this guy to false if you don't care about getting All images, otherwise you can either use the default
+  * image extractor to implement the ImageExtractor interface to build your own
+  */
+  @BeanProperty
+  var enableAllImagesFetching: Boolean = true
+  /**
   * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
   */
   @BeanProperty
-  var imagemagickConvertPath: String = "/opt/local/bin/convert"
+  var imagemagickConvertPath: String = "/usr/local/bin/convert"
   /**
   *  path to your imagemagick identify executable
   */
   @BeanProperty
-  var imagemagickIdentifyPath: String = "/opt/local/bin/identify"
+  var imagemagickIdentifyPath: String = "/usr/local/bin/identify"
 
   /**
   * used as the user agent that is sent with your web requests to extract an article

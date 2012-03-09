@@ -112,6 +112,8 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     image
   }
 
+  def getAllImages(topNode: Element, parentDepthLevel: Int = 0, siblingDepthLevel: Int = 0): List[Image] = List[Image]()
+
   private def checkForMetaTag: Boolean = {
     if (this.checkForLinkTag) {
       return true
