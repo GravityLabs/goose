@@ -151,12 +151,12 @@ trait ContentExtractor {
    * if the article has meta canonical link set in the url
    */
   def getCanonicalLink(article: Article): String = {
-    val meta = article.doc.select("link[rel=canonical]");
+    val meta = article.doc.select("link[rel=canonical]")
     if (meta.size() > 0) {
-      val href = meta.first().attr("href");
-      if (string.isNullOrEmpty(href)) string.empty else href.trim()
+      val href = Option(meta.first().attr("href")).getOrElse("").trim
+      if (href.nonEmpty) href else article.finalUrl
     } else {
-      article.finalUrl;
+      article.finalUrl
     }
   }
 
