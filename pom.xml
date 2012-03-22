@@ -4,7 +4,7 @@
 
   <groupId>com.gravity</groupId>
   <artifactId>goose</artifactId>
-  <version>2.1.12</version>
+  <version>2.1.13</version>
   <packaging>jar</packaging>
   <name>goose</name>
   <url>http://maven.apache.org</url>
