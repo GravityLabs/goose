@@ -53,6 +53,9 @@ import java.util.Date
 import java.util.List
 import com.gravity.goose.utils.Logging
 import com.gravity.goose.Configuration
+import org.apache.commons.io.IOUtils
+
+import org.mozilla.universalchardet.UniversalDetector
 
 /**
  * User: Jim Plush
@@ -132,7 +135,7 @@ object HtmlFetcher extends Logging {
           }
         }
         try {
-          htmlResult = HtmlFetcher.convertStreamToString(instream, 15728640, encodingType).trim
+          htmlResult = HtmlFetcher.convertStreamToString(instream, encodingType).trim
         }
         finally {
           entity.consumeContent()
@@ -283,52 +286,39 @@ object HtmlFetcher extends Logging {
    * @param maxBytes The max bytes that we want to read from the input stream
    * @return String
    */
-  def convertStreamToString(is: InputStream, maxBytes: Int, encodingType: String): String = {
-    val buf: Array[Char] = new Array[Char](2048)
-    var r: Reader = null
-    val s = new StringBuilder
+  def convertStreamToString(is: InputStream, httpEncodingType: String): String = {
     try {
-      r = new InputStreamReader(is, encodingType)
-      var bytesRead: Int = 2048
-      var inLoop = true
-      while (inLoop) {
-        if (bytesRead >= maxBytes) {
-          throw new MaxBytesException
-        }
-        var n: Int = r.read(buf)
-        bytesRead += 2048
-
-        if (n < 0) inLoop = false
-        if (inLoop) s.appendAll(buf, 0, n)
-      }
-      return s.toString()
+      var buf : Array[Byte] = IOUtils.toByteArray(is)
+      var finalEncodingType = detectEncoding(buf, httpEncodingType)
+      return new String(buf, finalEncodingType)
     }
     catch {
       case e: SocketTimeoutException => {
         logger.warn(e.toString + " " + e.getMessage)
       }
       case e: UnsupportedEncodingException => {
-        logger.warn(e.toString + " Encoding: " + encodingType)
+        logger.warn(e.toString + " " + e.getMessage)
       }
       case e: IOException => {
         logger.warn(e.toString + " " + e.getMessage)
       }
     }
-    finally {
-      if (r != null) {
-        try {
-          r.close()
-        }
-        catch {
-          case e: Exception => {
-          }
-        }
-      }
-    }
     null
   }
-
-
+  
+  def detectEncoding(buf : Array[Byte], httpEncodingType : String) : String = {
+    var detector : UniversalDetector = new UniversalDetector(null)
+    detector.handleData(buf, 0, buf.size)
+    detector.dataEnd()
+    
+    var detectedEncoding = detector.getDetectedCharset()
+    
+    if(detectedEncoding != null) {
+    	return detectedEncoding
+    } else {
+    	return httpEncodingType
+    }
+  }
 }
 
 

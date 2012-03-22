@@ -27,13 +27,20 @@ package com.gravity.goose.text
 import java.util._
 import com.gravity.goose.utils.FileHelper
 
-object StopWords {
+import scala.collection.immutable.Map
 
+object StopWords {
+  
   // the confusing pattern below is basically just match any non-word character excluding white-space.
   private val PUNCTUATION: StringReplacement = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty)
-
-  val STOP_WORDS = FileHelper.loadResourceFile("stopwords-en.txt", StopWords.getClass).split("\n").toSet
-
+  
+  val STOP_WORDS = Map("ca" -> FileHelper.loadResourceFile("ca.txt", StopWords.getClass).split("\n").toSet,
+		  				"de" -> FileHelper.loadResourceFile("de.txt", StopWords.getClass).split("\n").toSet,
+		  				"en" -> FileHelper.loadResourceFile("en.txt", StopWords.getClass).split("\n").toSet,
+		  				"es" -> FileHelper.loadResourceFile("es.txt", StopWords.getClass).split("\n").toSet,
+		  				"fr" -> FileHelper.loadResourceFile("fr.txt", StopWords.getClass).split("\n").toSet,
+		  				"it" -> FileHelper.loadResourceFile("it.txt", StopWords.getClass).split("\n").toSet,
+		  				"pt" -> FileHelper.loadResourceFile("pt.txt", StopWords.getClass).split("\n").toSet);
 
   def removePunctuation(str: String): String = {
     PUNCTUATION.replaceAll(str)
@@ -48,14 +55,25 @@ object StopWords {
     val candidateWords: Array[String] = string.SPACE_SPLITTER.split(strippedInput)
 
     val overlappingStopWords: List[String] = new ArrayList[String]
+    
+    val languageCode : String = detectLanguage(content)
+    val stopWords = STOP_WORDS(languageCode)
 
     candidateWords.foreach(w => {
-       if (STOP_WORDS.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)
+       if (stopWords.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)
     })
     ws.setWordCount(candidateWords.length)
     ws.setStopWordCount(overlappingStopWords.size)
     ws.setStopWords(overlappingStopWords)
     ws
+  }
+  
+  /**
+   * This method returns the code of the language identified in the content
+   * passed as parameter.
+   */
+  def detectLanguage(content: String): String = {
+    return "en" // TODO Fixme using some automatic language detector library
   }
 
 
