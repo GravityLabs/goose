@@ -25,9 +25,6 @@ public class GooseTest {
     String url = "http://www.cnn.com/2010/POLITICS/08/13/democrats.social.security/index.html";
     Goose goose = new Goose(configuration);
     Article article = goose.extractContent(url);
-    System.out.println(article.cleanedArticleText());
-
-
   }
 
 }

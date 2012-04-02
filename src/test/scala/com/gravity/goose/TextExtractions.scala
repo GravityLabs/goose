@@ -41,7 +41,6 @@ class TextExtractions {
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "At Home Depot, we first realized we needed to have a real conversation with",
       expectedImage = null)
-    TestUtils.printReport()
   }
 
   @Test
@@ -53,7 +52,6 @@ class TextExtractions {
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Get ready, America, because by Christmas 2012 you will have an Apple TV in your living room",
       expectedImage = null)
-    TestUtils.printReport()
   }
 
   @Test
@@ -205,8 +203,6 @@ class TextExtractions {
     val expectedDateString = "2010-08-18";
     assertNotNull("publishDate should not be null!", article.publishDate);
     assertEquals("Publish date should equal: \"2010-08-18\"", expectedDateString, fmt.format(article.publishDate));
-    System.out.println("Publish Date Extracted: " + fmt.format(article.publishDate));
-
   }
 
   @Test
@@ -313,8 +309,6 @@ class TextExtractions {
     val article = TestUtils.getArticle(url, html)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "As everyone in the world was transfixed on the Fed")
-
-    println(article.cleanedArticleText)
   }
 
   @Test
