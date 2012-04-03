@@ -49,7 +49,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
 
   var sb: StringBuilder = new StringBuilder
   // create negative elements
-  sb.append(".html|.gif|.ico|button|twitter.jpg|facebook.jpg|ap_buy_photo|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com")
+  sb.append(".html|.ico|button|twitter.jpg|facebook.jpg|ap_buy_photo|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com")
   sb.append("|mediaplex.com|adsatt|view.atdmt")
   matchBadImageNames = Pattern.compile(sb.toString()).matcher(string.empty)
 
@@ -199,7 +199,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         height = locallyStoredImage.height
         imageSrc = locallyStoredImage.imgSrc
         fileExtension = locallyStoredImage.fileExtension
-        if (fileExtension != ".gif" && fileExtension != "NA")
+        if (fileExtension != "NA")
         if ((depthLevel >= 1 && locallyStoredImage.width > 300) || depthLevel < 1)
         if (!isBannerDimensions(width, height))
         if (width > MIN_WIDTH)

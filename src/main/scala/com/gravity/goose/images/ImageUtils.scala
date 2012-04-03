@@ -198,7 +198,7 @@ object ImageUtils extends Logging {
       case "png" => ".png"
       case "jpg" => ".jpg"
       case "jpeg" => ".jpg"
-      case ".gif" => ".gif"
+      case "gif" => ".gif"
       case _ => "NA"
     }
     mimeType
