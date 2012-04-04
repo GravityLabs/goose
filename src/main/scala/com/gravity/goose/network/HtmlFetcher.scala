@@ -43,7 +43,6 @@ import org.apache.http.params.HttpParams
 import org.apache.http.params.HttpProtocolParams
 import org.apache.http.protocol.BasicHttpContext
 import org.apache.http.protocol.HttpContext
-import org.apache.http.util.EntityUtils
 import java.io._
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -93,7 +92,6 @@ object HtmlFetcher extends Logging {
     var htmlResult: String = null
     var entity: HttpEntity = null
     var instream: InputStream = null
-    var encodingType: String = null
 
     // Identified the the apache http client does not drop URL fragments before opening the request to the host
     // more info: http://stackoverflow.com/questions/4251841/400-error-with-httpclient-for-a-link-with-an-anchor
@@ -117,17 +115,7 @@ object HtmlFetcher extends Logging {
       entity = response.getEntity
       if (entity != null) {
         instream = entity.getContent
-        try {
-          encodingType = Option(EntityUtils.getContentCharSet(entity)) getOrElse "ISO-8859-1"
-        }
-        catch {
-          case e: Exception => {
-            if (logger.isDebugEnabled) {
-              trace("Unable to get charset for: " + cleanUrl)
-              trace("Encoding Type is: " + encodingType)
-            }
-          }
-        }
+        val encodingType: String = config.resolveCharSet(url, entity)
         try {
           htmlResult = HtmlFetcher.convertStreamToString(instream, 15728640, encodingType).trim
         }

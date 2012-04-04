@@ -22,8 +22,9 @@ import org.jsoup.nodes.Element
 import java.util.Date
 import reflect.BeanProperty
 import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor, AdditionalDataExtractor, PublishDateExtractor}
-
-
+import java.net.URL
+import org.apache.http.util.EntityUtils
+import org.apache.http.HttpEntity
 /**
  * Created by Jim Plush
  * User: jim
@@ -33,6 +34,16 @@ import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor,
 
 class Configuration {
 
+  // Refactory this in a YML file (like Ruby)
+  def resolveCharSet(url: String, entity: HttpEntity): String = {
+    var host = new URL(url).getHost()
+
+    host match {
+      case "www1.folha.uol.com.br" => return "ISO-8859-1"
+      case "espn.estadao.com.br" => return "ISO-8859-1"
+      case _ => return Option(EntityUtils.getContentCharSet(entity)) getOrElse "UTF-8"
+    }
+  }
   /**
   * this is the local storage path used to place images to inspect them, should be writable
   */

@@ -64,5 +64,21 @@ class GoldSitesTestIT {
       expectedTitle = title,
       expectedImage = image)
   }
+
+  @Test
+  def globoesporte() {
+    implicit val config = TestUtils.DEFAULT_CONFIG
+
+    val url     = "http://globoesporte.globo.com/futebol/times/sao-paulo/noticia/2012/04/filho-do-gramado-leao-administra-o-sao-paulo-na-base-da-conversa.html"
+    val content = "Emerson Leão não foi ao campo na manhã desta terça-feira no centro de treinamento do São Paulo"
+    val image   = "http://s2.glbimg.com/DKjyTG2ZACkmIUmt2NcSIuR8k48J3DLeS8Txhob9fJz2lXAYXrrJq_ZurQ44i4Jn/s.glbimg.com/es/ge/f/original/2012/03/25/leao_ae_marioangelo.jpg"
+    val title   = "'Filho do gramado', Leão administra o São Paulo na base da conversa"
+    val article = TestUtils.getArticle(url)
+
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = content,
+      expectedTitle = title,
+      expectedImage = image)
+  }
 }
 
