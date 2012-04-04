@@ -93,6 +93,7 @@ object HtmlFetcher extends Logging {
     var htmlResult: String = null
     var entity: HttpEntity = null
     var instream: InputStream = null
+    var encodingType: String = null
 
     // Identified the the apache http client does not drop URL fragments before opening the request to the host
     // more info: http://stackoverflow.com/questions/4251841/400-error-with-httpclient-for-a-link-with-an-anchor
@@ -116,12 +117,8 @@ object HtmlFetcher extends Logging {
       entity = response.getEntity
       if (entity != null) {
         instream = entity.getContent
-        var encodingType: String = "UTF-8"
         try {
-          encodingType = EntityUtils.getContentCharSet(entity)
-          if (encodingType == null) {
-            encodingType = "UTF-8"
-          }
+          encodingType = Option(EntityUtils.getContentCharSet(entity)) getOrElse "ISO-8859-1"
         }
         catch {
           case e: Exception => {
