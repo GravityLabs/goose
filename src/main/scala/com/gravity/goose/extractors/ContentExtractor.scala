@@ -26,7 +26,7 @@ import collection.JavaConversions._
 import org.jsoup.nodes.{Attributes, Element, Document}
 import org.jsoup.select.{Selector, Elements}
 import collection.mutable.{Buffer, ListBuffer, HashSet}
-
+import scala.math._
 /**
 * Created by Jim Plush
 * User: jim
@@ -222,8 +222,8 @@ trait ContentExtractor {
       if (numberOfNodes > 15) {
         if ((numberOfNodes - i) <= bottomNodesForNegativeScore) {
           val booster: Float = bottomNodesForNegativeScore.asInstanceOf[Float] - (numberOfNodes - i).asInstanceOf[Float]
-          boostScore = -Math.pow(booster, 2.asInstanceOf[Float]).asInstanceOf[Float]
-          val negscore: Float = Math.abs(boostScore) + negativeScoring
+          boostScore = -pow(booster, 2.asInstanceOf[Float]).asInstanceOf[Float]
+          val negscore: Float = abs(boostScore) + negativeScoring
           if (negscore > 40) {
             boostScore = 5
           }
