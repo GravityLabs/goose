@@ -22,8 +22,6 @@ import org.jsoup.nodes.Element
 import java.util.Date
 import reflect.BeanProperty
 import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor, AdditionalDataExtractor, PublishDateExtractor}
-import org.codehaus.backport175.com.thoughtworks.qdox.model.BeanProperty
-
 
 /**
  * Created by Jim Plush
