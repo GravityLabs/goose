@@ -107,6 +107,10 @@ object HtmlFetcher extends Logging {
       httpget = new HttpGet(cleanUrl)
       HttpProtocolParams.setUserAgent(httpClient.getParams, config.getBrowserUserAgent());
 
+      val params = httpClient.getParams
+      HttpConnectionParams.setConnectionTimeout(params, config.getConnectionTimeout())
+      HttpConnectionParams.setSoTimeout(params, config.getSocketTimeout())
+
       trace("Setting UserAgent To: " + HttpProtocolParams.getUserAgent(httpClient.getParams))
       val response: HttpResponse = httpClient.execute(httpget, localContext)
 
