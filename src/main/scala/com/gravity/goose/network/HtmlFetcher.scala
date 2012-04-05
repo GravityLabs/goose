@@ -81,12 +81,16 @@ object HtmlFetcher extends Logging {
   }
 
   /**
-   * makes an http fetch to go retreive the HTML from a url, store it to disk and pass it off
-   *
-   * @param url
-   * @return
-   * @throws MaxBytesException
-   * @throws NotHtmlException
+   * Makes an http fetch to go retrieve the HTML from a url, store it to disk and pass it off
+   * @param config Goose Configuration
+   * @param url The web address to fetch
+   * @return If all goes well, a `Some[String]` otherwise `None`
+   * @throws NotFoundException(String)
+   * @throws BadRequestException(String)
+   * @throws NotAuthorizedException(String, Int)
+   * @throws ServerErrorException(String, Int)
+   * @throws UnhandledStatusCodeException(String, Int)
+   * @throws MaxBytesException()
    */
   def getHtml(config: Configuration, url: String): Option[String] = {
     var httpget: HttpGet = null
@@ -110,8 +114,10 @@ object HtmlFetcher extends Logging {
       trace("Setting UserAgent To: " + HttpProtocolParams.getUserAgent(httpClient.getParams))
       val response: HttpResponse = httpClient.execute(httpget, localContext)
 
-      // TODO: Only continue with a 200 status code and handle all other cases
-      if (response.getStatusLine.getStatusCode == 404) throw new NotFoundException
+      HttpStatusValidator.validate(cleanUrl, response.getStatusLine.getStatusCode) match {
+        case Left(ex) => throw ex
+        case _ =>
+      }
 
       entity = response.getEntity
       if (entity != null) {
@@ -156,8 +162,8 @@ object HtmlFetcher extends Logging {
       case e: SocketTimeoutException => {
         trace(e.toString)
       }
-      case e: NotFoundException => {
-        logger.warn("SERVER RETURNED 404 FOR LINK: " + cleanUrl)
+      case e: LoggableException => {
+        logger.warn(e.getMessage)
         return None
       }
       case e: Exception => {

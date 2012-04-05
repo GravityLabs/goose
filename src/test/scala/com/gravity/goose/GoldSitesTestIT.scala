@@ -2,8 +2,7 @@ package com.gravity.goose
 
 import org.junit.Test
 import org.junit.Assert._
-import org.jsoup.nodes.Element
-import com.gravity.goose.extractors.{VoicesContentExtractor, AdditionalDataExtractor}
+import com.gravity.goose.extractors.VoicesContentExtractor
 
 /**
   * Created by Jim Plush
