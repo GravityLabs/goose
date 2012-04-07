@@ -15,7 +15,7 @@
     <repository>
       <id>akka.repository</id>
       <name>Akka Maven Repository</name>
-      <url>http://repo.akka.io/releases/</url>
+      <url>http://akka.io/repository</url>
     </repository>
   </repositories>
 
@@ -74,9 +74,9 @@
       <version>2.6</version>
     </dependency>
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
+      <groupId>se.scalablesolutions.akka</groupId>
       <artifactId>akka-actor</artifactId>
-      <version>2.0</version>
+      <version>1.1.3</version>
       <exclusions>
         <exclusion>
           <groupId>ch.qos.logback</groupId>
