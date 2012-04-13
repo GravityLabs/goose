@@ -61,6 +61,12 @@ class Configuration {
   @BeanProperty
   var imagemagickIdentifyPath: String = "/opt/local/bin/identify"
 
+  @BeanProperty
+  var connectionTimeout: Int = 10000
+
+  @BeanProperty
+  var socketTimeout: Int = 10000
+
   /**
   * used as the user agent that is sent with your web requests to extract an article
   */
