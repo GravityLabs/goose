@@ -26,16 +26,11 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.params.CookiePolicy
 import org.apache.http.client.protocol.ClientContext
-import org.apache.http.conn.ClientConnectionManager
-import org.apache.http.conn.params.ConnManagerParams
-import org.apache.http.conn.params.ConnPerRoute
-import org.apache.http.conn.routing.HttpRoute
 import org.apache.http.conn.scheme.PlainSocketFactory
 import org.apache.http.conn.ssl.SSLSocketFactory
 import org.apache.http.conn.scheme.Scheme
 import org.apache.http.conn.scheme.SchemeRegistry
 import org.apache.http.cookie.Cookie
-import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager
 import org.apache.http.params.BasicHttpParams
 import org.apache.http.params.HttpConnectionParams
@@ -53,6 +48,7 @@ import java.util.Date
 import java.util.List
 import com.gravity.goose.utils.Logging
 import com.gravity.goose.Configuration
+import org.apache.http.impl.client.{DefaultHttpRequestRetryHandler, AbstractHttpClient, DefaultHttpClient}
 
 /**
  * User: Jim Plush
@@ -145,7 +141,7 @@ object HtmlFetcher extends Logging {
           htmlResult = HtmlFetcher.convertStreamToString(instream, 15728640, encodingType).trim
         }
         finally {
-          entity.consumeContent()
+          EntityUtils.consume(entity)
         }
       }
       else {
@@ -204,7 +200,7 @@ object HtmlFetcher extends Logging {
       if (logger.isDebugEnabled) {
         logger.debug("HTMLRESULT is empty or null")
       }
-      throw new NotHtmlException
+      throw new NotHtmlException(cleanUrl)
     }
     var is: InputStream = null
     var mimeType: String = null
@@ -220,11 +216,11 @@ object HtmlFetcher extends Logging {
             return Some(htmlResult)
           }
           trace("GRVBIGFAIL: " + mimeType + " - " + cleanUrl)
-          throw new NotHtmlException
+          throw new NotHtmlException(cleanUrl)
         }
       }
       else {
-        throw new NotHtmlException
+        throw new NotHtmlException(cleanUrl)
       }
     }
     catch {
@@ -245,12 +241,6 @@ object HtmlFetcher extends Logging {
     val httpParams: HttpParams = new BasicHttpParams
     HttpConnectionParams.setConnectionTimeout(httpParams, 10 * 1000)
     HttpConnectionParams.setSoTimeout(httpParams, 10 * 1000)
-    ConnManagerParams.setMaxTotalConnections(httpParams, 20000)
-    ConnManagerParams.setMaxConnectionsPerRoute(httpParams, new ConnPerRoute {
-      def getMaxForRoute(route: HttpRoute): Int = {
-        500
-      }
-    })
     HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1)
     emptyCookieStore = new CookieStore {
       def addCookie(cookie: Cookie) {
@@ -277,10 +267,13 @@ object HtmlFetcher extends Logging {
     httpParams.setParameter("Cache-Control", "max-age=0")
     httpParams.setParameter("http.connection.stalecheck", false)
     val schemeRegistry: SchemeRegistry = new SchemeRegistry
-    schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory, 80))
-    schemeRegistry.register(new Scheme("https", SSLSocketFactory.getSocketFactory, 443))
-    val cm: ClientConnectionManager = new ThreadSafeClientConnManager(httpParams, schemeRegistry)
+    schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
+    schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
+    val cm = new ThreadSafeClientConnManager(schemeRegistry)
+    cm.setMaxTotal(20000)
+    cm.setDefaultMaxPerRoute(500)
     httpClient = new DefaultHttpClient(cm, httpParams)
+    httpClient.asInstanceOf[AbstractHttpClient].setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
     httpClient.getParams.setParameter("http.conn-manager.timeout", 120000L)
     httpClient.getParams.setParameter("http.protocol.wait-for-continue", 10000L)
     httpClient.getParams.setParameter("http.tcp.nodelay", true)
@@ -289,7 +282,7 @@ object HtmlFetcher extends Logging {
   /**
    * reads bytes off the string and returns a string
    *
-   * @param is
+   * @param is the source stream from the response
    * @param maxBytes The max bytes that we want to read from the input stream
    * @return String
    */
