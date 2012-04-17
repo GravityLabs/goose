@@ -154,14 +154,14 @@ object HtmlFetcher extends Logging {
     }
     catch {
       case e: NullPointerException => {
-        logger.warn(e.toString + " " + e.getMessage)
+        logger.warn(e.toString + " " + e.getMessage + " Caught for URL: " + cleanUrl)
       }
       case e: MaxBytesException => {
         trace("GRVBIGFAIL: " + cleanUrl + " Reached max bytes size")
         throw e
       }
       case e: SocketException => {
-        logger.warn(e.getMessage)
+        logger.warn(e.getMessage + " Caught for URL: " + cleanUrl)
       }
       case e: SocketTimeoutException => {
         trace(e.toString)
@@ -182,7 +182,7 @@ object HtmlFetcher extends Logging {
         }
         catch {
           case e: Exception => {
-            logger.warn(e.getMessage)
+            logger.warn(e.getMessage + " Caught for URL: " + cleanUrl)
           }
         }
       }
@@ -229,10 +229,10 @@ object HtmlFetcher extends Logging {
     }
     catch {
       case e: UnsupportedEncodingException => {
-        logger.warn(e.getMessage)
+        logger.warn(e.getMessage + " Caught for URL: " + cleanUrl)
       }
       case e: IOException => {
-        logger.warn(e.getMessage)
+        logger.warn(e.getMessage + " Caught for URL: " + cleanUrl)
       }
     }
     None
