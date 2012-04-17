@@ -31,7 +31,6 @@ import org.apache.http.client.HttpClient
 import org.apache.http.HttpEntity
 import org.apache.http.protocol.{BasicHttpContext, HttpContext}
 import org.apache.http.client.protocol.ClientContext
-import com.gravity.goose.network.HtmlFetcher
 import org.apache.http.client.methods.HttpGet
 import java.util.{Random, ArrayList, HashMap}
 import java.io._
@@ -39,6 +38,7 @@ import com.gravity.goose.Configuration
 import com.gravity.goose.text.HashUtils
 import org.apache.http.util.EntityUtils
 import org.apache.commons.io.IOUtils
+import com.gravity.goose.network.{ImageFetchException, HtmlFetcher}
 
 object ImageUtils extends Logging {
   /**
@@ -264,7 +264,13 @@ object ImageUtils extends Logging {
     val localContext: HttpContext = new BasicHttpContext
     localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
     val httpget = new HttpGet(imageSrc)
-    val response = HtmlFetcher.getHttpClient.execute(httpget, localContext)
+    val response = try {
+      HtmlFetcher.getHttpClient.execute(httpget, localContext)
+    }
+    catch {
+      case ex: Exception => throw new ImageFetchException(imageSrc, ex)
+    }
+
     val respStatus = response.getStatusLine.getStatusCode
 
 

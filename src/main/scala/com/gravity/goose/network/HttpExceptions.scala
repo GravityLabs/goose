@@ -7,8 +7,15 @@ package com.gravity.goose.network
  * Time: 10:25 AM
  */
 
-class LoggableException(msg: String) extends Exception(msg) {
-  override lazy val getMessage = getClass.getName + " ==> " + msg
+class LoggableException(msg: String, innerEx: Exception = null) extends Exception(msg, innerEx) {
+  override lazy val getMessage = {
+    val innerMessage = if (innerEx != null) {
+      "%n\tand inner Exception of type %s:%n\t\tmessage: %s".format(innerEx.getClass.getName, innerEx.getMessage)
+    } else {
+      ""
+    }
+    getClass.getName + " ==> " + msg + innerMessage
+  }
 }
 
 class NotFoundException(url: String) extends LoggableException("SERVER RETURNED 404 FOR LINK: " + url)
@@ -27,3 +34,5 @@ object HttpStatusValidator {
     case unk => Left(new UnhandledStatusCodeException(url, statusCode))
   }
 }
+
+class ImageFetchException(imgSrc: String, ex: Exception = null) extends LoggableException("Failed to fetch image file from imgSrc: " + imgSrc, ex)
