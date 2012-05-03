@@ -412,12 +412,12 @@ public class ContentExtractor {
   private String getCanonicalLink(Document doc, String baseUrl) {
     Elements meta = doc.select("link[rel=canonical]");
     if (meta.size() > 0) {
-      String href = meta.first().attr("href");
+      String href = meta.first().attr("abs:href");
       return string.isNullOrEmpty(href) ? string.empty : href.trim();
     } else {
       return baseUrl;
     }
-
+	  
 /*    Not sure what this is for
     // set domain based on canonicalUrl
     URL url = null;
