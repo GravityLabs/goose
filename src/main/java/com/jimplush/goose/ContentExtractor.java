@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
@@ -409,34 +411,33 @@ public class ContentExtractor {
   /**
    * if the article has meta canonical link set in the url
    */
-  private String getCanonicalLink(Document doc, String baseUrl) {
-    Elements meta = doc.select("link[rel=canonical]");
-    if (meta.size() > 0) {
-      String href = meta.first().attr("abs:href");
-      return string.isNullOrEmpty(href) ? string.empty : href.trim();
-    } else {
-      return baseUrl;
-    }
-	  
-/*    Not sure what this is for
-    // set domain based on canonicalUrl
-    URL url = null;
-    try {
+  private String getCanonicalLink(Document document, String baseUrl) {
+	Elements canonicalLinkElements = document.select("link[rel=canonical][href]");
 
-      if (canonicalUrl != null) {
-        if (!canonicalUrl.startsWith("http://")) {
-          url = new URL(new URL(baseUrl), canonicalUrl);
-        } else {
-          url = new URL(canonicalUrl);
-        }
+	if(canonicalLinkElements.size() == 0) {
+		return baseUrl;
+	}
 
-      } else {
-        url = new URL(baseUrl);
-      }
+	try {
+		// We could use JSoups "abs:" prefix here to get an absolute URI. Sadly, Goose does not
+		// setup the document properly to allow this.
+		String canonicalUriString = canonicalLinkElements.first().attr("href").trim();
+		if(canonicalUriString.length() == 0) {
+			return baseUrl;
+		}
 
-    } catch (MalformedURLException e) {
-      logger.error(e.toString(), e);
-    }*/
+		URI canonicalUri = new URI(canonicalUriString);
+		if(canonicalUri.isAbsolute()) {
+			return canonicalUriString;
+		}
+
+		// The canonical URI is relative and must be resolved against the base URI.
+		return new URI(baseUrl).resolve(canonicalUri).toString();
+
+	} catch (URISyntaxException e) {
+		logger.warn("URISyntaxException while resolving canonical link: {}!", e.getMessage(), e);
+		return baseUrl;
+	}
   }
 
   /**
