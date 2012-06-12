@@ -13,6 +13,17 @@ import com.gravity.goose.extractors.VoicesContentExtractor
 class GoldSitesTestIT {
 
   @Test
+  def testArticleElementedArticle() { // to verify issue #56 is resolved
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val url = "http://www.repubblica.it/economia/2012/05/12/news/giovani_anziani_asili_nido_e_soldi_per_il_sud_ecco_il_progetto_del_governo_per_l_equit-34962952/"
+    val content = "UN PIANO per l'equità e la crescita destinato in primo luogo al Sud. L'ha varato ieri il Consiglio dei ministri."
+    val title = "Giovani, anziani, asili nido e soldi per il Sud ecco il progetto del governo per l'equità "
+    val article = TestUtils.getArticle(url)
+    TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedStart = content)
+    TestUtils.printReport()
+  }
+
+  @Test
   def techCrunch() {
     implicit val config = TestUtils.DEFAULT_CONFIG
     //    implicit val config = TestUtils.NO_IMAGE_CONFIG
@@ -573,7 +584,7 @@ class GoldSitesTestIT {
     }
     val url: String = "http://voices.yahoo.com/article/9330101/lovess-demise-10882501.html"
     val article = TestUtils.getArticle(url)
-    TestUtils.runArticleAssertions(article = article, expectedTitle = "Loves's Demise",
+    TestUtils.runArticleAssertions(article = article, expectedTitle = "Love's Demise",
       expectedStart = "Do we not love like lovers in demise? We both know our love has faded away;")
   }
 }

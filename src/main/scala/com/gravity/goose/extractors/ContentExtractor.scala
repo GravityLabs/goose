@@ -22,10 +22,10 @@ import com.gravity.goose.text._
 import com.gravity.goose.utils.Logging
 import java.net.URL
 import java.util.ArrayList
-import collection.JavaConversions._
+import scala.collection._
+import scala.collection.JavaConversions._
 import org.jsoup.nodes.{Attributes, Element, Document}
-import org.jsoup.select.{Selector, Elements}
-import collection.mutable.{Buffer, ListBuffer, HashSet}
+import org.jsoup.select._
 
 /**
 * Created by Jim Plush
@@ -53,6 +53,7 @@ trait ContentExtractor {
   val SPACE_SPLITTER: StringSplitter = new StringSplitter(" ")
   val NO_STRINGS = Set.empty[String]
   val A_REL_TAG_SELECTOR: String = "a[rel=tag], a[href*=/tag/]"
+  val TOP_NODE_TAGS = new TagsEvaluator(Set("p", "td", "pre"))
 
   def getTitle(article: Article): String = {
     var title: String = string.empty
@@ -91,7 +92,7 @@ trait ContentExtractor {
     }
     catch {
       case e: NullPointerException => {
-        warn(e.toString);
+        warn(e.toString)
         string.empty
       }
     }
@@ -169,7 +170,7 @@ trait ContentExtractor {
     if (node.children.size == 0) return NO_STRINGS
     val elements: Elements = Selector.select(A_REL_TAG_SELECTOR, node)
     if (elements.size == 0) return NO_STRINGS
-    val tags = new HashSet[String]
+    val tags = mutable.HashSet[String]()
 
     for (el <- elements) {
       var tag: String = el.text
@@ -191,12 +192,12 @@ trait ContentExtractor {
     trace(logPrefix + "Starting to calculate TopNode")
     val doc = article.doc
     var topNode: Element = null
-    val nodesToCheck: ArrayList[Element] = getNodesToCheck(doc)
+    val nodesToCheck = Collector.collect(TOP_NODE_TAGS, doc)
     var startingBoost: Double = 1.0
     var cnt: Int = 0
     var i: Int = 0
-    val parentNodes = new HashSet[Element]
-    val nodesWithText: ArrayList[Element] = new ArrayList[Element]
+    val parentNodes = mutable.HashSet[Element]()
+    val nodesWithText = mutable.Buffer[Element]()
     for (node <- nodesToCheck) {
       val nodeText: String = node.text
       val wordStats: WordStats = StopWords.getStopWordCount(nodeText)
@@ -207,7 +208,7 @@ trait ContentExtractor {
     }
     val numberOfNodes: Int = nodesWithText.size
     val negativeScoring: Int = 0
-    val bottomNodesForNegativeScore: Double = numberOfNodes.asInstanceOf[Float] * 0.25
+    val bottomNodesForNegativeScore: Double = numberOfNodes * 0.25
 
     trace(logPrefix + "About to inspect num of nodes with text: " + numberOfNodes)
 
@@ -216,14 +217,14 @@ trait ContentExtractor {
       if (isOkToBoost(node)) {
         if (cnt >= 0) {
           boostScore = ((1.0 / startingBoost) * 50).asInstanceOf[Float]
-          startingBoost += 1;
+          startingBoost += 1
         }
       }
       if (numberOfNodes > 15) {
         if ((numberOfNodes - i) <= bottomNodesForNegativeScore) {
           val booster: Float = bottomNodesForNegativeScore.asInstanceOf[Float] - (numberOfNodes - i).asInstanceOf[Float]
-          boostScore = -Math.pow(booster, 2.asInstanceOf[Float]).asInstanceOf[Float]
-          val negscore: Float = Math.abs(boostScore) + negativeScoring
+          boostScore = -math.pow(booster, 2.asInstanceOf[Float]).asInstanceOf[Float]
+          val negscore: Float = math.abs(boostScore) + negativeScoring
           if (negscore > 40) {
             boostScore = 5
           }
@@ -246,8 +247,8 @@ trait ContentExtractor {
         parentNodes.add(node.parent.parent)
       }
 
-      cnt += 1;
-      i += 1;
+      cnt += 1
+      i += 1
     }
     var topNodeScore: Int = 0
     for (e <- parentNodes) {
@@ -376,19 +377,6 @@ trait ContentExtractor {
   }
 
   /**
-  * returns a list of nodes we want to search on like paragraphs and tables
-  *
-  * @return
-  */
-  private def getNodesToCheck(doc: Document): ArrayList[Element] = {
-    val nodesToCheck: ArrayList[Element] = new ArrayList[Element]
-    nodesToCheck.addAll(doc.getElementsByTag("p"))
-    nodesToCheck.addAll(doc.getElementsByTag("pre"))
-    nodesToCheck.addAll(doc.getElementsByTag("td"))
-    nodesToCheck
-  }
-
-  /**
   * adds a score to the gravityScore Attribute we put on divs
   * we'll get the current score then add the score we're passing in to the current
   *
@@ -438,7 +426,7 @@ trait ContentExtractor {
   */
   def extractVideos(node: Element): List[Element] = {
     val candidates: ArrayList[Element] = new ArrayList[Element]
-    val goodMovies = new ListBuffer[Element]
+    val goodMovies = mutable.Buffer[Element]()
     val youtubeStr = "youtube"
     val vimdeoStr = "vimeo"
     try {
@@ -497,7 +485,7 @@ trait ContentExtractor {
   /**
   * remove any divs that looks like non-content, clusters of links, or paras with no gusto
   *
-  * @param node
+  * @param targetNode
   * @return
   */
   def postExtractionCleanup(targetNode: Element): Element = {
@@ -540,7 +528,7 @@ trait ContentExtractor {
   /**
   * adds any siblings that may have a decent score to this node
   *
-  * @param node
+  * @param currentSibling
   * @return
   */
   def getSiblingContent(currentSibling: Element, baselineScoreForSiblingParagraphs: Int): Option[String] = {
@@ -575,7 +563,7 @@ trait ContentExtractor {
 
   def walkSiblings[T](node: Element)(work: (Element) => T): Seq[T] = {
     var currentSibling: Element = node.previousElementSibling
-    val b = Buffer[T]()
+    val b = mutable.Buffer[T]()
 
     while (currentSibling != null) {
 

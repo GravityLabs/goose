@@ -18,13 +18,13 @@
 package com.gravity.goose.cleaners
 
 import com.gravity.goose.utils.Logging
-import org.jsoup.select.Elements
 import java.util.regex.{Matcher, Pattern}
 import org.jsoup.nodes.{TextNode, Node, Element, Document}
 import com.gravity.goose.text.ReplaceSequence
 import scala.collection.JavaConversions._
 import com.gravity.goose.Article
 import collection.mutable.ListBuffer
+import org.jsoup.select.{TagsEvaluator, Collector, Elements}
 
 trait DocumentCleaner {
 
@@ -55,8 +55,9 @@ trait DocumentCleaner {
     docToClean = removeNodesViaRegEx(docToClean, facebookPattern)
     docToClean = removeNodesViaRegEx(docToClean, twitterPattern)
     docToClean = cleanUpSpanTagsInParagraphs(docToClean)
-    docToClean = convertDivsToParagraphs(docToClean, "div")
-    docToClean = convertDivsToParagraphs(docToClean, "span")
+    docToClean = convertWantedTagsToParagraphs(docToClean, articleRootTags)
+//    docToClean = convertDivsToParagraphs(docToClean, "div")
+//    docToClean = convertDivsToParagraphs(docToClean, "span")
 
     //    docToClean = convertDivsToParagraphs(docToClean, "span")
     docToClean
@@ -213,6 +214,29 @@ trait DocumentCleaner {
     div.replaceWith(newNode)
   }
 
+  private def convertWantedTagsToParagraphs(doc: Document, wantedTags: TagsEvaluator): Document = {
+
+    val selected = Collector.collect(wantedTags, doc)
+
+    for (elem <- selected) {
+      if (Collector.collect(blockElemementTags, elem).isEmpty) {
+        replaceElementsWithPara(doc, elem)
+      } else {
+        val replacements = getReplacementNodes(doc, elem)
+        elem.children().foreach(_.remove())
+        replacements.foreach(n => {
+          try {
+            elem.appendChild(n)
+          } catch {
+            case ex: Exception => info(ex, "Failed to append cleaned child!")
+          }
+        })
+      }
+    }
+
+    doc
+  }
+
 
   private def convertDivsToParagraphs(doc: Document, domType: String): Document = {
     trace("Starting to replace bad divs...")
@@ -302,7 +326,7 @@ trait DocumentCleaner {
 
         val kidTextNode = kid.asInstanceOf[TextNode]
         val kidText = kidTextNode.attr("text")
-        val replaceText = tabsAndNewLinesReplcesments.replaceAll(kidText)
+        val replaceText = tabsAndNewLinesReplacements.replaceAll(kidText)
         if (replaceText.trim().length > 1) {
 
           var prevSibNode = kidTextNode.previousSibling()
@@ -352,19 +376,29 @@ trait DocumentCleaner {
 
 
 object DocumentCleaner extends Logging {
+  var sb: StringBuilder = new StringBuilder
+
+  // create negative elements
+  sb.append("^side$|combx|retweet|mediaarticlerelated|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll|shoutbox|sponsor")
+  sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers|remember-tool-tip")
+  sb.append("|communitypromo|runaroundLeft|subscribe|vcard|articleheadings|date|^print$|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text")
+
   /**
   * this regex is used to remove undesirable nodes from our doc
   * indicate that something maybe isn't content but more of a comment, footer or some other undesirable node
   */
-  var regExRemoveNodes: String = null
-  var queryNaughtyIDs: String = null
-  var queryNaughtyClasses: String = null
-  var queryNaughtyNames: String = null
-  var tabsAndNewLinesReplcesments: ReplaceSequence = null
+  val regExRemoveNodes = sb.toString()
+  val queryNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]"
+  val queryNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]"
+  val queryNaughtyNames = "[name~=(" + regExRemoveNodes + ")]"
+  val tabsAndNewLinesReplacements = ReplaceSequence.create("\n", "\n\n").append("\t").append("^\\s+$")
   /**
   * regex to detect if there are block level elements inside of a div element
   */
   val divToPElementsPattern: Pattern = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul)")
+
+  val blockElemementTags = TagsEvaluator("a", "blockquote", "dl", "div", "img", "ol", "p", "pre", "table", "ul")
+  val articleRootTags = TagsEvaluator("div", "span", "article")
 
   val captionPattern: Pattern = Pattern.compile("^caption$")
   val googlePattern: Pattern = Pattern.compile(" google ")
@@ -373,19 +407,6 @@ object DocumentCleaner extends Logging {
   val twitterPattern: Pattern = Pattern.compile("[^-]twitter")
 
   val logPrefix = "Cleaner: "
-  var sb: StringBuilder = new StringBuilder
-
-  // create negative elements
-  sb.append("^side$|combx|retweet|mediaarticlerelated|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll|shoutbox|sponsor")
-  sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers|remember-tool-tip")
-  sb.append("|communitypromo|runaroundLeft|subscribe|vcard|articleheadings|date|^print$|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text")
-
-  regExRemoveNodes = sb.toString()
-  queryNaughtyIDs = "[id~=(" + regExRemoveNodes + ")]"
-  queryNaughtyClasses = "[class~=(" + regExRemoveNodes + ")]"
-  queryNaughtyNames = "[name~=(" + regExRemoveNodes + ")]"
-
-  tabsAndNewLinesReplcesments = ReplaceSequence.create("\n", "\n\n").append("\t").append("^\\s+$")
 
 }
 
