@@ -22,7 +22,7 @@ import com.gravity.goose.text._
 import com.gravity.goose.utils.Logging
 import java.net.URL
 import java.util.ArrayList
-import scala.collection._
+import scala.collection.mutable
 import scala.collection.JavaConversions._
 import org.jsoup.nodes.{Attributes, Element, Document}
 import org.jsoup.select._
