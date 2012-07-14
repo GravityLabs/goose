@@ -72,20 +72,17 @@ class Crawler(config: Configuration) {
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
 
-
-
       extractor.calculateBestNodeBasedOnClustering(article) match {
         case Some(node: Element) => {
-          article.topNode = node
-          article.movies = extractor.extractVideos(article.topNode)
+          article.movies = extractor.extractVideos(node)
 
           if (config.enableImageFetching) {
             trace(logPrefix + "Image fetching enabled...")
             val imageExtractor = getImageExtractor(article)
             try {
-              article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+              article.topImage = imageExtractor.getBestImage(article.rawDoc, node)
               if (config.enableAllImagesFetching) {
-                article.allImages = imageExtractor.getAllImages(article.topNode)
+                article.allImages = imageExtractor.getAllImages(node)
               }
             } catch {
               case e: Exception => {
@@ -93,17 +90,13 @@ class Crawler(config: Configuration) {
               }
             }
           }
-          article.topNode = extractor.postExtractionCleanup(article.topNode)
-
-
-
-
+          article.topNode = extractor.postExtractionCleanup(node)
+          article.htmlArticle = outputFormatter.cleanupHtml(article.topNode)
           article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
         }
         case _ => trace("NO ARTICLE FOUND");
       }
       releaseResources(article)
-      //      self.reply(article)
       article
     }
 

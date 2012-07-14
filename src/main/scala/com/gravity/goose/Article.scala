@@ -42,6 +42,12 @@ class Article {
   */
   var cleanedArticleText: String = ""
 
+
+  /**
+  * article with the originals HTML tags (<p>, <a>, ..)
+  */
+  var htmlArticle: String = ""
+
   /**
   * meta description field in HTML source
   */

@@ -89,6 +89,29 @@ trait OutputFormatter {
 
   }
 
+/**
+  * Scape the node content and return the html
+  * @param topNode the top most node to format
+  * @return a formatted string with all HTML
+  */
+  def cleanupHtml(topNode: Element): String = {
+    val node = topNode.clone
+    removeParagraphsWithFewWords(node)
+    convertToHtml(node)
+  }
+
+  private def convertToHtml(topNode: Element): String = topNode match {
+    case null => ""
+    case node => {
+      StringEscapeUtils.unescapeHtml(node.html).trim
+
+    (node.children().map((e: Element) => {
+      // FIXTHIS - Use some jsoup class to do this
+        "<p>" + StringEscapeUtils.unescapeHtml(e.html).trim + "</p>"
+      })).mkString
+    }
+  }
+
   /**
   * cleans up and converts any nodes that should be considered text into text
   */
@@ -182,9 +205,9 @@ trait OutputFormatter {
         logger.debug("removeParagraphsWithFewWords starting...")
       }
 
-      val allNodes = topNode.getAllElements
+      val paragraphs = topNode.getElementsByTag("p")
 
-      for (el <- allNodes) {
+      for (el <- paragraphs) {
         try {
           val stopWords = StopWords.getStopWordCount(el.text)
           if (stopWords.getStopWordCount < 3 && el.getElementsByTag("object").size == 0 && el.getElementsByTag("embed").size == 0) {
