@@ -1,6 +1,6 @@
 name := "goose"
 
-version := "2.1.13"
+version := "2.1.14"
 
 scalaVersion := "2.9.1"
 
