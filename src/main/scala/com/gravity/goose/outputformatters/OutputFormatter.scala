@@ -63,11 +63,13 @@ trait OutputFormatter {
   * @return a formatted string with all HTML removed
   */
   def getFormattedText(topNode: Element): String = {
-    removeNodesWithNegativeScores(topNode)
-    convertLinksToText(topNode)
-    replaceTagsWithText(topNode)
-    removeParagraphsWithFewWords(topNode)
-    convertToText(topNode)
+    var node = topNode.clone
+
+    removeNodesWithNegativeScores(node)
+    convertLinksToText(node)
+    replaceTagsWithText(node)
+    removeParagraphsWithFewWords(node)
+    convertToText(node)
   }
 
   /**

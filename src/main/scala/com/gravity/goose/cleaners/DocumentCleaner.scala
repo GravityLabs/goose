@@ -44,7 +44,7 @@ trait DocumentCleaner {
 
     trace("Starting cleaning phase with DefaultDocumentCleaner")
 
-    var docToClean: Document = article.doc
+    var docToClean: Document = article.doc.clone
     docToClean = cleanEmTags(docToClean)
     docToClean = removeDropCaps(docToClean)
     docToClean = removeScriptsAndStyles(docToClean)
@@ -57,8 +57,6 @@ trait DocumentCleaner {
     docToClean = cleanUpSpanTagsInParagraphs(docToClean)
     docToClean = convertDivsToParagraphs(docToClean, "div")
     docToClean = convertDivsToParagraphs(docToClean, "span")
-
-    //    docToClean = convertDivsToParagraphs(docToClean, "span")
     docToClean
   }
 

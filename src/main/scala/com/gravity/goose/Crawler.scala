@@ -59,7 +59,7 @@ class Crawler(config: Configuration) {
       article.linkhash = parseCandidate.linkhash
       article.rawHtml = rawHtml
       article.doc = doc
-      article.rawDoc = doc.clone()
+      article.rawDoc = doc.clone
 
       article.title = extractor.getTitle(article)
       article.publishDate = config.publishDateExtractor.extract(doc)
