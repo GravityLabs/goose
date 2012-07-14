@@ -8,6 +8,10 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 libraryDependencies += "org.jsoup" % "jsoup" % "1.5.2"
 
+libraryDependencies += "log4j" % "log4j" % "1.2.16"
+
+libraryDependencies += "org.slf4j" % "slf4j-log4j12" % "1.6.6"
+
 libraryDependencies += "org.slf4j" % "slf4j-api" % "1.6.1"
 
 libraryDependencies += "commons-io" % "commons-io" % "2.0.1"
