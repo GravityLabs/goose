@@ -26,10 +26,16 @@ object TalkToMeGoose {
     try {
       val url: String = args(0)
       val config: Configuration = new Configuration
-      config.enableImageFetching = false
+      config.enableImageFetching = true
+      config.imagemagickConvertPath = "/usr/bin/convert"
+      config.imagemagickIdentifyPath = "/usr/bin/identify"
+      config.localStoragePath = "/tmp/goose"
+      config.minBytesForImages = 4500
       val goose = new Goose(config)
       val article = goose.extractContent(url)
       println(article.cleanedArticleText)
+      println(article.topImage.imageSrc)
+      println(article.title)
     }
     catch {
       case e: Exception => {
