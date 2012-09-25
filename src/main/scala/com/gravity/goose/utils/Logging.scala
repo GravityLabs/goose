@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,34 +37,54 @@ import java.text.MessageFormat
  */
 trait Logging extends CanLog {
 
-  val logger: Logger = Logging.getLogger(this)
+    val logger: Logger = Logging.getLogger(this)
 
-  private def formatmsg(msg: String, refs: Seq[Any]): String = {
-    new MessageFormat(msg).format(refs.toArray)
-  }
+    private def formatmsg(msg: String, refs: Seq[Any]): String = {
+        new MessageFormat(msg).format(refs.toArray)
+    }
 
-  private def checkFormat(msg: String, refs: Seq[Any]): String =
-    if (refs.size > 0) formatmsg(msg, refs) else msg
+    private def checkFormat(msg: String, refs: Seq[Any]): String =
+        if (refs.size > 0) formatmsg(msg, refs) else msg
 
-  def trace(msg: String, refs: Any*) { logger trace checkFormat(msg, refs) }
+    def trace(msg: String, refs: Any*) {
+        logger trace checkFormat(msg, refs)
+    }
 
-  def trace(t: Throwable, msg: String, refs: Any*) { logger trace(checkFormat(msg, refs), t) }
+    def trace(t: Throwable, msg: String, refs: Any*) {
+        logger trace(checkFormat(msg, refs), t)
+    }
 
-  def info(msg: String, refs: Any*) { logger info checkFormat(msg, refs) }
+    def info(msg: String, refs: Any*) {
+        logger info checkFormat(msg, refs)
+    }
 
-  def info(t: Throwable, msg: String, refs: Any*) { logger info (checkFormat(msg, refs), t) }
+    def info(t: Throwable, msg: String, refs: Any*) {
+        logger info(checkFormat(msg, refs), t)
+    }
 
-  def warn(msg: String, refs: Any*) { logger warn checkFormat(msg, refs) }
+    def warn(msg: String, refs: Any*) {
+        logger warn checkFormat(msg, refs)
+    }
 
-  def warn(t: Throwable, msg: String, refs: Any*) { logger warn (checkFormat(msg, refs), t) }
+    def warn(t: Throwable, msg: String, refs: Any*) {
+        logger warn(checkFormat(msg, refs), t)
+    }
 
-  def critical(msg: String, refs: Any*) { logger error checkFormat(msg, refs) }
+    def critical(msg: String, refs: Any*) {
+        logger error checkFormat(msg, refs)
+    }
 
-  def critical(t: Throwable, msg: String, refs: Any*) { logger error (checkFormat(msg, refs), t) }
+    def critical(t: Throwable, msg: String, refs: Any*) {
+        logger error(checkFormat(msg, refs), t)
+    }
 
-  def debug(msg: String, refs: Any*) { logger debug checkFormat(msg, refs) }
+    def debug(msg: String, refs: Any*) {
+        logger debug checkFormat(msg, refs)
+    }
 
-  def debug(t: Throwable, msg: String, refs: Any*) { logger debug (checkFormat(msg, refs), t) }
+    def debug(t: Throwable, msg: String, refs: Any*) {
+        logger debug(checkFormat(msg, refs), t)
+    }
 
 }
 
@@ -73,38 +93,38 @@ trait Logging extends CanLog {
  */
 object Logging {
 
-  def loggerNameForClass(className: String) = {
-    if (className endsWith "$") {
-      className.substring(0, className.length - 1)
+    def loggerNameForClass(className: String) = {
+        if (className endsWith "$") {
+            className.substring(0, className.length - 1)
+        }
+        else {
+            className
+        }
     }
-    else {
-      className
-    }
-  }
 
-  def getLogger(logging: AnyRef) = LoggerFactory.getLogger(loggerNameForClass(logging.getClass.getName))
+    def getLogger(logging: AnyRef) = LoggerFactory.getLogger(loggerNameForClass(logging.getClass.getName))
 }
 
 trait CanLog {
-  def logger: Logger
+    def logger: Logger
 
-  def trace(msg: String, refs: Any*)
+    def trace(msg: String, refs: Any*)
 
-  def trace(t: Throwable, msg: String, refs: Any*)
+    def trace(t: Throwable, msg: String, refs: Any*)
 
-  def info(msg: String, refs: Any*)
+    def info(msg: String, refs: Any*)
 
-  def info(t: Throwable, msg: String, refs: Any*)
+    def info(t: Throwable, msg: String, refs: Any*)
 
-  def warn(msg: String, refs: Any*)
+    def warn(msg: String, refs: Any*)
 
-  def warn(t: Throwable, msg: String, refs: Any*)
+    def warn(t: Throwable, msg: String, refs: Any*)
 
-  def critical(msg: String, refs: Any*)
+    def critical(msg: String, refs: Any*)
 
-  def critical(t: Throwable, msg: String, refs: Any*)
+    def critical(t: Throwable, msg: String, refs: Any*)
 
-  def debug(msg: String, refs: Any*)
+    def debug(msg: String, refs: Any*)
 
-  def debug(t: Throwable, msg: String, refs: Any*)
+    def debug(t: Throwable, msg: String, refs: Any*)
 }

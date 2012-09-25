@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,45 +24,45 @@ package com.gravity.goose.images
  */
 
 /**
-* holds the details of the result of inspecting an image
-* @author Jim Plush
-*
-*/
+ * holds the details of the result of inspecting an image
+ * @author Jim Plush
+ *
+ */
 class ImageDetails {
-  def getWidth: Int = {
-    return width
-  }
+    def getWidth: Int = {
+        return width
+    }
 
-  def setWidth(width: Int): Unit = {
-    this.width = width
-  }
+    def setWidth(width: Int): Unit = {
+        this.width = width
+    }
 
-  def getHeight: Int = {
-    return height
-  }
+    def getHeight: Int = {
+        return height
+    }
 
-  def setHeight(height: Int): Unit = {
-    this.height = height
-  }
+    def setHeight(height: Int): Unit = {
+        this.height = height
+    }
 
-  def getMimeType: String = {
-    return mimeType
-  }
+    def getMimeType: String = {
+        return mimeType
+    }
 
-  def setMimeType(mimeType: String): Unit = {
-    this.mimeType = mimeType
-  }
+    def setMimeType(mimeType: String): Unit = {
+        this.mimeType = mimeType
+    }
 
-  /**
-  * the width of the image
-  */
-  private var width: Int = 0
-  /**
-  * height of the image
-  */
-  private var height: Int = 0
-  /**
-  * the mimeType of the image JPEG / PNG
-  */
-  private var mimeType: String = null
+    /**
+     * the width of the image
+     */
+    private var width: Int = 0
+    /**
+     * height of the image
+     */
+    private var height: Int = 0
+    /**
+     * the mimeType of the image JPEG / PNG
+     */
+    private var mimeType: String = null
 }

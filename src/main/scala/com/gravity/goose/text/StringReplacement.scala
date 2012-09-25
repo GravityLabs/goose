@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,36 +19,36 @@
 package com.gravity.goose.text
 
 /**
-* Created by IntelliJ IDEA.
-* User: robbie
-* Date: 5/13/11
-* Time: 11:38 AM
-*/
+ * Created by IntelliJ IDEA.
+ * User: robbie
+ * Date: 5/13/11
+ * Time: 11:38 AM
+ */
 
 import java.util.regex.Pattern
 
 object StringReplacement {
-  def compile(pattern: String, replaceWith: String): StringReplacement = {
-    if (string.isNullOrEmpty(pattern)) throw new IllegalArgumentException("Patterns must not be null or empty!")
-    var p: Pattern = Pattern.compile(pattern)
-    return new StringReplacement(p, replaceWith)
-  }
+    def compile(pattern: String, replaceWith: String): StringReplacement = {
+        if (string.isNullOrEmpty(pattern)) throw new IllegalArgumentException("Patterns must not be null or empty!")
+        var p: Pattern = Pattern.compile(pattern)
+        return new StringReplacement(p, replaceWith)
+    }
 }
 
 class StringReplacement {
-  private def this(pattern: Pattern, replaceWith: String) {
-    this ()
-    this.pattern = pattern
-    this.replaceWith = replaceWith
-  }
+    private def this(pattern: Pattern, replaceWith: String) {
+        this()
+        this.pattern = pattern
+        this.replaceWith = replaceWith
+    }
 
-  def replaceAll(input: String): String = {
-    if (string.isNullOrEmpty(input)) return string.empty
-    return pattern.matcher(input).replaceAll(replaceWith)
-  }
+    def replaceAll(input: String): String = {
+        if (string.isNullOrEmpty(input)) return string.empty
+        return pattern.matcher(input).replaceAll(replaceWith)
+    }
 
-  private var pattern: Pattern = null
-  private var replaceWith: String = null
+    private var pattern: Pattern = null
+    private var replaceWith: String = null
 }
 
 

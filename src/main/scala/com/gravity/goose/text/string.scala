@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,22 +19,22 @@
 package com.gravity.goose.text
 
 /**
-* Created by IntelliJ IDEA.
-* User: robbie
-* Date: 5/13/11
-* Time: 12:11 AM
-*/
+ * Created by IntelliJ IDEA.
+ * User: robbie
+ * Date: 5/13/11
+ * Time: 12:11 AM
+ */
 
 object string {
-  def isNullOrEmpty(input: String): Boolean = {
-    if (input == null) return true
-    if (input.length == 0) return true
-    false
-  }
+    def isNullOrEmpty(input: String): Boolean = {
+        if (input == null) return true
+        if (input.length == 0) return true
+        false
+    }
 
-  val empty: String = ""
-  val emptyArray: Array[String] = Array[String](empty)
-  var SPACE_SPLITTER: StringSplitter = new StringSplitter(" ")
+    val empty: String = ""
+    val emptyArray: Array[String] = Array[String](empty)
+    var SPACE_SPLITTER: StringSplitter = new StringSplitter(" ")
 }
 
 

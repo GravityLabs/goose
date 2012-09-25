@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,26 +19,26 @@
 package com.gravity.goose.text
 
 /**
-* Created by IntelliJ IDEA.
-* User: robbie
-* Date: 5/13/11
-* Time: 3:53 PM
-*/
+ * Created by IntelliJ IDEA.
+ * User: robbie
+ * Date: 5/13/11
+ * Time: 3:53 PM
+ */
 
 import java.util.regex.Pattern
 
 class StringSplitter {
-  def this(pattern: String) {
-    this ()
-    this.pattern = Pattern.compile(pattern)
-  }
+    def this(pattern: String) {
+        this()
+        this.pattern = Pattern.compile(pattern)
+    }
 
-  def split(input: String): Array[String] = {
-    if (string.isNullOrEmpty(input)) return string.emptyArray
-    pattern.split(input)
-  }
+    def split(input: String): Array[String] = {
+        if (string.isNullOrEmpty(input)) return string.emptyArray
+        pattern.split(input)
+    }
 
-  private var pattern: Pattern = null
+    private var pattern: Pattern = null
 }
 
 

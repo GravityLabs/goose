@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,12 +20,12 @@ package com.gravity.goose.extractors
 import org.jsoup.nodes.Element
 
 /**
-* Implement this abstract class to extract anything not currently contained within the {@link com.jimplush.goose.Article} class
-*/
+ * Implement this abstract class to extract anything not currently contained within the {@link com.jimplush.goose.Article} class
+ */
 class AdditionalDataExtractor extends Extractor[Map[String, String]] {
-  def extract(rootElement: Element): Map[String, String] = {
-    Map.empty
-  }
+    def extract(rootElement: Element): Map[String, String] = {
+        Map.empty
+    }
 }
 
 

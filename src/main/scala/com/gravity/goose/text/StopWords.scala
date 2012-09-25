@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,34 +29,34 @@ import com.gravity.goose.utils.FileHelper
 
 object StopWords {
 
-  // the confusing pattern below is basically just match any non-word character excluding white-space.
-  private val PUNCTUATION: StringReplacement = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty)
+    // the confusing pattern below is basically just match any non-word character excluding white-space.
+    private val PUNCTUATION: StringReplacement = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty)
 
-  val STOP_WORDS = FileHelper.loadResourceFile("stopwords-en.txt", StopWords.getClass).split("\n").toSet
+    val STOP_WORDS = FileHelper.loadResourceFile("stopwords-en.txt", StopWords.getClass).split("\n").toSet
 
 
-  def removePunctuation(str: String): String = {
-    PUNCTUATION.replaceAll(str)
-  }
+    def removePunctuation(str: String): String = {
+        PUNCTUATION.replaceAll(str)
+    }
 
-  def getStopWordCount(content: String): WordStats = {
+    def getStopWordCount(content: String): WordStats = {
 
-    if (string.isNullOrEmpty(content)) return WordStats.EMPTY
-    val ws: WordStats = new WordStats
-    val strippedInput: String = removePunctuation(content)
+        if (string.isNullOrEmpty(content)) return WordStats.EMPTY
+        val ws: WordStats = new WordStats
+        val strippedInput: String = removePunctuation(content)
 
-    val candidateWords: Array[String] = string.SPACE_SPLITTER.split(strippedInput)
+        val candidateWords: Array[String] = string.SPACE_SPLITTER.split(strippedInput)
 
-    val overlappingStopWords: List[String] = new ArrayList[String]
+        val overlappingStopWords: List[String] = new ArrayList[String]
 
-    candidateWords.foreach(w => {
-       if (STOP_WORDS.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)
-    })
-    ws.setWordCount(candidateWords.length)
-    ws.setStopWordCount(overlappingStopWords.size)
-    ws.setStopWords(overlappingStopWords)
-    ws
-  }
+        candidateWords.foreach(w => {
+            if (STOP_WORDS.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)
+        })
+        ws.setWordCount(candidateWords.length)
+        ws.setStopWordCount(overlappingStopWords.size)
+        ws.setStopWords(overlappingStopWords)
+        ws
+    }
 
 
 }

@@ -9,8 +9,8 @@ import com.google.appengine.tools.development.testing.{LocalServiceTestHelper, L
  */
 object TalkToMeGoose {
 
-    val URLConfig : LocalURLFetchServiceTestConfig = new LocalURLFetchServiceTestConfig()
-    val Helper : LocalServiceTestHelper = new LocalServiceTestHelper(URLConfig)
+    val URLConfig: LocalURLFetchServiceTestConfig = new LocalURLFetchServiceTestConfig()
+    val Helper: LocalServiceTestHelper = new LocalServiceTestHelper(URLConfig)
 
     /**
      * you can use this method if you want to run goose from the command line to extract html from a bashscript
