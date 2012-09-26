@@ -35,7 +35,7 @@ object TalkToMeGoose {
             BasicConfigurator.configure();
 
             println("URL to extract article from:")
-            val url: String = args(0)
+            val url: String = if (args.isEmpty) readLine() else args(0)
 
             val config: Configuration = new Configuration
             config.enableImageFetching = false

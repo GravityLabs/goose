@@ -20,15 +20,20 @@ package com.gravity.goose
 
 import network.HtmlFetcher
 import java.io.File
+import org.apache.commons.lang.NotImplementedException
 
 /**
  * Created by Jim Plush - Gravity.com
  * Date: 8/14/11
  */
-class Goose(config: Configuration = new Configuration) {
+class Goose() {
 
+    def config : Configuration
 
-    initializeEnvironment()
+    def setConfig(config: Configuration) = {
+        this.config = config
+        if (config.getEnableImageFetching) throw new NotImplementedException("image fetching should be rewritten before it can be used in GAE")
+    }
 
     /**
      * Main method to extract an article object from a URL, pass in a url and get back a Article
