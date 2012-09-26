@@ -1,6 +1,7 @@
 package com.gravity.goose
 
 import com.google.appengine.tools.development.testing.{LocalServiceTestHelper, LocalURLFetchServiceTestConfig}
+import org.apache.log4j.BasicConfigurator
 
 /**
  * Created by Jim Plush
@@ -31,15 +32,16 @@ object TalkToMeGoose {
     def main(args: Array[String]) {
         try {
             Helper.setUp()
+            BasicConfigurator.configure();
+
             println("URL to extract article from:")
-            val url: String = readLine()
+            val url: String = args(0)
 
             val config: Configuration = new Configuration
             config.enableImageFetching = false
 
             val goose = new Goose(config)
             val article = goose.extractContent(url)
-
             println(article.cleanedArticleText)
         } catch {
             case e: Exception => {
