@@ -122,4 +122,8 @@ class Article {
      * @return a { @link Map Map&lt;String,String&gt;} of property name to property vaue (represented as a { @link String}.
      */
     var additionalData: Map[String, String] = Map.empty
+
+    def getTagsSet: java.util.Set[String] = {
+        JavaConversions.setAsJavaSet(tags)
+    }
 }
