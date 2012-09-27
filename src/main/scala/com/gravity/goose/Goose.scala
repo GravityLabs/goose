@@ -28,11 +28,11 @@ import org.apache.commons.lang.NotImplementedException
  */
 class Goose() {
 
-    def config : Configuration
+    var config : Configuration = new Configuration()
 
-    def setConfig(config: Configuration) = {
-        this.config = config
-        if (config.getEnableImageFetching) throw new NotImplementedException("image fetching should be rewritten before it can be used in GAE")
+    def setConfig(configuration: Configuration) = {
+        config = configuration
+        if (configuration.getEnableImageFetching) throw new NotImplementedException("image fetching should be rewritten before it can be used in GAE")
     }
 
     /**

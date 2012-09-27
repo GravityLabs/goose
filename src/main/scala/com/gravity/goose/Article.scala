@@ -78,6 +78,9 @@ class Article {
      */
     var tags: Set[String] = null
 
+    def getTagsSet(): java.util.Set[String] = {
+       JavaConversions.setAsJavaSet(tags)
+    }
     /**
      * holds a list of any movies we found on the page like youtube, vimeo
      */
@@ -123,7 +126,4 @@ class Article {
      */
     var additionalData: Map[String, String] = Map.empty
 
-    def getTagsSet: java.util.Set[String] = {
-        JavaConversions.setAsJavaSet(tags)
-    }
 }

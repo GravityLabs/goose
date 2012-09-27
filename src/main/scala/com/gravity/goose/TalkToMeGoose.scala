@@ -40,8 +40,11 @@ object TalkToMeGoose {
             val config: Configuration = new Configuration
             config.enableImageFetching = false
 
-            val goose = new Goose(config)
+            val goose = new Goose()
+            goose.setConfig(config)
+
             val article = goose.extractContent(url)
+            println("Tags: " + article.getTagsSet())
             println(article.cleanedArticleText)
         } catch {
             case e: Exception => {

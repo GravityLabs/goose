@@ -28,6 +28,7 @@ import org.jsoup.Jsoup
 import java.io.File
 import utils.{ParsingCandidate, URLHelper, Logging}
 import com.gravity.goose.outputformatters.{StandardOutputFormatter, OutputFormatter}
+import concurrent.JavaConversions
 
 /**
  * Created by Jim Plush
