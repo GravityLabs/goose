@@ -29,7 +29,7 @@ import collection.mutable.HashMap
 import scala.collection.JavaConversions._
 import com.gravity.goose.text.string
 import java.net.{MalformedURLException, URL}
-import com.gravity.goose.network.HtmlFetcher
+import com.gravity.goose.network.DefaultHtmlFetcher
 import java.io.{IOException, File}
 import java.util.regex.{Pattern, Matcher}
 import org.apache.http.client.methods.HttpGet
@@ -473,7 +473,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
       var link: String = this.buildImagePath(src)
       link = link.replace(" ", "%20")
       val localContext: HttpContext = new BasicHttpContext
-      localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
+      localContext.setAttribute(ClientContext.COOKIE_STORE, DefaultHtmlFetcher.emptyCookieStore)
       httpget = new HttpGet(link)
       var response: HttpResponse = null
       response = httpClient.execute(httpget, localContext)

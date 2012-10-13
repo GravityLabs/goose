@@ -18,6 +18,7 @@
 
 package com.gravity.goose
 
+import network.{DefaultHtmlFetcher, HtmlFetcher}
 import org.jsoup.nodes.Element
 import java.util.Date
 import reflect.BeanProperty
@@ -114,5 +115,13 @@ class Configuration {
     this.additionalDataExtractor = extractor
   }
 
+  var htmlFetcher: HtmlFetcher = DefaultHtmlFetcher
+
+  def setHtmlFetcher(fetcher: HtmlFetcher) {
+    require(fetcher != null, "fetcher MUST NOT be null!")
+    this.htmlFetcher = fetcher
+  }
+
+  def getHtmlFetcher: HtmlFetcher = htmlFetcher
 
 }

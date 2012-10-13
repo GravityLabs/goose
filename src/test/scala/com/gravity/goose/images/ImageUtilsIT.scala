@@ -2,7 +2,7 @@ package com.gravity.goose.images
 
 import org.junit.Test
 import org.apache.http.client.HttpClient
-import com.gravity.goose.network.HtmlFetcher
+import com.gravity.goose.network.DefaultHtmlFetcher
 import com.gravity.goose.Configuration
 
 /**
@@ -16,7 +16,7 @@ class ImageUtilsIT {
 
   @Test
   def storeImageLocally() {
-    val httpClient: HttpClient = HtmlFetcher.getHttpClient
+    val httpClient: HttpClient = DefaultHtmlFetcher.getHttpClient
     val imgSrc = "http://tctechcrunch2011.files.wordpress.com/2011/09/aaaaa.png?w=288m"
     println(ImageUtils.storeImageToLocalFile(httpClient, "abc", imgSrc, new Configuration))
   }
