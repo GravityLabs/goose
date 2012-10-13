@@ -18,7 +18,7 @@
 
 package com.gravity.goose
 
-import network.DefaultHtmlFetcher
+import network.HtmlFetcher
 import java.io.File
 
 /**
@@ -45,7 +45,7 @@ class Goose(config: Configuration = new Configuration) {
   }
 
   def shutdownNetwork() {
-    DefaultHtmlFetcher.getHttpClient.getConnectionManager.shutdown()
+    HtmlFetcher.getHttpClient.getConnectionManager.shutdown()
   }
 
   def sendToActor(crawlCandidate: CrawlCandidate) = {

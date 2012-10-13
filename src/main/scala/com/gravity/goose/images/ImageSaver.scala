@@ -37,7 +37,7 @@ import java.io._
 import java.util.Random
 import com.gravity.goose.utils.Logging
 import com.gravity.goose.Configuration
-import com.gravity.goose.network.DefaultHtmlFetcher
+import com.gravity.goose.network.HtmlFetcher
 
 /**
 * This class will be responsible for storing images to disk
@@ -87,7 +87,7 @@ object ImageSaver extends Logging {
   def fetchEntity(httpClient: HttpClient, imageSrc: String): Option[HttpEntity] = {
 
     val localContext: HttpContext = new BasicHttpContext
-    localContext.setAttribute(ClientContext.COOKIE_STORE, DefaultHtmlFetcher.emptyCookieStore)
+    localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
     val httpget = new HttpGet(imageSrc)
     val response = httpClient.execute(httpget, localContext)
     val respStatus: String = response.getStatusLine.toString

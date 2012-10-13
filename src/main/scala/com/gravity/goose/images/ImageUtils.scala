@@ -38,7 +38,7 @@ import com.gravity.goose.Configuration
 import com.gravity.goose.text.HashUtils
 import org.apache.http.util.EntityUtils
 import org.apache.commons.io.IOUtils
-import com.gravity.goose.network.{ImageFetchException, DefaultHtmlFetcher}
+import com.gravity.goose.network.{ImageFetchException, HtmlFetcher}
 
 object ImageUtils extends Logging {
   /**
@@ -262,7 +262,7 @@ object ImageUtils extends Logging {
   def fetchEntity(httpClient: HttpClient, imageSrc: String, config: Configuration): Option[HttpEntity] = {
 
     val localContext: HttpContext = new BasicHttpContext
-    localContext.setAttribute(ClientContext.COOKIE_STORE, DefaultHtmlFetcher.emptyCookieStore)
+    localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
     val httpget = new HttpGet(imageSrc)
     val response = try {
       config.getHtmlFetcher.getHttpClient.execute(httpget, localContext)
