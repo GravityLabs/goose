@@ -20,7 +20,7 @@ package com.gravity.goose
 
 import cleaners.{StandardDocumentCleaner, DocumentCleaner}
 import extractors.ContentExtractor
-import images.{UpgradedImageIExtractor, ImageExtractor}
+import images.{Image, UpgradedImageIExtractor, ImageExtractor}
 import org.apache.http.client.HttpClient
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.Jsoup
@@ -54,6 +54,7 @@ class Crawler(config: Configuration) {
       val outputFormatter = getOutputFormatter
 
       article.finalUrl = parseCandidate.url.toString
+      article.domain = parseCandidate.url.getHost
       article.linkhash = parseCandidate.linkhash
       article.rawHtml = rawHtml
       article.doc = doc
@@ -65,7 +66,6 @@ class Crawler(config: Configuration) {
       article.metaDescription = extractor.getMetaDescription(article)
       article.metaKeywords = extractor.getMetaKeywords(article)
       article.canonicalLink = extractor.getCanonicalLink(article)
-      article.domain = extractor.getDomain(article.finalUrl)
       article.tags = extractor.extractTags(article)
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
@@ -81,7 +81,11 @@ class Crawler(config: Configuration) {
             trace(logPrefix + "Image fetching enabled...")
             val imageExtractor = getImageExtractor(article)
             try {
-              article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+              if (article.rawDoc == null) {
+                article.topImage = new Image
+              } else {
+                article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+              }
             } catch {
               case e: Exception => {
                 warn(e, e.toString)
