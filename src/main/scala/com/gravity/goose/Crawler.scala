@@ -157,16 +157,18 @@ class Crawler(config: Configuration) {
     def releaseResources(article: Article) = {
         trace(logPrefix + "STARTING TO RELEASE ALL RESOURCES")
 
-        val dir: File = new File(config.localStoragePath)
+        if (config.getEnableImageFetching) {
+            val dir: File = new File(config.localStoragePath)
 
-        dir.list.foreach(filename => {
-            if (filename.startsWith(article.linkhash)) {
-                val f: File = new File(dir.getAbsolutePath + "/" + filename)
-                if (!f.delete) {
-                    warn("Unable to remove temp file: " + filename)
+            dir.list.foreach(filename => {
+                if (filename.startsWith(article.linkhash)) {
+                    val f: File = new File(dir.getAbsolutePath + "/" + filename)
+                    if (!f.delete) {
+                        warn("Unable to remove temp file: " + filename)
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
 }
