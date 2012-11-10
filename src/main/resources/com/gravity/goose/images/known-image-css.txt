@@ -1,5 +1,5 @@
 latimes.com^thumbnail
-cnn.com^storytext|cnn_strycntntlft
+cnn.com^storytext
 foxnews.com^entry-content
 msn.com^articleText
 go.com^mediaimage
