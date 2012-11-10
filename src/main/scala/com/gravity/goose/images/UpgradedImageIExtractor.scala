@@ -56,7 +56,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         trace("No known images found")
       }
     }
-
+      
     checkForMetaTag match {
       case Some(image) => return image
       case None => trace("No Meta Tag Images found")
@@ -82,17 +82,17 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       case Some(image) => return Some(image)
       case None => trace("No twitter image found")
     }
-
+    
     checkForOpenGraphTag match {
       case Some(image) => return Some(image)
       case None => trace("No open graph images found")
     }
-
+    
     checkForLinkTag match {
       case Some(image) => return Some(image)
       case None => trace("No link tag images found")
-  }
-
+    }
+    
     None
   }
 
@@ -123,6 +123,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
             mainImage.imageExtractionType = "bigimage"
             mainImage.bytes = highScoreImage._1.bytes
             mainImage.confidenceScore = if (scoredImages.size > 0) (100 / scoredImages.size) else 0
+            mainImage.imageScore = highScoreImage._2
             trace("IMAGE COMPLETE: High Score Image is: " + mainImage.imageSrc + " Score is: " + highScoreImage._2)
             return Some(mainImage)
           }
@@ -449,7 +450,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       }
     }
   }
-
+  
   private def checkForTwitterTag: Option[Image] = {
     try {
       val meta: Elements = article.rawDoc.select("meta[property~=twitter:image]")

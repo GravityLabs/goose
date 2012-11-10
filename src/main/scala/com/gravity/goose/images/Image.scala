@@ -37,6 +37,9 @@ class Image {
    * holds the src of the image
    */
   var imageSrc: String = "";
+  
+  /** Raw score of image. */
+  var imageScore: Float = 0;
 
   /**
    * how confident are we in this image extraction? the most images generally the less confident
