@@ -2,12 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.gravity</groupId>
-  <artifactId>goose</artifactId>
-  <version>2.1.22</version>
+  <groupId>com.unfold</groupId>
+  <artifactId>goose-fork</artifactId>
+  <version>2.1.22-unfold</version>
+  
   <packaging>jar</packaging>
-  <name>goose</name>
-  <url>http://maven.apache.org</url>
+  
+  <name>Goose - Unfold Fork</name>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
