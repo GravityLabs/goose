@@ -2,3 +2,8 @@ target/
 /goose.iml
 /goose.ipr
 /goose.iws
+.cache
+.classpath
+.project
+.settings/
+
