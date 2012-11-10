@@ -49,7 +49,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   def getBestImage(doc: Document, topNode: Element): Image = {
-    trace("Starting to Look for the Most Relavent Image")
+    trace("Starting to Look for the Most Relevant Image")
     checkForKnownElements() match {
       case Some(image) => return image
       case None => {
