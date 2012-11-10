@@ -72,20 +72,29 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     new Image
   }
 
+  /**
+   * Prefer Twitter images (as they tend to have the right size for us), then Open Graph images 
+   * (which seem to be smaller), and finally linked images.
+   */
   private def checkForMetaTag: Option[Image] = {
-    checkForLinkTag match {
+    
+    checkForTwitterTag match {
       case Some(image) => return Some(image)
-      case None => trace("No known images found")
+      case None => trace("No twitter image found")
     }
 
     checkForOpenGraphTag match {
       case Some(image) => return Some(image)
-      case None => trace("No known images found")
+      case None => trace("No open graph images found")
     }
+
+    checkForLinkTag match {
+      case Some(image) => return Some(image)
+      case None => trace("No link tag images found")
+  }
 
     None
   }
-
 
   /**
   * although slow the best way to determine the best image is to download them and check the actual dimensions of the image when on disk
@@ -437,6 +446,42 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       case e: Exception => {
         warn(e, e.toString)
         None
+      }
+    }
+  }
+
+  private def checkForTwitterTag: Option[Image] = {
+    try {
+      val meta: Elements = article.rawDoc.select("meta[property~=twitter:image]")
+      
+      for (item <- meta) {
+        if (item.attr("content").length < 1) {
+          return None
+        }
+        val imagePath: String = this.buildImagePath(item.attr("content"))
+        val mainImage = new Image
+        mainImage.imageSrc = imagePath
+        mainImage.imageExtractionType = "twitter"
+        mainImage.confidenceScore = 100
+        getLocallyStoredImage(mainImage.imageSrc) match {
+          case Some(locallyStoredImage) => {
+            mainImage.bytes = locallyStoredImage.bytes
+            mainImage.height = locallyStoredImage.height
+            mainImage.width = locallyStoredImage.width
+          }
+          case None =>
+        }
+        trace("twitter image tag found, using it: %s".format(imagePath))
+
+        return Some(mainImage)
+      }
+      None
+      
+    }
+    catch {
+      case e: Exception => {
+    	warn(e, e.toString)
+    	None
       }
     }
   }
