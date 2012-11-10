@@ -57,16 +57,16 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       }
     }
 
+    checkForMetaTag match {
+      case Some(image) => return image
+      case None => trace("No Meta Tag Images found")
+    }
+
     checkForLargeImages(topNode, 0, 0) match {
       case Some(image) => return image
       case None => {
         trace("No big images found")
       }
-    }
-
-    checkForMetaTag match {
-      case Some(image) => return image
-      case None => trace("No Meta Tag Images found")
     }
 
     new Image
