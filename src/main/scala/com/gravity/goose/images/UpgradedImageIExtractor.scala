@@ -398,11 +398,10 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         }
         trace("link tag found, using it")
 
-        return Some(mainImage)
+        return ensureMinimumImageSize(mainImage)
       }
       None
-    }
-    catch {
+    } catch {
       case e: Exception => {
         warn("Unexpected exception caught in checkForLinkTag. Handled by returning None.", e)
         None
@@ -439,11 +438,10 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         }
         trace("open graph tag found, using it: %s".format(imagePath))
 
-        return Some(mainImage)
+        return ensureMinimumImageSize(mainImage)
       }
       None
-    }
-    catch {
+    } catch {
       case e: Exception => {
         warn(e, e.toString)
         None
@@ -474,12 +472,11 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         }
         trace("twitter image tag found, using it: %s".format(imagePath))
 
-        return Some(mainImage)
+        return ensureMinimumImageSize(mainImage)
       }
       None
       
-    }
-    catch {
+    } catch {
       case e: Exception => {
     	warn(e, e.toString)
     	None
@@ -487,12 +484,20 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     }
   }
 
+  private def ensureMinimumImageSize(mainImage: Image): Option[Image] = {
+    trace("Checking image %s for proper size".format(mainImage.getImageSrc))
+    if (mainImage.width >= config.minWidth && mainImage.height >= config.minHeight) {
+      trace("Image accepted")
+      return Some(mainImage)
+    }
+    trace("Image rejected as too small")
+    None
+  }
 
   /**
   * returns the bytes of the image file on disk
   */
   def getLocallyStoredImage(imageSrc: String): Option[LocallyStoredImage] = ImageUtils.storeImageToLocalFile(httpClient, linkhash, imageSrc, config)
-
 
   def getCleanDomain = {
     // just grab the very end of the domain
@@ -543,7 +548,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       mainImage.width = locallyStoredImage.width
     })
 
-    Some(mainImage)
+    ensureMinimumImageSize(mainImage)
   }
 
   /**

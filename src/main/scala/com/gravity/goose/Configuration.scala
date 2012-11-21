@@ -46,6 +46,16 @@ class Configuration {
   @BeanProperty
   var minBytesForImages: Int = 4500
   /**
+   * Minimum legal height for an image - smaller than this considered unusable/undesirable
+   */
+  @BeanProperty
+  var minWidth: Int = 120
+  /**
+   * Minimum legal width for an image - smaller than this considered unusable/undesirable
+   */
+  @BeanProperty
+  var minHeight: Int = 120
+  /**
   * set this guy to false if you don't care about getting images, otherwise you can either use the default
   * image extractor to implement the ImageExtractor interface to build your own
   */
