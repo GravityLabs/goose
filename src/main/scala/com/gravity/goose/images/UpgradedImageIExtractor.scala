@@ -1,45 +1,45 @@
 package com.gravity.goose.images
 
 import org.apache.http.client.HttpClient
-import com.gravity.goose.{Configuration, Article}
-import org.jsoup.nodes.{Element, Document}
-import java.util.regex.{Pattern, Matcher}
+import com.gravity.goose.{ Configuration, Article }
+import org.jsoup.nodes.{ Element, Document }
+import java.util.regex.{ Pattern, Matcher }
 import com.gravity.goose.text.string
-import java.net.{MalformedURLException, URL}
+import java.net.{ MalformedURLException, URL }
 import org.jsoup.select.Elements
 import scala.collection.JavaConversions._
 import java.util.ArrayList
-import collection.mutable.{ListBuffer, HashMap}
+import collection.mutable.{ ListBuffer, HashMap }
 import com.gravity.goose.utils.FileHelper
 import io.Source
 
 /**
-* Created by Jim Plush
-* User: jim
-* Date: 9/22/11
-*/
+ * Created by Jim Plush
+ * User: jim
+ * Date: 9/22/11
+ */
 
 class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: Configuration) extends ImageExtractor {
 
   import UpgradedImageIExtractor._
 
   /**
-  * What's the minimum bytes for an image we'd accept is
-  */
+   * What's the minimum bytes for an image we'd accept is
+   */
   private val minBytesForImages: Int = 4000
 
   /**
-  * the webpage url that we're extracting content from
-  */
+   * the webpage url that we're extracting content from
+   */
   val targetUrl = article.finalUrl
   /**
-  * stores a hash of our url for reference and image processing
-  */
+   * stores a hash of our url for reference and image processing
+   */
   val linkhash = article.linkhash
 
   /**
-  * this lists all the known bad button names that we have
-  */
+   * this lists all the known bad button names that we have
+   */
   val matchBadImageNames: Matcher = {
     val sb = new StringBuilder
     // create negative elements
@@ -56,7 +56,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         trace("No known images found")
       }
     }
-      
+
     checkForMetaTag match {
       case Some(image) => return image
       case None => trace("No Meta Tag Images found")
@@ -73,40 +73,40 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-   * Prefer Twitter images (as they tend to have the right size for us), then Open Graph images 
+   * Prefer Twitter images (as they tend to have the right size for us), then Open Graph images
    * (which seem to be smaller), and finally linked images.
    */
   private def checkForMetaTag: Option[Image] = {
-    
+
     checkForTwitterTag match {
       case Some(image) => return Some(image)
       case None => trace("No twitter image found")
     }
-    
+
     checkForOpenGraphTag match {
       case Some(image) => return Some(image)
       case None => trace("No open graph images found")
     }
-    
+
     checkForLinkTag match {
       case Some(image) => return Some(image)
       case None => trace("No link tag images found")
     }
-    
+
     None
   }
 
   /**
-  * although slow the best way to determine the best image is to download them and check the actual dimensions of the image when on disk
-  * so we'll go through a phased approach...
-  * 1. get a list of ALL images from the parent node
-  * 2. filter out any bad image names that we know of (gifs, ads, etc..)
-  * 3. do a head request on each file to make sure it meets our bare requirements
-  * 4. any images left over let's do a full GET request, download em to disk and check their dimensions
-  * 5. Score images based on different factors like height/width and possibly things like color density
-  *
-  * @param node
-  */
+   * although slow the best way to determine the best image is to download them and check the actual dimensions of the image when on disk
+   * so we'll go through a phased approach...
+   * 1. get a list of ALL images from the parent node
+   * 2. filter out any bad image names that we know of (gifs, ads, etc..)
+   * 3. do a head request on each file to make sure it meets our bare requirements
+   * 4. any images left over let's do a full GET request, download em to disk and check their dimensions
+   * 5. Score images based on different factors like height/width and possibly things like color density
+   *
+   * @param node
+   */
   private def checkForLargeImages(node: Element, parentDepthLevel: Int, siblingDepthLevel: Int): Option[Image] = {
     trace("Checking for large images - parent depth " + parentDepthLevel + " sibling depth: " + siblingDepthLevel)
 
@@ -137,7 +137,6 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
             }
           }
         }
-
 
       }
       case None => {
@@ -171,16 +170,16 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * download the images to temp disk and set their dimensions
-  * <p/>
-  * we're going to score the images in the order in which they appear so images higher up will have more importance,
-  * we'll count the area of the 1st image as a score of 1 and then calculate how much larger or small each image after it is
-  * we'll also make sure to try and weed out banner type ad blocks that have big widths and small heights or vice versa
-  * so if the image is 3rd found in the dom it's sequence score would be 1 / 3 = .33 * diff in area from the first image
-  *
-  * @param images
-  * @return
-  */
+   * download the images to temp disk and set their dimensions
+   * <p/>
+   * we're going to score the images in the order in which they appear so images higher up will have more importance,
+   * we'll count the area of the 1st image as a score of 1 and then calculate how much larger or small each image after it is
+   * we'll also make sure to try and weed out banner type ad blocks that have big widths and small heights or vice versa
+   * so if the image is 3rd found in the dom it's sequence score would be 1 / 3 = .33 * diff in area from the first image
+   *
+   * @param images
+   * @return
+   */
   private def downloadImagesAndGetResults(images: ArrayList[Element], depthLevel: Int): ListBuffer[(LocallyStoredImage, Float)] = {
     val imageResults = new ListBuffer[(LocallyStoredImage, Float)]()
     var initialArea: Float = 0
@@ -208,8 +207,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
           // give the initial image a little area boost as well
           initialArea = area * 1.48f
           totalScore = 1
-        }
-        else {
+        } else {
           val areaDifference: Float = area / initialArea
           totalScore = sequenceScore * areaDifference
         }
@@ -221,8 +219,6 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       }
     })
 
-
-
     imageResults
   }
 
@@ -231,12 +227,12 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * returns true if we think this is kind of a bannery dimension
-  * like 600 / 100 = 6 may be a fishy dimension for a good image
-  *
-  * @param width
-  * @param height
-  */
+   * returns true if we think this is kind of a bannery dimension
+   * like 600 / 100 = 6 may be a fishy dimension for a good image
+   *
+   * @param width
+   * @param height
+   */
   private def isBannerDimensions(width: Int, height: Int): Boolean = {
     if (width == height) {
       return false
@@ -267,18 +263,17 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * takes a list of image elements and filters out the ones with bad names
-  *
-  * @param images
-  * @return
-  */
+   * takes a list of image elements and filters out the ones with bad names
+   *
+   * @param images
+   * @return
+   */
   private def filterBadNames(images: Elements): Option[ArrayList[Element]] = {
     val goodImages: ArrayList[Element] = new ArrayList[Element]
     for (image <- images) {
       if (this.isOkImageFileName(image)) {
         goodImages.add(image)
-      }
-      else {
+      } else {
         image.remove()
       }
     }
@@ -286,10 +281,10 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * will check the image src against a list of bad image files we know of like buttons, etc...
-  *
-  * @return
-  */
+   * will check the image src against a list of bad image files we know of like buttons, etc...
+   *
+   * @return
+   */
   private def isOkImageFileName(imageNode: Element): Boolean = {
     val imgSrc: String = imageNode.attr("src")
     if (string.isNullOrEmpty(imgSrc)) {
@@ -320,11 +315,11 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * loop through all the images and find the ones that have the best bytez to even make them a candidate
-  *
-  * @param images
-  * @return
-  */
+   * loop through all the images and find the ones that have the best bytez to even make them a candidate
+   *
+   * @param images
+   * @return
+   */
   private def findImagesThatPassByteSizeTest(images: ArrayList[Element]): Option[ArrayList[Element]] = {
     var cnt: Int = 0
     val MAX_BYTES_SIZE: Int = 15728640
@@ -358,7 +353,6 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       cnt += 1
     })
 
-
     trace(" Now leaving findImagesThatPassByteSizeTest")
     if (goodImages == null || goodImages.isEmpty) None else Some(goodImages)
 
@@ -369,10 +363,10 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * checks to see if we were able to find open graph tags on this page
-  *
-  * @return
-  */
+   * checks to see if we were able to find open graph tags on this page
+   *
+   * @return
+   */
   private def checkForLinkTag: Option[Image] = {
     if (article.rawDoc == null) return None
 
@@ -411,10 +405,10 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * checks to see if we were able to find open graph tags on this page
-  *
-  * @return
-  */
+   * checks to see if we were able to find open graph tags on this page
+   *
+   * @return
+   */
   private def checkForOpenGraphTag: Option[Image] = {
     try {
       val meta: Elements = article.rawDoc.select("meta[property~=og:image]")
@@ -448,11 +442,11 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       }
     }
   }
-  
+
   private def checkForTwitterTag: Option[Image] = {
     try {
       val meta: Elements = article.rawDoc.select("meta[property~=twitter:image]")
-      
+
       for (item <- meta) {
         if (item.attr("content").length < 1) {
           return None
@@ -475,11 +469,11 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         return ensureMinimumImageSize(mainImage)
       }
       None
-      
+
     } catch {
       case e: Exception => {
-    	warn(e, e.toString)
-    	None
+        warn(e, e.toString)
+        None
       }
     }
   }
@@ -495,8 +489,8 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * returns the bytes of the image file on disk
-  */
+   * returns the bytes of the image file on disk
+   */
   def getLocallyStoredImage(imageSrc: String): Option[LocallyStoredImage] = ImageUtils.storeImageToLocalFile(httpClient, linkhash, imageSrc, config)
 
   def getCleanDomain = {
@@ -505,10 +499,10 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * in here we check for known image contains from sites we've checked out like yahoo, techcrunch, etc... that have
-  * known  places to look for good images.
-  * //todo enable this to use a series of settings files so people can define what the image ids/classes are on specific sites
-  */
+   * in here we check for known image contains from sites we've checked out like yahoo, techcrunch, etc... that have
+   * known  places to look for good images.
+   * //todo enable this to use a series of settings files so people can define what the image ids/classes are on specific sites
+   */
   def checkForKnownElements(): Option[Image] = {
     if (article.rawDoc == null) return None
 
@@ -552,19 +546,18 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   }
 
   /**
-  * This method will take an image path and build out the absolute path to that image
-  * using the initial url we crawled so we can find a link to the image if they use relative urls like ../myimage.jpg
-  *
-  * @param imageSrc
-  * @return
-  */
+   * This method will take an image path and build out the absolute path to that image
+   * using the initial url we crawled so we can find a link to the image if they use relative urls like ../myimage.jpg
+   *
+   * @param imageSrc
+   * @return
+   */
   private def buildImagePath(imageSrc: String): String = {
 
     try {
       val pageURL = new URL(this.targetUrl)
       return new URL(pageURL, ImageUtils.cleanImageSrcString(imageSrc)).toString
-    }
-    catch {
+    } catch {
       case e: MalformedURLException => {
         warn("Unable to get Image Path: " + imageSrc)
       }
@@ -572,7 +565,6 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
 
     imageSrc
   }
-
 
 }
 
