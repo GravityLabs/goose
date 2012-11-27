@@ -25,9 +25,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git@github.com:jiminoc/goose.git</connection>
-    <developerConnection>scm:git:git@github.com:jiminoc/goose.git</developerConnection>
-    <url>git@github.com:jiminoc/goose.git</url>
+    <connection>scm:git:git@github.com:matth/goose.git</connection>
+    <developerConnection>scm:git:git@github.com:matth/goose.git</developerConnection>
+    <url>git@github.com:matth/goose.git</url>
   </scm>
 
   <properties>
