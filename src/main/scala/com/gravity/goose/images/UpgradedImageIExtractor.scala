@@ -484,7 +484,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       trace("Image accepted")
       return Some(mainImage)
     }
-    trace("Image rejected as too small")
+    trace("Image rejected as too small - actual size is %1$s wide by %2$s tall".format(mainImage.width, mainImage.height))
     None
   }
 
