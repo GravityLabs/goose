@@ -42,6 +42,15 @@ To use goose from the command line:
     mvn compile
     MAVEN_OPTS="-Xms256m -Xmx2000m"; mvn exec:java -Dexec.mainClass=com.gravity.goose.TalkToMeGoose -Dexec.args="http://techcrunch.com/2011/05/13/native-apps-or-web-apps-particle-code-wants-you-to-do-both/" -e -q > ~/Desktop/gooseresult.txt
 
+##Usage as a maven dependency
+
+Goose is hosted on Sonatype's OSS repository, https://oss.sonatype.org/content/repositories/releases/com/gravity/goose/
+
+    <dependency>
+      <groupId>com.gravity</groupId>
+      <artifactId>goose</artifactId>
+      <version>2.1.22</version>
+    </dependency>
 
 ##Regarding the port from JAVA to Scala
 
