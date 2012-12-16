@@ -48,6 +48,9 @@ import java.util.Date
 import java.util.List
 import com.gravity.goose.utils.Logging
 import com.gravity.goose.Configuration
+import org.mozilla.universalchardet.UniversalDetector
+import org.apache.commons.io.IOUtils
+import java.util.Arrays
 import org.apache.http.impl.client.{DefaultHttpRequestRetryHandler, AbstractHttpClient, DefaultHttpClient}
 
 
@@ -94,6 +97,8 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     var htmlResult: String = null
     var entity: HttpEntity = null
     var instream: InputStream = null
+    var responseBytes: Array[Byte] = null
+    var detector: UniversalDetector = null
 
     // Identified the the apache http client does not drop URL fragments before opening the request to the host
     // more info: http://stackoverflow.com/questions/4251841/400-error-with-httpclient-for-a-link-with-an-anchor
@@ -121,24 +126,48 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
       }
 
       entity = response.getEntity
+
       if (entity != null) {
-        instream = entity.getContent
+        responseBytes = IOUtils.toByteArray(entity.getContent)
+
         var encodingType: String = "UTF-8"
         try {
           encodingType = EntityUtils.getContentCharSet(entity)
+
           if (encodingType == null) {
-            encodingType = "UTF-8"
+
+            val buf: Array[Byte] = new Array[Byte](2048)
+            var instream2: InputStream = new ByteArrayInputStream(responseBytes)
+            var bytesRead: Int = 2048
+            var inLoop = true
+
+            detector = new UniversalDetector(null);
+
+            while (inLoop) {
+              var n: Int = instream2.read(buf)
+              bytesRead += 2048
+
+              if (n < 0) inLoop = false
+              if (inLoop && !detector.isDone()) {
+                detector.handleData(buf, 0, n)
+              }
+            }
+
+            detector.dataEnd()
+            encodingType = detector.getDetectedCharset()
+            println("The encoding: " + encodingType)
+            detector.reset()
           }
         }
         catch {
           case e: Exception => {
             if (logger.isDebugEnabled) {
               trace("Unable to get charset for: " + cleanUrl)
-              trace("Encoding Type is: " + encodingType)
             }
           }
         }
         try {
+          instream = new ByteArrayInputStream(responseBytes)
           htmlResult = HtmlFetcher.convertStreamToString(instream, 15728640, encodingType).trim
         }
         finally {
