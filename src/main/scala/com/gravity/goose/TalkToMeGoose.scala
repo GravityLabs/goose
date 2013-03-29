@@ -24,18 +24,24 @@ object TalkToMeGoose {
   */
   def main(args: Array[String]) {
     try {
-      val url: String = args(0)
-      val config: Configuration = new Configuration
-      config.enableImageFetching = false
-      val goose = new Goose(config)
-      val article = goose.extractContent(url)
-      println(article.cleanedArticleText)
-    }
-    catch {
+      talk(args(0))
+    } catch {
       case e: Exception => {
         System.out.println("Make sure you pass in a valid URL: " + e.toString)
+        e.printStackTrace()
       }
     }
+  }
+
+  def talk(url: String) {
+    val config: Configuration = new Configuration
+    config.enableImageFetching = false
+    val goose = new Goose(config)
+    val article = goose.extractContent(url)
+    println("TITLE: " + article.title)
+    println("DATE: " + article.publishDate)
+    println("TAGS: " + article.tags)
+    println("TEXT: " + article.cleanedArticleText)
   }
 }
 
