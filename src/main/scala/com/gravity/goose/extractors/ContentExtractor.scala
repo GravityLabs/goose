@@ -179,6 +179,10 @@ trait ContentExtractor {
     tags.toSet
   }
 
+  def calculateBestNodeBasedOnClustering(article: Article): Option[Element] = {
+    calculateBestNodeBasedOnClustering(article.doc)
+  }
+
   /**
   * we're going to start looking for where the clusters of paragraphs are. We'll score a cluster based on the number of stopwords
   * and the number of consecutive paragraphs together, which should form the cluster of text that this node is around
@@ -188,9 +192,8 @@ trait ContentExtractor {
   * @return
   */
 
-  def calculateBestNodeBasedOnClustering(article: Article): Option[Element] = {
+  def calculateBestNodeBasedOnClustering(doc: Document): Option[Element] = {
     trace(logPrefix + "Starting to calculate TopNode")
-    val doc = article.doc
     var topNode: Element = null
     val nodesToCheck = Collector.collect(TOP_NODE_TAGS, doc)
     var startingBoost: Double = 1.0
