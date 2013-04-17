@@ -1,0 +1,1 @@
+externalPom(baseDirectory(_ / "../pom.xml"))
