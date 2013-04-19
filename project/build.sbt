@@ -1,1 +1,1 @@
-externalPom(baseDirectory(_ / "../pom.xml"))
+resolvers += Classpaths.typesafeResolver
