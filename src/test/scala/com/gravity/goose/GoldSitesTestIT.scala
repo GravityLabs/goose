@@ -29,7 +29,7 @@ class GoldSitesTestIT {
     //    implicit val config = TestUtils.NO_IMAGE_CONFIG
     val url = "http://techcrunch.com/2011/08/13/2005-zuckerberg-didnt-want-to-take-over-the-world/"
     val content = "The Huffington Post has come across this fascinating five-minute interview"
-    val image = "http://tctechcrunch2011.files.wordpress.com/2011/08/screen-shot-2011-08-13-at-4-55-35-pm.png?w=150"
+    val image = "http://tctechcrunch2011.files.wordpress.com/2011/08/screen-shot-2011-08-13-at-6-43-20-pm1.png?w=640"
     val title = "2005 Zuckerberg Didn’t Want To Take Over The World"
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article, expectedTitle = title, expectedImage = image, expectedStart = content)
@@ -298,7 +298,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "When I heard that Steve Jobs had passed away, I was boarding a train from New York to Philadelphia to visit my son.",
-      expectedImage = "http://www.wired.com/images_blogs/epicenter/2011/10/Apple-Siri-Blind-660x375.jpg")
+      expectedImage = "http://www.wired.com/images_blogs/business/2011/10/Apple-Siri-Blind-660x375.jpg")
   }
 
   @Test
@@ -341,7 +341,7 @@ class GoldSitesTestIT {
     val article = TestUtils.getArticle(url)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Steve Jobs was just 30 years old, wildly successful, fabulously wealthy and a global celebrity. And then it all came crashing down.",
-      expectedImage = "http://a.abcnews.go.com/images/Technology/gty_steve_jobs_port_4_dm_111006_me.jpg")
+      expectedImage = "http://a.abcnews.com/images/Technology/gty_steve_jobs_port_4_dm_111006_wg.jpg")
   }
 
   @Test

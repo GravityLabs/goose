@@ -20,8 +20,7 @@ package com.gravity.goose
 
 import cleaners.{StandardDocumentCleaner, DocumentCleaner}
 import extractors.ContentExtractor
-import images.{UpgradedImageIExtractor, ImageExtractor}
-import network.HtmlFetcher
+import images.{Image, UpgradedImageIExtractor, ImageExtractor}
 import org.apache.http.client.HttpClient
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.Jsoup
@@ -48,13 +47,14 @@ class Crawler(config: Configuration) {
       rawHtml <- getHTML(crawlCandidate, parseCandidate)
       doc <- getDocument(parseCandidate.url.toString, rawHtml)
     } {
-      trace("Crawling url: %s".format(parseCandidate.url))
+      trace("Crawling url: " + parseCandidate.url)
 
       val extractor = getExtractor
       val docCleaner = getDocCleaner
       val outputFormatter = getOutputFormatter
 
       article.finalUrl = parseCandidate.url.toString
+      article.domain = parseCandidate.url.getHost
       article.linkhash = parseCandidate.linkhash
       article.rawHtml = rawHtml
       article.doc = doc
@@ -66,7 +66,6 @@ class Crawler(config: Configuration) {
       article.metaDescription = extractor.getMetaDescription(article)
       article.metaKeywords = extractor.getMetaKeywords(article)
       article.canonicalLink = extractor.getCanonicalLink(article)
-      article.domain = extractor.getDomain(article.finalUrl)
       article.tags = extractor.extractTags(article)
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
@@ -82,7 +81,11 @@ class Crawler(config: Configuration) {
             trace(logPrefix + "Image fetching enabled...")
             val imageExtractor = getImageExtractor(article)
             try {
-              article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+              if (article.rawDoc == null) {
+                article.topImage = new Image
+              } else {
+                article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+              }
             } catch {
               case e: Exception => {
                 warn(e, e.toString)
@@ -96,10 +99,9 @@ class Crawler(config: Configuration) {
 
           article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
         }
-        case _ => trace("NO ARTICLE FOUND");
+        case _ => trace("NO ARTICLE FOUND")
       }
       releaseResources(article)
-      //      self.reply(article)
       article
     }
 
@@ -110,7 +112,7 @@ class Crawler(config: Configuration) {
     if (crawlCandidate.rawHTML != null) {
       Some(crawlCandidate.rawHTML)
     } else {
-      HtmlFetcher.getHtml(config, parsingCandidate.url.toString) match {
+      config.getHtmlFetcher.getHtml(config, parsingCandidate.url.toString) match {
         case Some(html) => {
           Some(html)
         }
@@ -121,7 +123,7 @@ class Crawler(config: Configuration) {
 
 
   def getImageExtractor(article: Article): ImageExtractor = {
-    val httpClient: HttpClient = HtmlFetcher.getHttpClient
+    val httpClient: HttpClient = config.getHtmlFetcher.getHttpClient
     new UpgradedImageIExtractor(httpClient, article, config)
   }
 
@@ -139,7 +141,7 @@ class Crawler(config: Configuration) {
       Some(Jsoup.parse(rawlHtml))
     } catch {
       case e: Exception => {
-        trace("Unable to parse %s properly into JSoup Doc".format(url))
+        trace("Unable to parse " + url + " properly into JSoup Doc")
         None
       }
     }
@@ -153,7 +155,7 @@ class Crawler(config: Configuration) {
   * cleans up any temp files we have laying around like temp images
   * removes any image in the temp dir that starts with the linkhash of the url we just parsed
   */
-  def releaseResources(article: Article) = {
+  def releaseResources(article: Article) {
     trace(logPrefix + "STARTING TO RELEASE ALL RESOURCES")
 
     val dir: File = new File(config.localStoragePath)

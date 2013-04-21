@@ -50,6 +50,7 @@ import com.gravity.goose.utils.Logging
 import com.gravity.goose.Configuration
 import org.apache.http.impl.client.{DefaultHttpRequestRetryHandler, AbstractHttpClient, DefaultHttpClient}
 
+
 /**
  * User: Jim Plush
  * Date: 12/16/10
@@ -59,7 +60,7 @@ import org.apache.http.impl.client.{DefaultHttpRequestRetryHandler, AbstractHttp
  * contain up to 1GB of text that is just wasted resources so we set a max bytes level on how much content we're going
  * to try and pull back before we say screw it.
  */
-object HtmlFetcher extends Logging {
+object HtmlFetcher extends AbstractHtmlFetcher with Logging {
   /**
    * holds a reference to our override cookie store, we don't want to store
    * cookies for head requests, only slows shit down

@@ -19,7 +19,8 @@
 package com.gravity.goose.utils
 
 import com.gravity.goose.text.{StringReplacement, HashUtils}
-import java.net.{MalformedURLException, URL}
+import java.net.{URI, MalformedURLException, URL}
+import org.apache.http.client.methods.HttpGet
 
 /**
  * Created by Jim Plush
@@ -60,6 +61,41 @@ object URLHelper extends Logging {
 
         None
       }
+    }
+  }
+
+  def tryToURL(url: String): Option[URL] = {
+    val finalUrl = if (url.contains("#!")) {
+      ESCAPED_FRAGMENT_REPLACEMENT.replaceAll(url)
+    } else {
+      url
+    }
+
+    try {
+      Some(new URL(finalUrl))
+    } catch {
+      case _: Exception => None
+    }
+  }
+
+  def tryToURI(url: String): Option[URI] = {
+    val finalUrl = if (url.contains("#!")) {
+      ESCAPED_FRAGMENT_REPLACEMENT.replaceAll(url)
+    } else {
+      url
+    }
+
+    try {
+      Some(URI.create(finalUrl))
+    } catch {
+      case _: Exception => None
+    }
+  }
+
+  def tryToHttpGet(url: String): Option[HttpGet] = {
+    tryToURI(url) match {
+      case Some(uri) => Some(new HttpGet(uri))
+      case None => None
     }
   }
 }
