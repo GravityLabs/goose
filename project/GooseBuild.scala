@@ -10,7 +10,7 @@ object GooseBuild extends Build {
         settings = Project.defaultSettings ++ Seq(
             description := "Html Content / Article Extractor in Scala",
             organization := "com.gravity",
-            version := "2.1.21-SNAPSHOT",
+            version := "2.1.22-SNAPSHOT",
             version <<= version { v => //only release *if* -Drelease=true is passed to JVM
                 val release = Option(System.getProperty("release")) == Some("true")
                 if (release) {
@@ -44,12 +44,7 @@ object GooseBuild extends Build {
                     </developer>
                 </developers>
             ),
-            publishTo <<= version { v => //add credentials to ~/.sbt/sonatype.sbt
-                /*val nexus = "https://oss.sonatype.org/"
-                if (v.trim.endsWith("SNAPSHOT")) 
-                  Some("snapshots" at nexus + "content/repositories/snapshots") 
-                 else
-                   Some("releases"  at nexus + "service/local/staging/deploy/maven2")*/
+            publishTo <<= version { v =>
                 Some(Resolver.sftp(
                     "Scala.sh Repository",
                     "scala.sh",
