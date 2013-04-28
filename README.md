@@ -4,7 +4,7 @@
 ##Intro
 
 Goose was originally an article extractor written in Java that has been 
-converted to a scala project. Its mission is to take a news article
+converted to a Scala project. Its mission is to take a news article
 or article-type web page and extract the main body of the article, all
 metadata, and most probable image candidate.
 
@@ -53,7 +53,7 @@ To use goose from the command line:
     MAVEN_OPTS="-Xms256m -Xmx2000m"; mvn exec:java -Dexec.mainClass=com.gravity.goose.TalkToMeGoose -Dexec.args="http://techcrunch.com/2011/05/13/native-apps-or-web-apps-particle-code-wants-you-to-do-both/" -e -q > ~/Desktop/gooseresult.txt
 
 
-##Regarding the port from JAVA to Scala
+##Regarding the port from Java to Scala
 
 Here are some of the reasons for the port to Scala:
 
