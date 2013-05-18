@@ -73,10 +73,10 @@ class Configuration {
   var imagemagickIdentifyPath: String = "identify"
 
   @BeanProperty
-  var connectionTimeout: Int = 10000
+  var connectionTimeout: Int = 10000  // 10 seconds
 
   @BeanProperty
-  var socketTimeout: Int = 10000
+  var socketTimeout: Int = 10000  // 10 seconds
 
   /**
   * used as the user agent that is sent with your web requests to extract an article

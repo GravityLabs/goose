@@ -31,7 +31,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory
 import org.apache.http.conn.scheme.Scheme
 import org.apache.http.conn.scheme.SchemeRegistry
 import org.apache.http.cookie.Cookie
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager
+import org.apache.http.impl.conn.PoolingClientConnectionManager
 import org.apache.http.params.BasicHttpParams
 import org.apache.http.params.HttpConnectionParams
 import org.apache.http.params.HttpParams
@@ -72,6 +72,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
   private var httpClient: HttpClient = null
   initClient()
 
+  private var connectionMonitorThread: IdleConnectionMonitorThread = null
 
   def getHttpClient: HttpClient = {
     httpClient
@@ -106,9 +107,10 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
       val localContext: HttpContext = new BasicHttpContext
       localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
       httpget = new HttpGet(cleanUrl)
-      HttpProtocolParams.setUserAgent(httpClient.getParams, config.getBrowserUserAgent());
 
       val params = httpClient.getParams
+      HttpProtocolParams.setUserAgent(params, config.getBrowserUserAgent());
+
       HttpConnectionParams.setConnectionTimeout(params, config.getConnectionTimeout())
       HttpConnectionParams.setSoTimeout(params, config.getSocketTimeout())
 
@@ -186,6 +188,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
       if (httpget != null) {
         try {
           httpget.abort()
+          httpget.releaseConnection()
           entity = null
         }
         catch {
@@ -240,8 +243,8 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     trace("Initializing HttpClient")
 
     val httpParams: HttpParams = new BasicHttpParams
-    HttpConnectionParams.setConnectionTimeout(httpParams, 10 * 1000)
-    HttpConnectionParams.setSoTimeout(httpParams, 10 * 1000)
+    HttpConnectionParams.setConnectionTimeout(httpParams, 10 * 1000) // 10 seconds
+    HttpConnectionParams.setSoTimeout(httpParams, 10 * 1000) // 10 seconds
     HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1)
     emptyCookieStore = new CookieStore {
       def addCookie(cookie: Cookie) {
@@ -270,14 +273,20 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     val schemeRegistry: SchemeRegistry = new SchemeRegistry
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
     schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
-    val cm = new ThreadSafeClientConnManager(schemeRegistry)
-    cm.setMaxTotal(20000)
-    cm.setDefaultMaxPerRoute(500)
+    val cm = new PoolingClientConnectionManager(schemeRegistry)
+    cm.setMaxTotal(4000)
+    cm.setDefaultMaxPerRoute(20)
+
     httpClient = new DefaultHttpClient(cm, httpParams)
     httpClient.asInstanceOf[AbstractHttpClient].setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
-    httpClient.getParams.setParameter("http.conn-manager.timeout", 120000L)
+    httpClient.getParams.setParameter("http.connection-manager.timeout", 30000L)
     httpClient.getParams.setParameter("http.protocol.wait-for-continue", 10000L)
     httpClient.getParams.setParameter("http.tcp.nodelay", true)
+
+    if (connectionMonitorThread == null) {
+      connectionMonitorThread = new IdleConnectionMonitorThread(cm);
+    }
+    connectionMonitorThread.start();
   }
 
   /**
