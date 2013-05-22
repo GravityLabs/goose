@@ -107,15 +107,15 @@ trait ContentExtractor {
   * @return
   */
   def doTitleSplits(title: String, splitter: StringSplitter): String = {
-    var largetTextLen: Int = 0
+    var largestTextLen: Int = 0
     var largeTextIndex: Int = 0
     val titlePieces: Array[String] = splitter.split(title)
     var i: Int = 0
     while (i < titlePieces.length) {
 
       val current: String = titlePieces(i)
-      if (current.length > largetTextLen) {
-        largetTextLen = current.length
+      if (current.length > largestTextLen) {
+        largestTextLen = current.length
         largeTextIndex = i
       }
       i += 1
@@ -625,7 +625,7 @@ trait ContentExtractor {
 
   private def debugNode(e: Element): String = {
     val sb: StringBuilder = new StringBuilder
-    sb.append("GravityScore: '")
+    sb.append("'GravityScore: '")
     sb.append(e.attr("gravityScore"))
     sb.append("' paraNodeCount: '")
     sb.append(e.attr("gravityNodes"))
