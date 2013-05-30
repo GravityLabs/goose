@@ -19,7 +19,7 @@
     <snapshotRepository>
         <id>unfold-snapshot</id>
         <name>Unfold Nexus Snapshot Repository</name>
-        <url>http://git.tacenda.com:8081/nexus/content/repositories/snapshots</url>
+        <url>http://nexus.unfold.com:8081/nexus/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
   
