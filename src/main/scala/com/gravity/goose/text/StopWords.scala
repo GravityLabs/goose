@@ -26,8 +26,8 @@ package com.gravity.goose.text
 
 import java.util._
 import com.gravity.goose.utils.FileHelper
+
 import scala.collection.immutable.Map
-import com.acceso.languageidentification.LingpipeLanguageIdentifier
 
 object StopWords {
   
@@ -57,7 +57,7 @@ object StopWords {
 
     val overlappingStopWords: List[String] = new ArrayList[String]
     
-    val languageCode : String = getLanguageCode(content)
+    val languageCode : String = detectLanguage(content)
     val stopWords = STOP_WORDS(languageCode)
 
     candidateWords.foreach(w => {
@@ -71,19 +71,10 @@ object StopWords {
   
   /**
    * This method returns the code of the language identified in the content
-   * passed as parameter, or 'all' if no language is identified.
+   * passed as parameter.
    */
-  def getLanguageCode(content: String): String = {
-    var l = LingpipeLanguageIdentifier.getInstance()
-    var language : Locale = l.identify(content, 0.8)
-    
-    if(language != null && STOP_WORDS.contains(language.getLanguage())) {
-      // We have detected a language
-      return language.getLanguage()
-    } else {
-      // We have not detected a language or we have detected a no supported language
-      return "all" 
-    }
+  def detectLanguage(content: String): String = {
+    return "en" // TODO Fixme using some automatic language detector library
   }
 
 
