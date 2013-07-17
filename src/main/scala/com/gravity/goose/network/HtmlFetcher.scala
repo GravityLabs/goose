@@ -18,9 +18,15 @@
 
 package com.gravity.goose.network
 
+import org.apache.http.Header
+import org.apache.http.HeaderElement
 import org.apache.http.HttpEntity
+import org.apache.http.HttpRequest
 import org.apache.http.HttpResponse
 import org.apache.http.HttpVersion
+import org.apache.http.HttpRequestInterceptor
+import org.apache.http.HttpResponseInterceptor
+import org.apache.http.client.entity.GzipDecompressingEntity
 import org.apache.http.client.CookieStore
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
@@ -39,6 +45,7 @@ import org.apache.http.params.HttpProtocolParams
 import org.apache.http.protocol.BasicHttpContext
 import org.apache.http.protocol.HttpContext
 import org.apache.http.util.EntityUtils
+import org.apache.http.entity.ContentType
 import java.io._
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -96,7 +103,8 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     var htmlResult: String = null
     var entity: HttpEntity = null
     var instream: InputStream = null
-
+    var contentType: ContentType = null
+    
     // Identified the the apache http client does not drop URL fragments before opening the request to the host
     // more info: http://stackoverflow.com/questions/4251841/400-error-with-httpclient-for-a-link-with-an-anchor
     val cleanUrl = {
@@ -127,10 +135,14 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
       if (entity != null) {
         instream = entity.getContent
         var encodingType: String = "UTF-8"
+
         try {
-          encodingType = EntityUtils.getContentCharSet(entity)
-          if (encodingType == null) {
+          contentType = ContentType.get(entity)
+          trace("Got contentType: " + contentType)
+          if (contentType == null) {
             encodingType = "UTF-8"
+          } else {
+            encodingType = contentType.getCharset().name
           }
         }
         catch {
@@ -212,8 +224,13 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     try {
       is = new ByteArrayInputStream(htmlResult.getBytes("UTF-8"))
       mimeType = URLConnection.guessContentTypeFromStream(is)
-      if (mimeType != null) {
-        if ((mimeType == "text/html") == true || (mimeType == "application/xml") == true) {
+      if (mimeType != null || contentType != null) {
+        if(mimeType == null) {
+          mimeType = contentType.getMimeType()
+          trace("no guessed mimetype? using contentType: " + mimeType + " - " + cleanUrl)
+        }
+
+        if ((mimeType == "text/html") || (mimeType == "application/xml") || (mimeType == "application/xhtml+xml") || (mimeType == "text/xml") ) {
           return Some(htmlResult)
         }
         else {
@@ -223,8 +240,9 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
           trace("GRVBIGFAIL: " + mimeType + " - " + cleanUrl)
           throw new NotHtmlException(cleanUrl)
         }
-      }
+      } 
       else {
+        trace("no mimetype?: " + mimeType + " - " + cleanUrl)
         throw new NotHtmlException(cleanUrl)
       }
     }
@@ -283,6 +301,34 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     httpClient.getParams.setParameter("http.connection-manager.timeout", 30000L)
     httpClient.getParams.setParameter("http.protocol.wait-for-continue", 10000L)
     httpClient.getParams.setParameter("http.tcp.nodelay", true)
+
+    // http://hc.apache.org/httpcomponents-client-ga/httpclient/examples/org/apache/http/examples/client/ClientGZipContentCompression.java
+    httpClient.asInstanceOf[AbstractHttpClient].addRequestInterceptor(new HttpRequestInterceptor() {
+      def process( request: HttpRequest, context: HttpContext) {
+        if (!request.containsHeader("Accept-Encoding")) {
+          request.addHeader("Accept-Encoding", "gzip")
+        }
+      }
+    })
+
+    httpClient.asInstanceOf[AbstractHttpClient].addResponseInterceptor(new HttpResponseInterceptor() {
+      def process( response: HttpResponse, context: HttpContext) {
+        val entity: HttpEntity = response.getEntity()
+        if (entity != null) {
+          val ceheader: Header = entity.getContentEncoding()
+          if (ceheader != null) {
+            val codecs = ceheader.getElements()
+            for ( c <- codecs) {
+              if (c.getName().equalsIgnoreCase("gzip")) {
+                response.setEntity(
+                  new GzipDecompressingEntity(response.getEntity()))
+                return
+              }
+            }
+          }
+        }
+      }
+    })
 
     if (connectionMonitorThread == null) {
       connectionMonitorThread = new IdleConnectionMonitorThread(cm);
