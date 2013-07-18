@@ -43,8 +43,11 @@ trait DocumentCleaner {
   def clean(article: Article): Document = {
 
     trace("Starting cleaning phase with DefaultDocumentCleaner")
-
     var docToClean: Document = article.doc
+    trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    trace(docToClean.html)
+    trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
     docToClean = cleanEmTags(docToClean)
     docToClean = removeDropCaps(docToClean)
     docToClean = removeScriptsAndStyles(docToClean)
@@ -60,6 +63,10 @@ trait DocumentCleaner {
 //    docToClean = convertDivsToParagraphs(docToClean, "span")
 
     //    docToClean = convertDivsToParagraphs(docToClean, "span")
+
+    trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    trace(docToClean.html)
+    trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     docToClean
   }
 
@@ -164,6 +171,7 @@ trait DocumentCleaner {
 
       removeNode(node)
     }
+
     doc
   }
 
