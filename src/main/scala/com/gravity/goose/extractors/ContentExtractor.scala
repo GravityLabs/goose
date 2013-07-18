@@ -564,7 +564,7 @@ trait ContentExtractor {
         val attrs: Attributes = el.attributes()
         for (a <- attrs) {
           try {
-            if ((a.getKey == "href")) {
+            if ((a.getKey == "href") && (a.getValue != "#")) {
               trace(logPrefix + "This page has a link!: " + a.getValue)
               goodLinks += a.getValue
             }
