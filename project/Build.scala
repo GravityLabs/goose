@@ -19,5 +19,5 @@ object GooseBuild extends Build {
 
   lazy val root = Project("goose", file("."), 
                     settings = Defaults.defaultSettings ++ 
-                    Seq(libraryDependencies ++= Seq(Junit, Slf4jApi, Slf4jLog4j12, Jsoup, CommonsIo, ScalaCompiler, ScalaLibrary, Httpclient, CommonsLang, Juniversalchardet)))
+                    Seq(libraryDependencies ++= Seq(Slf4jApi, Slf4jLog4j12, Jsoup, CommonsIo, ScalaCompiler, ScalaLibrary, Httpclient, CommonsLang, Juniversalchardet)))
 }
