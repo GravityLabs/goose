@@ -59,7 +59,7 @@ class Crawler(config: Configuration) {
       article.rawHtml = rawHtml
       article.doc = doc
       article.rawDoc = doc.clone()
-
+      
       article.title = extractor.getTitle(article)
       article.publishDate = config.publishDateExtractor.extract(doc)
       article.additionalData = config.getAdditionalDataExtractor.extract(doc)
@@ -76,6 +76,7 @@ class Crawler(config: Configuration) {
         case Some(node: Element) => {
           article.topNode = node
           article.movies = extractor.extractVideos(article.topNode)
+          article.links = extractor.extractLinks(article.topNode)
 
           if (config.enableImageFetching) {
             trace(logPrefix + "Image fetching enabled...")

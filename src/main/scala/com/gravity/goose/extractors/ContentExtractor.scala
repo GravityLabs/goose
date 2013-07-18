@@ -464,6 +464,49 @@ trait ContentExtractor {
     goodMovies.toList
   }
 
+  /**
+  * pulls out links we like
+  *
+  * @return
+  */
+  def extractLinks(node: Element): Set[String] = {
+    val candidates: ArrayList[Element] = new ArrayList[Element]
+    val goodLinks = mutable.HashSet[String]()
+
+    try {
+      node.parent.getElementsByTag("a").foreach(candidates.add(_))
+
+      trace(logPrefix + "extractLinks: Starting to extract links. Found: " + candidates.size)
+
+      for (el <- candidates) {
+        val attrs: Attributes = el.attributes()
+        for (a <- attrs) {
+          try {
+            if ((a.getKey == "href")) {
+              trace(logPrefix + "This page has a link!: " + a.getValue)
+              goodLinks += a.getValue
+            }
+          }
+          catch {
+            case e: Exception => {
+              info(logPrefix + "Error extracting links: " + e.toString)
+            }
+          }
+        }
+      }
+    }
+    catch {
+      case e: NullPointerException => {
+        warn(e.toString, e)
+      }
+      case e: Exception => {
+        warn(e.toString, e)
+      }
+    }
+    trace(logPrefix + "extractLinks:  done looking at links")
+    goodLinks.toSet
+  }
+
   def isTableTagAndNoParagraphsExist(e: Element): Boolean = {
 
     val subParagraphs: Elements = e.getElementsByTag("p")
