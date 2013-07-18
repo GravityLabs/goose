@@ -11,7 +11,7 @@ object Dependencies {
   val Httpclient = "org.apache.httpcomponents" % "httpclient" % "4.2.4" 
   val CommonsLang = "commons-lang" % "commons-lang" % "2.6" 
   val Juniversalchardet = "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
-
+  val LangidJava = "com.carrotsearch" % "langid-java" % "1.0.0"
 }
 
 object GooseBuild extends Build {
@@ -19,5 +19,5 @@ object GooseBuild extends Build {
 
   lazy val root = Project("goose", file("."), 
                     settings = Defaults.defaultSettings ++ 
-                    Seq(libraryDependencies ++= Seq(Junit, Slf4jApi, Slf4jLog4j12, Jsoup, CommonsIo, ScalaCompiler, ScalaLibrary, Httpclient, CommonsLang, Juniversalchardet)))
+                    Seq(libraryDependencies ++= Seq(Slf4jApi, Slf4jLog4j12, Jsoup, CommonsIo, ScalaCompiler, ScalaLibrary, Httpclient, CommonsLang, Juniversalchardet, LangidJava)))
 }

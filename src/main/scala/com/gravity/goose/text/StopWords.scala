@@ -26,11 +26,14 @@ package com.gravity.goose.text
 
 import java.util._
 import com.gravity.goose.utils.FileHelper
+// import com.carrotsearch.labs.langid.LangIdV3
+import com.gravity.goose.utils.Logging
 
 import scala.collection.immutable.Map
 
-object StopWords {
-  
+object StopWords extends Logging {
+  val logPrefix = "stopwords: "
+
   // the confusing pattern below is basically just match any non-word character excluding white-space.
   private val PUNCTUATION: StringReplacement = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty)
   
@@ -74,6 +77,8 @@ object StopWords {
    * passed as parameter.
    */
   def detectLanguage(content: String): String = {
+    // val identifier = new LangIdV3 // this needs a per thread factory, initializing it every time is too slow
+    // trace("language!: " + identifier.classify(content, false))
     return "en" // TODO Fixme using some automatic language detector library
   }
 
