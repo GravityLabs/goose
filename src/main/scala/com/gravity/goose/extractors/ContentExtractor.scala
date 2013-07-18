@@ -137,7 +137,19 @@ trait ContentExtractor {
   * if the article has meta description set in the source, use that
   */
   def getMetaDescription(article: Article): String = {
-    getMetaContent(article.doc, "meta[name=description]")
+    var desc = article.doc.select("meta[name=description]").attr("content")
+    if (desc.isEmpty) {
+      desc = article.doc.select("meta[property=og:description]").attr("content")
+      if (desc.isEmpty) {
+        desc = article.doc.select("meta[name=twitter:description]").attr("content")
+      }
+    }
+
+    if (desc.nonEmpty) {
+      desc.trim
+    } else {
+      string.empty
+    }
   }
 
   /**
@@ -152,9 +164,15 @@ trait ContentExtractor {
    * if the article has meta canonical link set in the url
    */
   def getCanonicalLink(article: Article): String = {
-    val meta = article.doc.select("link[rel=canonical]")
-    if (meta.size() > 0) {
-      val href = Option(meta.first().attr("href")).getOrElse("").trim
+    var url = article.doc.select("link[rel=canonical]").attr("href")
+    if (url.isEmpty) {
+      url = article.doc.select("meta[property=og:url]").attr("content")
+      if (url.isEmpty) {
+        url = article.doc.select("meta[name=twitter:url]").attr("content")
+      }
+    }
+    if (url.nonEmpty) {
+      val href = url.trim
       if (href.nonEmpty) href else article.finalUrl
     } else {
       article.finalUrl
