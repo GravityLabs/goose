@@ -21,27 +21,21 @@ package com.gravity.goose.network
 import org.apache.http.Header
 import org.apache.http.HeaderElement
 import org.apache.http.HttpEntity
-import org.apache.http.HttpRequest
-import org.apache.http.HttpResponse
 import org.apache.http.HttpVersion
-import org.apache.http.HttpRequestInterceptor
-import org.apache.http.HttpResponseInterceptor
+import org.apache.http.{HttpRequest, HttpRequestInterceptor, HttpResponse, HttpResponseInterceptor}
 import org.apache.http.client.entity.GzipDecompressingEntity
 import org.apache.http.client.CookieStore
+import org.apache.http.impl.client.BasicCookieStore
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.params.CookiePolicy
 import org.apache.http.client.protocol.ClientContext
 import org.apache.http.conn.scheme.PlainSocketFactory
 import org.apache.http.conn.ssl.SSLSocketFactory
-import org.apache.http.conn.scheme.Scheme
-import org.apache.http.conn.scheme.SchemeRegistry
+import org.apache.http.conn.scheme.{Scheme, SchemeRegistry}
 import org.apache.http.cookie.Cookie
 import org.apache.http.impl.conn.PoolingClientConnectionManager
-import org.apache.http.params.BasicHttpParams
-import org.apache.http.params.HttpConnectionParams
-import org.apache.http.params.HttpParams
-import org.apache.http.params.HttpProtocolParams
+import org.apache.http.params.{HttpParams, BasicHttpParams, HttpConnectionParams, HttpProtocolParams}
 import org.apache.http.protocol.BasicHttpContext
 import org.apache.http.protocol.HttpContext
 import org.apache.http.util.EntityUtils
@@ -74,6 +68,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
    * cookies for head requests, only slows shit down
    */
   var emptyCookieStore: CookieStore = null
+  
   /**
    * holds the HttpClient object for making requests
    */
@@ -114,11 +109,12 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
 
     try {
       val localContext: HttpContext = new BasicHttpContext
-      localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
+      localContext.setAttribute(ClientContext.COOKIE_STORE, new BasicCookieStore)
       httpget = new HttpGet(cleanUrl)
+      httpget.setHeader("referer", config.getBrowserReferer())
 
       val params = httpClient.getParams
-      HttpProtocolParams.setUserAgent(params, config.getBrowserUserAgent());
+      HttpProtocolParams.setUserAgent(params, config.getBrowserUserAgent())
 
       HttpConnectionParams.setConnectionTimeout(params, config.getConnectionTimeout())
       HttpConnectionParams.setSoTimeout(params, config.getSocketTimeout())
@@ -282,6 +278,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
 
       private[network] var emptyList: ArrayList[Cookie] = new ArrayList[Cookie]
     }
+    
     httpParams.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY)
     httpParams.setParameter("http.User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8")
     httpParams.setParameter("http.language.Accept-Language", "en-us")
