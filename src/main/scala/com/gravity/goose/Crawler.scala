@@ -70,7 +70,9 @@ class Crawler(config: Configuration) {
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
 
-
+      if (article.publishDate == null) {
+        article.publishDate = extractor.getDateFromURL(article.canonicalLink)
+      }
 
       extractor.calculateBestNodeBasedOnClustering(article) match {
         case Some(node: Element) => {
