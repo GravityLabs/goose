@@ -2,7 +2,6 @@ import sbt._
 import Keys._
 
 object Dependencies {
-  val Junit = "junit" % "junit" % "4.8.1" 
   val Slf4jApi = "org.slf4j" % "slf4j-api" % "1.6.6" 
   val Slf4jLog4j12 = "org.slf4j" % "slf4j-log4j12" % "1.6.6" 
   val Jsoup = "org.jsoup" % "jsoup" % "1.7.2" 
