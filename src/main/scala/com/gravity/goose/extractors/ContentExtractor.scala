@@ -54,7 +54,7 @@ trait ContentExtractor {
   val SPACE_SPLITTER: StringSplitter = new StringSplitter(" ")
   val NO_STRINGS = Set.empty[String]
   val A_REL_TAG_SELECTOR: String = "a[rel=tag], a[href*=/tag/]"
-  val TOP_NODE_TAGS = new TagsEvaluator(Set("p", "td", "pre"))
+  val TOP_NODE_TAGS = new TagsEvaluator(Set("p", "td", "pre", "li"))
 
   def getTitle(article: Article): String = {
     var title: String = string.empty
@@ -313,7 +313,7 @@ trait ContentExtractor {
         }
       }
 
-      trace(logPrefix + "Location Boost Score: " + boostScore + " on interation: " + i + "' id='" + node.parent.id + "' class='" + node.parent.attr("class"))
+      trace(logPrefix + "Location Boost Score: " + boostScore + " on interation: " + i + " tag='"+ node.tagName +"' id='" + node.parent.id + "' class='" + node.parent.attr("class"))
 
       val nodeText: String = node.text
       val wordStats: WordStats = StopWords.getStopWordCount(nodeText)
@@ -597,12 +597,21 @@ trait ContentExtractor {
         p.remove()
       }
     }
+
     val subParagraphs2: Elements = e.getElementsByTag("p")
-    if (subParagraphs2.size == 0 && !(e.tagName == "td")) {
-      trace("Removing node because it doesn't have any paragraphs")
-      true
+    if (subParagraphs2.size == 0 && e.tagName != "td") {
+      if (e.tagName == "ul" || e.tagName == "ol") {
+        val linkTextLength = e.getElementsByTag("a").map(_.text.length).sum
+        val elementTextLength = e.text.length
+        if (elementTextLength > 0 && (linkTextLength.toFloat / elementTextLength) < 0.5) {
+          return false // less than half of the list is links, so keep this
+        }
+        trace("List failed link density test: " + linkTextLength + " " + elementTextLength + " " + getShortText(e.text, 50))
+      }
+      trace("Removing node because it doesn't have any paragraphs " + e.tagName + " " + e.attr("class"))
+      return true
     } else {
-      false
+      return false
     }
   }
 
