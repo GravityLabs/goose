@@ -173,14 +173,15 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
       }
       case e: SocketTimeoutException => {
         trace(e.toString)
+        throw new GatewayTimeoutException(e.toString + " " + e.getMessage)
       }
       case e: LoggableException => {
         logger.warn(e.getMessage)
-        return None
+        throw e
       }
       case e: Exception => {
         trace("FAILURE FOR LINK: " + cleanUrl + " " + e.toString)
-        return None
+        throw e
       }
     }
     finally {

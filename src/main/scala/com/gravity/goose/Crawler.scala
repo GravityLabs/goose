@@ -97,9 +97,6 @@ class Crawler(config: Configuration) {
           }
           article.topNode = extractor.postExtractionCleanup(article.topNode)
 
-
-
-
           article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
         }
         case _ => trace("NO ARTICLE FOUND")
