@@ -551,42 +551,14 @@ trait ContentExtractor {
   *
   * @return
   */
-  def extractLinks(node: Element): Set[String] = {
-    val candidates: ArrayList[Element] = new ArrayList[Element]
-    val goodLinks = mutable.HashSet[String]()
+  def extractLinks(node: Element): Map[String, String] = {
+    val goodLinks = mutable.Map[String, String]()
 
-    try {
-      node.parent.getElementsByTag("a").foreach(candidates.add(_))
+    val candidates = node.parent.select("a[href]").filter(el => el.attr("href") != "" && el.attr("href") != "#").map(el => goodLinks += el.attr("abs:href") -> el.text)
 
-      trace(logPrefix + "extractLinks: Starting to extract links. Found: " + candidates.size)
+    trace(logPrefix + "extractLinks: Extracted links. Found: " + candidates.size)
 
-      for (el <- candidates) {
-        val attrs: Attributes = el.attributes()
-        for (a <- attrs) {
-          try {
-            if ((a.getKey == "href") && (a.getValue != "#")) {
-              trace(logPrefix + "This page has a link!: " + a.getValue)
-              goodLinks += a.getValue
-            }
-          }
-          catch {
-            case e: Exception => {
-              info(logPrefix + "Error extracting links: " + e.toString)
-            }
-          }
-        }
-      }
-    }
-    catch {
-      case e: NullPointerException => {
-        warn(e.toString, e)
-      }
-      case e: Exception => {
-        warn(e.toString, e)
-      }
-    }
-    trace(logPrefix + "extractLinks:  done looking at links")
-    goodLinks.toSet
+    goodLinks.toMap
   }
 
   def isTableTagAndNoParagraphsExist(e: Element): Boolean = {
