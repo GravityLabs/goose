@@ -165,7 +165,7 @@ trait ContentExtractor {
    * if the article has meta canonical link set in the url
    */
   def getCanonicalLink(article: Article): String = {
-    var url = article.doc.select("link[rel=canonical]").attr("href")
+    var url = article.doc.select("link[rel=canonical]").attr("abs:href")
     if (url.isEmpty) {
       url = article.doc.select("meta[property=og:url]").attr("content")
       if (url.isEmpty) {
