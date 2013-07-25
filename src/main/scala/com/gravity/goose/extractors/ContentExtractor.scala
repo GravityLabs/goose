@@ -427,9 +427,9 @@ trait ContentExtractor {
     val linkDivisor: Float = numberOfLinkWords / numberOfWords
     val score: Float = linkDivisor * numberOfLinks
 
-    trace(logPrefix + "Calulated link density score as: " + score + " for node: " + getShortText(e.text, 50))
+    trace(logPrefix + "Calculated link density score as: " + score + " for node: " + getShortText(e.text, 50))
 
-    if (score > 1) {
+    if (score >= 1) {
       return true
     }
     false
@@ -600,7 +600,7 @@ trait ContentExtractor {
     val node = addSiblings(targetNode)
     for {
       e <- node.children
-      if (e.tagName != "p")
+      if (e.tagName != "p" || isHighLinkDensity(e))
     } {
       trace(logPrefix + "CLEANUP  NODE: " + e.id + " class: " + e.attr("class"))
       if (isHighLinkDensity(e) || isTableTagAndNoParagraphsExist(e) || !isNodeScoreThreshholdMet(node, e)) {
@@ -611,6 +611,7 @@ trait ContentExtractor {
         }
       }
     }
+    trace(logPrefix + "Finished cleanup Node")
     node
   }
 
