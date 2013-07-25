@@ -138,7 +138,7 @@ class Crawler(config: Configuration) {
   def getDocument(url: String, rawlHtml: String): Option[Document] = {
 
     try {
-      Some(Jsoup.parse(rawlHtml))
+      Some(Jsoup.parse(rawlHtml, url))
     } catch {
       case e: Exception => {
         trace("Unable to parse " + url + " properly into JSoup Doc")

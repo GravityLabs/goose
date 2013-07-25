@@ -166,10 +166,17 @@ trait ContentExtractor {
    */
   def getCanonicalLink(article: Article): String = {
     var url = article.doc.select("link[rel=canonical]").attr("abs:href")
+    trace(logPrefix + " base uri: " + article.doc.baseUri)
+    trace(logPrefix + " canonical link: " + url)
+
     if (url.isEmpty) {
-      url = article.doc.select("meta[property=og:url]").attr("content")
+      url = article.doc.select("meta[property=og:url]").attr("abs:content")
+
+      trace(logPrefix + " canonical link meta og: " + url)
       if (url.isEmpty) {
-        url = article.doc.select("meta[name=twitter:url]").attr("content")
+        url = article.doc.select("meta[name=twitter:url]").attr("abs:content")
+
+        trace(logPrefix + " canonical link meta twitter: " + url)
       }
     }
     if (url.nonEmpty) {
