@@ -22,7 +22,7 @@ import org.apache.http.Header
 import org.apache.http.HeaderElement
 import org.apache.http.HttpEntity
 import org.apache.http.HttpVersion
-import org.apache.http.{HttpRequest, HttpRequestInterceptor, HttpResponse, HttpResponseInterceptor}
+import org.apache.http.{HttpRequest, HttpRequestInterceptor, HttpResponse, HttpResponseInterceptor, HeaderElementIterator}
 import org.apache.http.client.entity.GzipDecompressingEntity
 import org.apache.http.client.CookieStore
 import org.apache.http.impl.client.BasicCookieStore
@@ -30,14 +30,15 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.params.CookiePolicy
 import org.apache.http.client.protocol.ClientContext
+import org.apache.http.conn.ConnectionKeepAliveStrategy
 import org.apache.http.conn.scheme.PlainSocketFactory
 import org.apache.http.conn.ssl.SSLSocketFactory
 import org.apache.http.conn.scheme.{Scheme, SchemeRegistry}
 import org.apache.http.cookie.Cookie
 import org.apache.http.impl.conn.PoolingClientConnectionManager
+import org.apache.http.message.BasicHeaderElementIterator
 import org.apache.http.params.{HttpParams, BasicHttpParams, HttpConnectionParams, HttpProtocolParams}
-import org.apache.http.protocol.BasicHttpContext
-import org.apache.http.protocol.HttpContext
+import org.apache.http.protocol.{HTTP, BasicHttpContext, HttpContext}
 import org.apache.http.util.EntityUtils
 import org.apache.http.entity.ContentType
 import java.io._
@@ -325,6 +326,29 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
             }
           }
         }
+      }
+    })
+
+    httpClient.asInstanceOf[AbstractHttpClient].setKeepAliveStrategy(new ConnectionKeepAliveStrategy() {
+      def getKeepAliveDuration( response: HttpResponse, context: HttpContext): Long = {
+        // Honor 'keep-alive' header
+        val it: HeaderElementIterator = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE))
+
+        while (it.hasNext()) {
+          val he: HeaderElement = it.nextElement()
+          val param: String = he.getName()
+          val value: String = he.getValue()
+          if (value != null && param.equalsIgnoreCase("timeout")) {
+            try {
+              return value.toLong * 1000
+            } catch {
+              case e: NumberFormatException => {} // ignore numberformat errors 
+            }
+          }
+        }
+
+        // otherwise keep alive for 10 seconds
+        return 10 * 1000
       }
     })
 
