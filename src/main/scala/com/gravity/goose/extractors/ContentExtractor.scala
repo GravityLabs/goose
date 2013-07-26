@@ -561,7 +561,7 @@ trait ContentExtractor {
   def extractLinks(node: Element): Map[String, String] = {
     val goodLinks = mutable.Map[String, String]()
 
-    val candidates = node.parent.select("a[href]").filter(el => el.attr("href") != "" && el.attr("href") != "#").map(el => goodLinks += el.attr("abs:href") -> el.text)
+    val candidates = node.parent.select("a[href]").filter(el => el.attr("href") != "#" && !el.attr("abs:href").trim.isEmpty).map(el => goodLinks += el.attr("abs:href") -> el.text)
 
     trace(logPrefix + "extractLinks: Extracted links. Found: " + candidates.size)
 
