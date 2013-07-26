@@ -78,6 +78,12 @@ class Configuration {
   @BeanProperty
   var socketTimeout: Int = 10000  // 10 seconds
 
+  @BeanProperty
+  var imageConnectionTimeout: Int = 2000  // 2 seconds
+
+  @BeanProperty
+  var imageSocketTimeout: Int = 5000  // 5 seconds
+
   /**
   * used as the user agent that is sent with your web requests to extract an article
   */

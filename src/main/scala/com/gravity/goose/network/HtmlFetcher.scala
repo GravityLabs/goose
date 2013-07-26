@@ -116,11 +116,11 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
 
       val params = httpClient.getParams
       HttpProtocolParams.setUserAgent(params, config.getBrowserUserAgent())
+      trace("Setting UserAgent To: " + HttpProtocolParams.getUserAgent(httpClient.getParams))
 
       HttpConnectionParams.setConnectionTimeout(params, config.getConnectionTimeout())
       HttpConnectionParams.setSoTimeout(params, config.getSocketTimeout())
 
-      trace("Setting UserAgent To: " + HttpProtocolParams.getUserAgent(httpClient.getParams))
       val response: HttpResponse = httpClient.execute(httpget, localContext)
 
       HttpStatusValidator.validate(cleanUrl, response.getStatusLine.getStatusCode) match {
@@ -297,8 +297,8 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
 
     httpClient = new DefaultHttpClient(cm, httpParams)
     httpClient.asInstanceOf[AbstractHttpClient].setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
-    httpClient.getParams.setParameter("http.connection-manager.timeout", 30000L)
-    httpClient.getParams.setParameter("http.protocol.wait-for-continue", 10000L)
+    httpClient.getParams.setParameter("http.connection-manager.timeout", 20000L) // timeout for retrieving a connection from the pool
+    httpClient.getParams.setParameter("http.protocol.wait-for-continue", 5000L)  // timeout for how long the client waits for 100-continue before sending request body
     httpClient.getParams.setParameter("http.tcp.nodelay", true)
 
     // http://hc.apache.org/httpcomponents-client-ga/httpclient/examples/org/apache/http/examples/client/ClientGZipContentCompression.java

@@ -28,6 +28,7 @@ import java.awt.color.CMMException
 import java.awt.image.BufferedImage
 import com.gravity.goose.utils.{URLHelper, Logging}
 import org.apache.http.client.HttpClient
+import org.apache.http.params.HttpConnectionParams
 import org.apache.http.HttpEntity
 import org.apache.http.protocol.{BasicHttpContext, HttpContext}
 import org.apache.http.client.protocol.ClientContext
@@ -274,7 +275,13 @@ object ImageUtils extends Logging {
         val localContext: HttpContext = new BasicHttpContext
         localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
         val response = try {
-          config.getHtmlFetcher.getHttpClient.execute(httpget, localContext)
+          val httpClient = config.getHtmlFetcher.getHttpClient // this doesn't use the passed in httpClient, I'm not sure why...
+          val params = httpClient.getParams
+
+          HttpConnectionParams.setConnectionTimeout(params, config.getImageConnectionTimeout())
+          HttpConnectionParams.setSoTimeout(params, config.getImageSocketTimeout())
+
+          httpClient.execute(httpget, localContext)
         }
         catch {
           case ex: Exception => throw new ImageFetchException(imageSrc, ex)
