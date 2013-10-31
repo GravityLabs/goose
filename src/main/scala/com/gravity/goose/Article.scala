@@ -88,6 +88,12 @@ class Article {
   var tags: Set[String] = null
 
   /**
+   * holds a map of any links -> link text in the article
+   */
+  @BeanProperty
+  var links: Map[String, String] = null
+
+  /**
    * holds a list of any movies we found on the page like youtube, vimeo
    */
   @BeanProperty

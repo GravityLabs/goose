@@ -59,7 +59,7 @@ class Crawler(config: Configuration) {
       article.rawHtml = rawHtml
       article.doc = doc
       article.rawDoc = doc.clone()
-
+      
       article.title = extractor.getTitle(article)
       article.publishDate = config.publishDateExtractor.extract(doc)
       article.additionalData = config.getAdditionalDataExtractor.extract(doc)
@@ -70,12 +70,15 @@ class Crawler(config: Configuration) {
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
 
-
+      if (article.publishDate == null) {
+        article.publishDate = extractor.getDateFromURL(article.canonicalLink)
+      }
 
       extractor.calculateBestNodeBasedOnClustering(article) match {
         case Some(node: Element) => {
           article.topNode = node
           article.movies = extractor.extractVideos(article.topNode)
+          article.links = extractor.extractLinks(article.topNode)
 
           if (config.enableImageFetching) {
             trace(logPrefix + "Image fetching enabled...")
@@ -93,9 +96,6 @@ class Crawler(config: Configuration) {
             }
           }
           article.topNode = extractor.postExtractionCleanup(article.topNode)
-
-
-
 
           article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
         }
@@ -138,7 +138,7 @@ class Crawler(config: Configuration) {
   def getDocument(url: String, rawlHtml: String): Option[Document] = {
 
     try {
-      Some(Jsoup.parse(rawlHtml))
+      Some(Jsoup.parse(rawlHtml, url))
     } catch {
       case e: Exception => {
         trace("Unable to parse " + url + " properly into JSoup Doc")

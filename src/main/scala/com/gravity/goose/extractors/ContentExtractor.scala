@@ -22,6 +22,7 @@ import com.gravity.goose.text._
 import com.gravity.goose.utils.Logging
 import java.net.URL
 import java.util.ArrayList
+import java.util.Date
 import scala.collection.mutable
 import scala.collection.JavaConversions._
 import org.jsoup.nodes.{Attributes, Element, Document}
@@ -53,7 +54,7 @@ trait ContentExtractor {
   val SPACE_SPLITTER: StringSplitter = new StringSplitter(" ")
   val NO_STRINGS = Set.empty[String]
   val A_REL_TAG_SELECTOR: String = "a[rel=tag], a[href*=/tag/]"
-  val TOP_NODE_TAGS = new TagsEvaluator(Set("p", "td", "pre"))
+  val TOP_NODE_TAGS = new TagsEvaluator(Set("p", "td", "pre", "li"))
 
   def getTitle(article: Article): String = {
     var title: String = string.empty
@@ -137,7 +138,19 @@ trait ContentExtractor {
   * if the article has meta description set in the source, use that
   */
   def getMetaDescription(article: Article): String = {
-    getMetaContent(article.doc, "meta[name=description]")
+    var desc = article.doc.select("meta[name=description]").attr("content")
+    if (desc.isEmpty) {
+      desc = article.doc.select("meta[property=og:description]").attr("content")
+      if (desc.isEmpty) {
+        desc = article.doc.select("meta[name=twitter:description]").attr("content")
+      }
+    }
+
+    if (desc.nonEmpty) {
+      desc.trim
+    } else {
+      string.empty
+    }
   }
 
   /**
@@ -152,9 +165,22 @@ trait ContentExtractor {
    * if the article has meta canonical link set in the url
    */
   def getCanonicalLink(article: Article): String = {
-    val meta = article.doc.select("link[rel=canonical]")
-    if (meta.size() > 0) {
-      val href = Option(meta.first().attr("href")).getOrElse("").trim
+    var url = article.doc.select("link[rel=canonical]").attr("abs:href")
+    trace(logPrefix + " base uri: " + article.doc.baseUri)
+    trace(logPrefix + " canonical link: " + url)
+
+    if (url.isEmpty) {
+      url = article.doc.select("meta[property=og:url]").attr("abs:content")
+
+      trace(logPrefix + " canonical link meta og: " + url)
+      if (url.isEmpty) {
+        url = article.doc.select("meta[name=twitter:url]").attr("abs:content")
+
+        trace(logPrefix + " canonical link meta twitter: " + url)
+      }
+    }
+    if (url.nonEmpty) {
+      val href = url.trim
       if (href.nonEmpty) href else article.finalUrl
     } else {
       article.finalUrl
@@ -177,6 +203,69 @@ trait ContentExtractor {
       if (!string.isNullOrEmpty(tag)) tags += tag
     }
     tags.toSet
+  }
+
+  def getDateFromURL(url: String): Date = {
+    val path = new URL(url).getPath
+
+    var year: Integer = -1;
+    var yearCounter: Integer = -1;
+    var month: Integer = -1;
+    var monthCounter: Integer = -1;
+    var day: Integer = -1;
+    var done: Boolean = false
+    val strs = path.split("/");
+    for ((str, counter) <- strs.zipWithIndex) {
+      if (!done) {
+        if (str.length() == 4 && yearCounter < 0) {
+          try {
+            year = Integer.parseInt(str);
+            if (year < 1970 || year > 3000) {
+              year = -1;
+            } else {
+              trace(logPrefix + " found year: " + year)
+              yearCounter = counter;
+            }
+          } catch {
+            case _ : java.lang.NumberFormatException => None
+          }
+        } else if (str.length() == 2) {
+          if (monthCounter < 0 && counter == yearCounter + 1) {
+            try {
+              month = Integer.parseInt(str);
+              if (month < 1 || month > 12) {
+                month = -1;
+              } else {
+                trace(logPrefix + " found month: " + month)
+                monthCounter = counter;
+              }
+            } catch {
+              case _ : java.lang.NumberFormatException => None
+            }
+          } else if (counter == monthCounter + 1) {
+            try {
+              day = Integer.parseInt(str);
+              if (day < 1 || day > 31) {
+                day = -1;
+              } else {
+                trace(logPrefix + " found day: " + day)
+                done = true
+              }
+            } catch {
+              case _ : java.lang.NumberFormatException => None
+            }
+          }
+        }
+      }
+    }
+
+    // should be converted to use jodatime or something, because java's date is terrible
+    if (year < 0) return null;
+    year = year - 1900 // date constructor takes year - 1900
+    if (month < 1) return new Date(year, 0, 1)
+    month = month - 1 // date constructor dates month in 0 - 11
+    if (day < 1) return new Date(year, month, 1)
+    return new Date(year, month, day)
   }
 
   /**
@@ -231,7 +320,7 @@ trait ContentExtractor {
         }
       }
 
-      trace(logPrefix + "Location Boost Score: " + boostScore + " on interation: " + i + "' id='" + node.parent.id + "' class='" + node.parent.attr("class"))
+      trace(logPrefix + "Location Boost Score: " + boostScore + " on interation: " + i + " tag='"+ node.tagName +"' id='" + node.parent.id + "' class='" + node.parent.attr("class"))
 
       val nodeText: String = node.text
       val wordStats: WordStats = StopWords.getStopWordCount(nodeText)
@@ -345,9 +434,9 @@ trait ContentExtractor {
     val linkDivisor: Float = numberOfLinkWords / numberOfWords
     val score: Float = linkDivisor * numberOfLinks
 
-    trace(logPrefix + "Calulated link density score as: " + score + " for node: " + getShortText(e.text, 50))
+    trace(logPrefix + "Calculated link density score as: " + score + " for node: " + getShortText(e.text, 50))
 
-    if (score > 1) {
+    if (score >= 1) {
       return true
     }
     false
@@ -464,6 +553,21 @@ trait ContentExtractor {
     goodMovies.toList
   }
 
+  /**
+  * pulls out links we like
+  *
+  * @return
+  */
+  def extractLinks(node: Element): Map[String, String] = {
+    val goodLinks = mutable.Map[String, String]()
+
+    val candidates = node.parent.select("a[href]").filter(el => el.attr("href") != "#" && !el.attr("abs:href").trim.isEmpty).map(el => goodLinks += el.attr("abs:href") -> el.text)
+
+    trace(logPrefix + "extractLinks: Extracted links. Found: " + candidates.size)
+
+    goodLinks.toMap
+  }
+
   def isTableTagAndNoParagraphsExist(e: Element): Boolean = {
 
     val subParagraphs: Elements = e.getElementsByTag("p")
@@ -472,12 +576,21 @@ trait ContentExtractor {
         p.remove()
       }
     }
+
     val subParagraphs2: Elements = e.getElementsByTag("p")
-    if (subParagraphs2.size == 0 && !(e.tagName == "td")) {
-      trace("Removing node because it doesn't have any paragraphs")
-      true
+    if (subParagraphs2.size == 0 && e.tagName != "td") {
+      if (e.tagName == "ul" || e.tagName == "ol") {
+        val linkTextLength = e.getElementsByTag("a").map(_.text.length).sum
+        val elementTextLength = e.text.length
+        if (elementTextLength > 0 && (linkTextLength.toFloat / elementTextLength) < 0.5) {
+          return false // less than half of the list is links, so keep this
+        }
+        trace("List failed link density test: " + linkTextLength + " " + elementTextLength + " " + getShortText(e.text, 50))
+      }
+      trace("Removing node because it doesn't have any paragraphs " + e.tagName + " " + e.attr("class"))
+      return true
     } else {
-      false
+      return false
     }
   }
 
@@ -494,7 +607,7 @@ trait ContentExtractor {
     val node = addSiblings(targetNode)
     for {
       e <- node.children
-      if (e.tagName != "p")
+      if (e.tagName != "p" || isHighLinkDensity(e))
     } {
       trace(logPrefix + "CLEANUP  NODE: " + e.id + " class: " + e.attr("class"))
       if (isHighLinkDensity(e) || isTableTagAndNoParagraphsExist(e) || !isNodeScoreThreshholdMet(node, e)) {
@@ -505,6 +618,7 @@ trait ContentExtractor {
         }
       }
     }
+    trace(logPrefix + "Finished cleanup Node")
     node
   }
 
