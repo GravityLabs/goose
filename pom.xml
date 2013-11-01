@@ -1,41 +1,33 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.unfold</groupId>
   <artifactId>goose-fork</artifactId>
-  <version>2.1.23-SNAPSHOT</version>
-  
+  <version>2.1.24-SNAPSHOT</version>
+
   <packaging>jar</packaging>
-  
+
   <name>Goose - Unfold Fork</name>
-  
+
   <distributionManagement>
     <repository>
-        <id>unfold-release</id>
-        <name>Unfold Nexus Release Repository</name>
-        <url>http://git.tacenda.com:8081/nexus/content/repositories/releases</url>
+      <id>unfold-release</id>
+      <name>Unfold Nexus Release Repository</name>
+      <url>http://nexus.unfold.com:8081/nexus/content/repositories/releases</url>
     </repository>
     <snapshotRepository>
-        <id>unfold-snapshot</id>
-        <name>Unfold Nexus Snapshot Repository</name>
-        <url>http://nexus.unfold.com:8081/nexus/content/repositories/snapshots</url>
+      <id>unfold-snapshot</id>
+      <name>Unfold Nexus Snapshot Repository</name>
+      <url>http://nexus.unfold.com:8081/nexus/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
-  
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.5</maven.compiler.source>
     <maven.compiler.target>1.5</maven.compiler.target>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>akka.repository</id>
-      <name>Akka Maven Repository</name>
-      <url>http://akka.io/repository</url>
-    </repository>
-  </repositories>
 
   <dependencies>
     <dependency>
@@ -44,24 +36,26 @@
       <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.6.1</version>
-      <type>jar</type>
-      <scope>compile</scope>
+      <version>1.7.5</version>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.6.1</version>
+      <version>1.7.5</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
       <version>1.5.2</version>
     </dependency>
+
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
@@ -86,6 +80,7 @@
       <artifactId>httpclient</artifactId>
       <version>4.2.4</version>
     </dependency>
+
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
@@ -124,20 +119,17 @@
 
       </exclusions>
     </dependency>
-   
+
 
     <dependency>
-	<groupId>com.googlecode.juniversalchardet</groupId>
-	<artifactId>juniversalchardet</artifactId>
-	<version>1.0.3</version>
-	<scope>compile</scope>
+      <groupId>com.googlecode.juniversalchardet</groupId>
+      <artifactId>juniversalchardet</artifactId>
+      <version>1.0.3</version>
     </dependency>
 
   </dependencies>
 
-  <!--
-    Hey... since we're open source, let's compile the source and javadocs into jars as well
-  -->
+  <!-- Hey... since we're open source, let's compile the source and javadocs into jars as well -->
   <build>
     <plugins>
       <plugin>
