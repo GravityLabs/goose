@@ -76,8 +76,6 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
   private var httpClient: HttpClient = null
   initClient()
 
-  private var connectionMonitorThread: IdleConnectionMonitorThread = null
-
   def getHttpClient: HttpClient = {
     httpClient
   }
@@ -352,10 +350,6 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
       }
     })
 
-    if (connectionMonitorThread == null) {
-      connectionMonitorThread = new IdleConnectionMonitorThread(cm);
-    }
-    connectionMonitorThread.start();
   }
 
   /**
