@@ -13,7 +13,7 @@
   <packaging>jar</packaging>
   <name>goose</name>
   <description>Goose was originally an article extractor written in Java that has most recently (aug2011) converted to a scala project. It's mission is to take any news article or article type web page and not only extract what is the main body of the article but also all meta data and most probable image candidate.</description>
-  <url>https://github.com/jiminoc/goose</url>
+  <url>https://github.com/matth/goose</url>
 
   <licenses>
     <license>
@@ -24,9 +24,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git@github.com:jiminoc/goose.git</connection>
-    <developerConnection>scm:git:git@github.com:jiminoc/goose.git</developerConnection>
-    <url>git@github.com:jiminoc/goose.git</url>
+    <connection>scm:git:git@github.com:matth/goose.git</connection>
+    <developerConnection>scm:git:git@github.com:matth/goose.git</developerConnection>
+    <url>git@github.com:matth/goose.git</url>
   </scm>
 
   <properties>
