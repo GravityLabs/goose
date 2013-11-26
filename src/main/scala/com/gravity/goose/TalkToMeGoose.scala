@@ -57,22 +57,46 @@ object TalkToMeGoose {
 
 		val url_list = keyspace.prepareQuery(column_family)
 						.getAllRows()
-						.withColumnRange(new RangeBuilder().setLimit(0).build())
+						.withColumnSlice(List("lastc", "lastv"))
 						.execute().getResult()
 		val mutation_batch = keyspace.prepareMutationBatch()
+
+		var url = ""
+		var lastc = ""
+		var lastv = ""
+		var article = ""
+		var timestamp = ""
 
 		val config: Configuration = new Configuration
 		config.enableImageFetching = false
 		val goose = new Goose(config)
 
 		for (url_row <- url_list) {
-			val url = url_row.getKey()
+			url = url_row.getKey()
+			lastc = url_row.getColumns().getStringValue("lastc", "")
+			lastv = url_row.getColumns().getStringValue("lastv", "")
 
 			try {
-				val article = goose.extractContent(url).cleanedArticleText
-				val timestamp = System.currentTimeMillis.toString
-				mutation_batch.withRow(column_family, url)
-					.putColumn(timestamp, article)
+				val gec = goose.extractContent(url)
+				article = gec.cleanedArticleText
+				timestamp = System.currentTimeMillis.toString
+
+				if (article == "") {
+				  article = gec.rawHtml
+				}
+
+				if (article == lastc) {
+					mutation_batch.withRow(column_family, url)
+						.putColumn(timestamp, lastv)
+				} else {
+					lastv = "v" + (lastv.replace("v", "").toInt + 1)
+					mutation_batch.withRow(column_family, url)
+						.putColumn("lastc", article)
+						.putColumn("lastv", lastv)
+						.putColumn(lastv, article)
+						.putColumn(timestamp, lastv)
+				}
+
 				mutation_batch.execute()
 				System.out.println("Extracted content from " + url)
 			} catch {
