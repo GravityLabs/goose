@@ -151,4 +151,31 @@
     </plugins>
   </build>
 
+    <repositories>
+        <repository>
+            <id>zeebox-nexus</id>
+            <url>http://nexus.zeebox.com:8080/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>zeebox-nexus</id>
+            <name>zeebox-nexus</name>
+            <url>http://nexus.zeebox.com:8080/nexus/content/repositories/releases</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>zeebox-nexus-snapshots</id>
+            <name>zeebox-nexus-snapshots</name>
+            <url>http://nexus.zeebox.com:8080/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
