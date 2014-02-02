@@ -33,7 +33,7 @@ trait Extractor[T] {
   /**
   * Given the specified {@link Element}, extract @param <T>
   *
-  * @param rootElement passed in from the {@link com.jimplush.goose.ContentExtractor} after the article has been parsed
+  * @param rootElement passed in from the {@link com.jimplush.goose.ContentExtractorJava} after the article has been parsed
   * @return an instance of type <code>T</code>
   */
   def extract(rootElement: Element): T
