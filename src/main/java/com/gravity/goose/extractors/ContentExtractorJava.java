@@ -469,6 +469,7 @@ public class ContentExtractorJava
             return false;
         }
         String text = e.text().trim();
+        // fixme
         String[] words = SPACE_SPLITTER.split(text);
         float numberOfWords = words.length;
         StringBuilder sb = new StringBuilder();
@@ -477,6 +478,7 @@ public class ContentExtractorJava
             sb.append(link.text());
         }
         String linkText = sb.toString();
+        // fixme
         String[] linkWords = SPACE_SPLITTER.split(linkText);
         float numberOfLinkWords = linkWords.length;
         float numberOfLinks = links.size();
@@ -550,7 +552,25 @@ public class ContentExtractorJava
 
     private void updateNodeCount(Element node, int addToCount)
     {
-
+        int currentScore = 0;
+        try
+        {
+            String countString = node.attr("gravityNodes");
+            if(StringUtil.isNullOrEmpty(countString))
+            {
+                currentScore = 0;
+            }
+            else
+            {
+                currentScore = Integer.parseInt(countString);
+            }
+        }
+        catch (NumberFormatException e)
+        {
+            currentScore = 0;
+        }
+        int newScore = currentScore + addToCount;
+        node.attr("gravityNodes", Integer.toString(newScore));
     }
 
     /**
