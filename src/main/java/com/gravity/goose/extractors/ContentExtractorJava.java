@@ -1,8 +1,12 @@
 package com.gravity.goose.extractors;
 
 import com.gravity.goose.Article;
+import com.gravity.goose.text.ReplaceSequence;
+import com.gravity.goose.text.StringReplacement;
+import com.gravity.goose.text.StringSplitter;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,14 +19,90 @@ import java.util.List;
  */
 public class ContentExtractorJava
 {
+    private StringSplitter PIPE_SPLITTER = new StringSplitter("\\|");
+    private StringSplitter ARROWS_SPLITTER = new StringSplitter("»");
+    private StringSplitter DASH_SPLITTER = new StringSplitter(" - ");
+    private StringSplitter COLON_SPLITTER = new StringSplitter(":");
+    private StringReplacement MOTLEY_REPLACEMENT = new StringReplacement.compile("&#65533;", "");
+    private ReplaceSequence TITLE_REPLACEMENT =  ReplaceSequence.create("&raquo;").append("»");
+
+
     /**
-     * fixme stub
+     * fixme replace scala calls
      * @param article
      * @return
      */
     String getTitle(Article article)
     {
-        return "";
+        String title = "";
+        Document doc = article.doc();
+        try {
+            Elements titleElem = doc.getElementsByTag("title");
+            if(titleElem == null || titleElem.isEmpty())
+            {
+                return "";
+            }
+
+            String titleText = titleElem.first().text();
+
+            if(titleText == null || titleElem.isEmpty())
+            {
+                return "";
+            }
+            boolean usedDelimeter = false;
+
+            if(titleText.contains("|"))
+            {
+                titleText = doTitleSplits(titleText, PIPE_SPLITTER);
+                usedDelimeter = true;
+            }
+            if(!usedDelimeter && titleText.contains("-"))
+            {
+                titleText = doTitleSplits(titleText, DASH_SPLITTER);
+                usedDelimeter = true;
+            }
+            if(!usedDelimeter && titleText.contains("»"))
+            {
+                titleText = doTitleSplits(titleText, ARROWS_SPLITTER);
+                usedDelimeter = true;
+            }
+            if(!usedDelimeter && titleText.contains(":"))
+            {
+                titleText = doTitleSplits(titleText, COLON_SPLITTER);
+            }
+            title = MOTLEY_REPLACEMENT.replaceAll(titleText);
+        }
+        catch(NullPointerException e) {
+
+        }
+        return title;
+    }
+
+    /**
+     * fixme replace scala calls
+     * @param title
+     * @param splitter
+     * @return
+     */
+
+    String doTitleSplits(String title, StringSplitter splitter)
+    {
+        int largestTextLen = 0;
+        int largeTextIndex = 0;
+        String[] titlePieces = splitter.split(title);
+
+        int i = 0;
+        while(i < titlePieces.length)
+        {
+            String current = titlePieces[i];
+            if(current.length() > largestTextLen)
+            {
+                largestTextLen = current.length();
+                largeTextIndex = i;
+            }
+            i++;
+        }
+        return TITLE_REPLACEMENT.replaceAll(titlePieces[largeTextIndex].trim());
     }
 
     /**
@@ -34,29 +114,43 @@ public class ContentExtractorJava
 
     String getMetaContent(Document doc, String metaName)
     {
-        return "";
+        Elements meta = doc.select(metaName);
+        String content = null;
+
+        if(meta.size() > 0)
+        {
+            content = meta.first().attr("content");
+        }
+        if(content.isEmpty() || content == null)
+        {
+            return "";
+        }
+        else
+        {
+            return content.trim();
+        }
     }
 
     /**
-     * fixme stub
+     * fixme replace scala call
      * @param article
      * @return
      */
 
     String getMetaDescription(Article article)
     {
-        return "";
+        return getMetaContent(article.doc(), "meta[name=description]");
     }
 
     /**
-     * fixme stub
+     * fixme replace scala call
      * @param article
      * @return
      */
 
     String getMetaKeywords(Article article)
     {
-        return "";
+        return getMetaContent(article.doc(), "meta[name=keywords]");
     }
 
     /**
