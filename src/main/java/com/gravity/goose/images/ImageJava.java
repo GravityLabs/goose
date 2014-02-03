@@ -19,6 +19,71 @@ public class ImageJava
     String imageExtractionType = "NA";
     long bytes = 0;
 
+    public Element getTopImageNode()
+    {
+        return topImageNode;
+    }
+
+    public void setTopImageNode(Element topImageNode)
+    {
+        this.topImageNode = topImageNode;
+    }
+
+    public void setImageSrc(String imageSrc)
+    {
+        this.imageSrc = imageSrc;
+    }
+
+    public double getConfidenceScore()
+    {
+        return confidenceScore;
+    }
+
+    public void setConfidenceScore(double confidenceScore)
+    {
+        this.confidenceScore = confidenceScore;
+    }
+
+    public int getHeight()
+    {
+        return height;
+    }
+
+    public void setHeight(int height)
+    {
+        this.height = height;
+    }
+
+    public int getWidth()
+    {
+        return width;
+    }
+
+    public void setWidth(int width)
+    {
+        this.width = width;
+    }
+
+    public String getImageExtractionType()
+    {
+        return imageExtractionType;
+    }
+
+    public void setImageExtractionType(String imageExtractionType)
+    {
+        this.imageExtractionType = imageExtractionType;
+    }
+
+    public long getBytes()
+    {
+        return bytes;
+    }
+
+    public void setBytes(long bytes)
+    {
+        this.bytes = bytes;
+    }
+
     public String getImageSrc()
     {
         return imageSrc;
