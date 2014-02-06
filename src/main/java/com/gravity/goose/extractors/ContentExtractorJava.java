@@ -2,6 +2,7 @@ package com.gravity.goose.extractors;
 
 import com.gravity.goose.ArticleJava;
 import com.gravity.goose.text.*;
+import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Collector;
@@ -12,6 +13,7 @@ import org.jsoup.select.TagsEvaluator;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.jsoup.nodes.Attributes;
 
 /**
  * Created with IntelliJ IDEA.
@@ -279,7 +281,7 @@ public class ContentExtractorJava
         {
             String nodeText = node.text();
             //fixme remove scala code call
-            WordStats wordStats = StopWords.getStopWordCount(nodeText);
+            WordStatsJava wordStats = StopWordsJava.getStopWordCount(nodeText);
             boolean highLinkDensity = isHighLinkDensity(node);
             if(wordStats.getStopWordCount() > 2 && !highLinkDensity)
             {
@@ -319,7 +321,7 @@ public class ContentExtractorJava
             // fixme change to logger
             System.out.println(logPrefix + "Location Boost Score: " + boostScore + " on interation: " + i + "' id='" + node.parent().id() + "' class='" + node.parent().attr("class"));
             String nodeText = node.text();
-            WordStats wordStats = StopWords.getStopWordCount(nodeText);
+            WordStatsJava wordStats = StopWordsJava.getStopWordCount(nodeText);
             int upScore = (int)(wordStats.getStopWordCount() + boostScore);
             updateScore(node.parent(), upScore);
             updateScore(node.parent().parent(), upScore / 2);
@@ -424,7 +426,7 @@ public class ContentExtractorJava
                 }
                 String paraText = currentNode.text();
                 // fixme replace scala code
-                WordStats wordStats = StopWords.getStopWordCount(paraText);
+                WordStatsJava wordStats = StopWordsJava.getStopWordCount(paraText);
                 if(wordStats.getStopWordCount() > minimumStopWordCount)
                 {
                     System.out.println(logPrefix + "We're gonna boost this node, seems contenty");
@@ -574,41 +576,198 @@ public class ContentExtractorJava
     }
 
     /**
-     * fixme stub
+     * pulls out videos we like
      * @param node
      * @return
      */
 
     List<Element> extractVideos(Element node)
     {
-        return null;
+        ArrayList<Element> candidates = new ArrayList<>();
+        ArrayList<Element> goodMovies = new ArrayList<>();
+
+        String youtubeStr = "youtube";
+        String vimeoStr = "vimeo";
+
+        try
+        {
+            for(Element item: node.parent().getAllElements("embed"))
+            {
+                candidates.add(item);
+            }
+
+            for(Element item : node.parent().getAllElements("object"))
+            {
+                candidates.add(item);
+            }
+
+            // fixme change to logger
+
+            System.out.println(logPrefix + "extractVideos: Starting to extract videos. Found: " + candidates.size());
+
+            for(Element el : candidates)
+            {
+                Attributes attrs = el.attributes();
+                for(Attribute a : attrs)
+                {
+                    try
+                    {
+                        if(a.getValue().contains(youtubeStr) || a.getValue().contains(vimeoStr))
+                        {
+                            // fixme change to logger
+                            System.out.println(logPrefix + "This page has a video!: " + a.getValue());
+                            goodMovies.add(el);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        // fixme change to logger
+                        System.out.println(logPrefix + "Error extracting movies: " + e.toString());
+
+                    }
+                }
+            }
+        }
+        catch(NullPointerException e)
+        {
+            // fixme change to logger
+            System.out.println(e.toString());
+        }
+        catch (Exception e)
+        {
+            // fixme change to logger
+            System.out.println(e.toString());
+        }
+        return goodMovies;
     }
 
     /**
-     * fixme stub
      * @param e
      * @return
      */
 
     boolean isTableTagAndNoParagraphsExist(Element e)
     {
-        return true;
-    }
+        Elements subParagraphs =  e.getElementsByTag("p");
+        for(Element p : subParagraphs)
+        {
+            if(p.text().length() < 25)
+            {
+                p.remove();
+            }
+        }
 
-    Element postExtractionCleanup(Element targetNode)
-    {
-        return null;
+        Elements subParagraphs2 = e.getElementsByTag("p");
+        if(subParagraphs2.size() == 0 && !(e.tagName() == "td"))
+        {
+            // fixme change to logger
+            System.out.println("Removing node because it doesn't have any paragraphs");
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /**
-     * fixme return type
-     * fixme stub
+     * remove any divs that looks like non-content, clusters of links, or paras with no gusto
+     * @param targetNode
+     * @return
+     */
+
+    Element postExtractionCleanup(Element targetNode)
+    {
+        // fixme change to logger
+        System.out.println(logPrefix + "Starting cleanup Node");
+
+        Element node = addSiblings(targetNode);
+        for(Element e : node.children())
+        {
+            if(e.tagName() != "p")
+            {
+                // fixme change to logger
+                System.out.println(logPrefix + "CLEANUP  NODE: " + e.id() + " class: " + e.attr("class"));
+                if(isHighLinkDensity(e) || isTableTagAndNoParagraphsExist(e) ||!isNodeScoreThreshholdMet(node, e))
+                {
+                    try
+                    {
+                        e.remove();
+                    }
+                    catch (IllegalArgumentException ex)
+                    {
+                        // fixme change to logger
+                        System.out.println("Cannot remove node: " + ex.toString());
+                    }
+                }
+            }
+        }
+
+        return node;
+    }
+
+    boolean isNodeScoreThreshholdMet(Element node, Element e)
+    {
+        int topNodeScore = getScore(node);
+        int currentNodeScore = getScore(e);
+        float thresholdScore = (float)(topNodeScore * 0.08);
+        // fixme change to logger
+        System.out.println(logPrefix + "topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore);
+        if((currentNodeScore < thresholdScore) && e.tagName() != "td")
+        {
+            // fixme change to logger
+            System.out.println(logPrefix + "Removing node due to low threshold score");
+            return false;
+        }
+        else
+        {
+            // fixme change to logger
+            System.out.println(logPrefix + "Not removing TD node");
+            return true;
+        }
+    }
+
+    /**
+     * adds any siblings that may have a decent score to this node
+     * fixme check logic against scala
+     * fixme replace scala calls
      * @param currentSibling
      * @param baselineScoreForSiblingParagraphs
      */
-    void getSiblingContent(Element currentSibling, int baselineScoreForSiblingParagraphs)
+    String getSiblingContent(Element currentSibling, int baselineScoreForSiblingParagraphs)
     {
-
+        if(currentSibling.tagName() == "p" && currentSibling.text().length() > 0)
+        {
+            return currentSibling.outerHtml();
+        }
+        else
+        {
+            Elements potentialParagraphs = currentSibling.getElementsByTag("p");
+            String paragraph = "";
+            if(potentialParagraphs.first() == null)
+            {
+                return "";
+            }
+            else
+            {
+                // fixme check here
+                for(Element firstParagraph : potentialParagraphs)
+                {
+                    if(firstParagraph.text().length() > 0)
+                    {
+                        // fixme replace here
+                        WordStatsJava wordStats = StopWordsJava.getStopWordCount(firstParagraph.text());
+                        int paragraphScore = wordStats.getStopWordCount();
+                        double siblingBaseLineScore = 0.30;
+                        if((baselineScoreForSiblingParagraphs * siblingBaseLineScore) < paragraphScore)
+                        {
+                            paragraph += "<p>" + firstParagraph + "<p>";
+                        }
+                    }
+                }
+            }
+            return  paragraph;
+        }
     }
 
     /**
@@ -633,16 +792,32 @@ public class ContentExtractorJava
 
     /**
      * fixme stub
+     * fixme check logic against scala
      * @param topNode
      * @return
      */
 
     private Element addSiblings(Element topNode)
     {
-        return null;
+        // fixme change to logger
+        System.out.println(logPrefix + "Starting to add siblings");
+        int baselineScoreForSiblingParagraphs = getBaselineScoreForSiblings(topNode);
+
+        ArrayList<String> results = new ArrayList<>();
+        for (Element currentNode: walkSiblings(topNode))
+        {
+            results.add(getSiblingContent(currentNode, baselineScoreForSiblingParagraphs));
+        }
+        Collections.reverse(results);
+        return topNode.child(0).before(results.toString());
+
     }
 
     /**
+     * we could have long articles that have tons of paragraphs so if we tried to calculate the base score against
+     * the total text score of those paragraphs it would be unfair. So we need to normalize the score based on the average scoring
+     * of the paragraphs within the top node. For example if our total score of 10 paragraphs was 1000 but each had an average value of
+     * 100 then 100 should be our base.
      * fixme stub
      * @param topNode
      * @return
@@ -650,6 +825,26 @@ public class ContentExtractorJava
 
     private int getBaselineScoreForSiblings(Element topNode)
     {
+        int base = 100000;
+        int numberOfParagraphs = 0;
+        int scoreOfParagraphs = 0;
+
+        Elements nodesToCheck = topNode.getElementsByTag("p");
+        for(Element node : nodesToCheck)
+        {
+            String nodeText = node.text();
+            WordStatsJava wordStats = StopWordsJava.getStopWordCount(nodeText);
+            boolean highLinkDensity = isHighLinkDensity(node);
+            if(wordStats.getStopWordCount() > 2 && !highLinkDensity)
+            {
+                numberOfParagraphs++;
+                scoreOfParagraphs += wordStats.getStopWordCount();
+            }
+        }
+        if (numberOfParagraphs > 0)
+        {
+            base = scoreOfParagraphs / numberOfParagraphs;
+        }
         return 0;
     }
 
@@ -667,7 +862,7 @@ public class ContentExtractorJava
         sb.append("' paraNodeCount: '");
         sb.append(e.attr("gravityNodes"));
         sb.append("' nodeId: '");
-        //sb.append(e.);
+        sb.append(e.id());
         sb.append("' className: '");
         sb.append(e.attr("class"));
         return sb.toString();

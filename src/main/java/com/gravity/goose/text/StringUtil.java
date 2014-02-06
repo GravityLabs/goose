@@ -9,6 +9,7 @@ package com.gravity.goose.text;
  */
 public class StringUtil
 {
+    static StringSplitter SPACE_SPLITTER = new StringSplitter(" ");
     public static boolean isNullOrEmpty(String input)
     {
         if(input == null)
