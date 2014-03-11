@@ -88,7 +88,8 @@ class Crawler(config: Configuration) {
               }
             } catch {
               case e: Exception => {
-                warn(e, e.toString)
+                warn(e, e.getMessage)
+                throw e
               }
             }
           }
