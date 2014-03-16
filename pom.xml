@@ -3,13 +3,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.gravity</groupId>
-  <artifactId>goose</artifactId>
+  <artifactId>goose_2.10</artifactId>
   <version>2.1.22</version>
   <packaging>jar</packaging>
   <name>goose</name>
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <scala.major>2.10</scala.major>
+    <scala.version>${scala.major}.3</scala.version>
   </properties>
 
   <dependencies>
@@ -46,14 +48,23 @@
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-compiler</artifactId>
-      <version>2.9.0-1</version>
+      <version>${scala.version}</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.scala-lang</groupId>
+      <artifactId>scala-actors</artifactId>
+      <version>${scala.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+
+
+    <dependency>
+      <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
-      <version>2.9.0-1</version>
+      <version>${scala.version}</version>
     </dependency>
 
     <dependency>
