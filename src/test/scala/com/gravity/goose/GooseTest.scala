@@ -2,8 +2,7 @@ package com.gravity.goose
 
 import org.junit.Test
 import org.junit.Assert._
-import scala.actors.Future
-import scala.actors.Futures._
+import java.net.UnknownHostException
 
 /**
  * Created by Jim Plush
@@ -15,7 +14,6 @@ class GooseTest {
 
   @Test
   def gooseTest() {
-
 
     //    implicit val config = new Configuration
     //    val url = "http://techcrunch.com/2011/08/13/2005-zuckerberg-didnt-want-to-take-over-the-world/"
@@ -40,9 +38,12 @@ class GooseTest {
     implicit val config = new Configuration
     val url = "http://nolove888.com/2011/08/13/LINKNOTEXISTS"
     val goose = new Goose(config)
-    val article = goose.extractContent(url)
-    assertNull(article.topNode)
+    try {
+      val article = goose.extractContent(url)
+      fail()
+    } catch {
+      case e: UnknownHostException => // Expected
+    }
   }
-
 
 }
