@@ -1,3 +1,7 @@
+```
+Small fork to use Scala 2.10.3 instead of 2.9.0-1
+```
+
 #Goose - Article Extractor
 
 ##Intro
