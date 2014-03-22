@@ -108,21 +108,21 @@ trait ContentExtractor {
   * @return
   */
   def doTitleSplits(title: String, splitter: StringSplitter): String = {
-    var largetTextLen: Int = 0
-    var largeTextIndex: Int = 0
+    var largestTextLen: Int = 0
+    var largestTextIndex: Int = 0
     val titlePieces: Array[String] = splitter.split(title)
     var i: Int = 0
     while (i < titlePieces.length) {
 
       val current: String = titlePieces(i)
-      if (current.length > largetTextLen) {
-        largetTextLen = current.length
-        largeTextIndex = i
+      if (current.length > largestTextLen) {
+        largestTextLen = current.length
+        largestTextIndex = i
       }
       i += 1
 
     }
-    TITLE_REPLACEMENTS.replaceAll(titlePieces(largeTextIndex)).trim
+    TITLE_REPLACEMENTS.replaceAll(titlePieces(largestTextIndex)).trim
   }
 
   private def getMetaContent(doc: Document, metaName: String): String = {
