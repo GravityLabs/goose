@@ -22,6 +22,7 @@ import images.Image
 import org.jsoup.nodes.{Element, Document}
 import java.util.Date
 import scala.collection._
+import com.gravity.goose.opengraph.OpenGraphData
 
 /**
 * Created by Jim Plush
@@ -122,4 +123,9 @@ class Article {
    * @return a {@link Map Map&lt;String,String&gt;} of property name to property vaue (represented as a {@link String}.
    */
   var additionalData: Map[String, String] = Map.empty
+
+  /**
+   * Facebook Open Graph data that that is found in Article Meta tags
+   */
+  var openGraphData: OpenGraphData = null
 }
