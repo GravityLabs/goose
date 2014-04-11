@@ -1,0 +1,74 @@
+#!/bin/bash
+
+name="Capfile"
+deploy_dir="deploy"
+group=ad3
+tmp_file="$deploy_dir/$name.tmp"
+conf_file="$deploy_dir/$name.conf"
+
+function createCap(){
+    details=`awk -F ":" -v g=$group '$1==g {print $2}' $conf_file`
+    echo $details
+    IFS=,
+    ary=($details)
+    #count=${#ary[@]}
+    user=${ary[0]}
+    adminuser=${ary[1]}
+    port=${ary[2]}
+    hosts=${ary[3]}
+    ahost=${ary[@]:3:100}
+    IFS=
+    hosts=`echo $ahost|sed 's/ /,/g'`
+
+
+    echo "use group : "$group
+    echo "user: "$group
+    echo "admin_runner : "$adminuser
+    echo "port : "$port
+    echo "hosts : "$hosts
+    cp $tmp_file $group_file 
+    sed -i "s/##USER##/$user/g" $group_file
+    sed -i "s/##ADMIN_RUNNER##/$adminuser/g" $group_file
+    sed -i "s/##PORT##/$port/g" $group_file
+    sed -i "s/##HOSTS##/$hosts/g" $group_file
+}
+
+function createRelease(){
+
+    cd release
+    git pull origin master
+
+    git rm ./*.jar
+    git rm config/*
+    git rm scripts/*
+
+    cd ..
+    sbt clean update package-dist
+    cd release
+
+    git status
+    git add .
+    git commit -m "make release"
+    git push origin master
+
+    cd ..
+}
+
+
+if [ $# = 0 ] ; then  
+  echo "Usage : ./deploy.sh group1 group2.."  
+else  
+  for i in "$@"  
+  do
+    if [ "$i" == "tmp" ] || [ "$i" == "conf" ]; then
+        echo "Group name can not be tmp or conf"
+    else
+        group=$i
+        #group_file="$deploy_dir/$name.$group"
+        group_file="$name"
+        createCap $i  
+        #createRelease $i  
+        cap -f $group_file deploy
+    fi
+  done  
+fi  
