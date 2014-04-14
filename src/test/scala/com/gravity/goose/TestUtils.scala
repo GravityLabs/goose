@@ -19,6 +19,7 @@ object TestUtils {
   val articleReport = new StringBuilder("=======================::. ARTICLE REPORT .::======================\n");
 
   val DEFAULT_CONFIG: Configuration = new Configuration
+  //DEFAULT_CONFIG. 
   val NO_IMAGE_CONFIG: Configuration = new Configuration
   NO_IMAGE_CONFIG.enableImageFetching = false
 

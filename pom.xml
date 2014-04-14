@@ -46,14 +46,14 @@
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-compiler</artifactId>
-      <version>2.9.0-1</version>
+      <version>2.10.1</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
-      <version>2.9.0-1</version>
+      <version>2.10.1</version>
     </dependency>
 
     <dependency>
@@ -71,7 +71,12 @@
   <!--
     Hey... since we're open source, let's compile the source and javadocs into jars as well
   -->
+  
   <build>
+    <directory>${project.basedir}/src/main/scala</directory>
+    <outputDirectory>${project.basedir}/target/scala-2.10/classes</outputDirectory>
+    <testOutputDirectory>${project.basedir}/target/scala-2.10/test-classes</testOutputDirectory>
+       
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

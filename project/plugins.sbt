@@ -10,3 +10,5 @@ resolvers ++= Seq("snapshots" at "http://scala-tools.org/repo-snapshots",
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.9.0")
 
 addSbtPlugin("com.twitter" % "sbt-package-dist" % "1.1.0-SNAPSHOT")
+
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.1.2")

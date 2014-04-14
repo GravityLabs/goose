@@ -39,6 +39,7 @@ class GooseTest {
   def badlink() {
     implicit val config = new Configuration
     val url = "http://nolove888.com/2011/08/13/LINKNOTEXISTS"
+    //val url = "https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/ApplePushService.html"
     val goose = new Goose(config)
     val article = goose.extractContent(url)
     assertNull(article.topNode)
