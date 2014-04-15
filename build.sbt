@@ -46,7 +46,8 @@ libraryDependencies ++= {
     "org.scala-lang" % "scala-compiler" % "2.9.0-1",
     "org.scala-lang" % "scala-library" % "2.9.0-1",
     "org.apache.httpcomponents" % "httpclient" % "4.1.2",
-    "commons-lang" % "commons-lang" % "2.6"
+    "commons-lang" % "commons-lang" % "2.6",
+    "com.chenlb.mmseg4j" % "mmseg4j-core" % "1.9.1"
   )
 }
 
