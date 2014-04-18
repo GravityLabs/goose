@@ -24,6 +24,7 @@ import java.net.URL
 import java.util.ArrayList
 import java.util.Date
 import scala.collection.mutable
+import scala.collection.immutable
 import scala.collection.JavaConversions._
 import org.jsoup.nodes.{Attributes, Element, Document}
 import org.jsoup.select._
@@ -558,14 +559,14 @@ trait ContentExtractor {
   *
   * @return
   */
-  def extractLinks(node: Element): Map[String, String] = {
-    val goodLinks = mutable.Map[String, String]()
+  def extractLinks(node: Element): List[Map[String, String]] = {
+    val goodLinks = mutable.MutableList[Map[String, String]]()
 
-    val candidates = node.parent.select("a[href]").filter(el => el.attr("href") != "#" && !el.attr("abs:href").trim.isEmpty).map(el => goodLinks += el.attr("abs:href") -> el.text)
+    val candidates = node.parent.select("a[href]").filter(el => el.attr("href") != "#" && !el.attr("abs:href").trim.isEmpty).map(el => goodLinks += immutable.Map("url" -> el.attr("abs:href"), "text" -> el.text))
 
     trace(logPrefix + "extractLinks: Extracted links. Found: " + candidates.size)
 
-    goodLinks.toMap
+    goodLinks.toList
   }
 
   def isTableTagAndNoParagraphsExist(e: Element): Boolean = {
