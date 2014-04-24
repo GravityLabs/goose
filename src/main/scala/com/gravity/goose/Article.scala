@@ -91,7 +91,7 @@ class Article {
    * holds a list of links in the article
    */
   @BeanProperty
-  var links: List[Map[String, String]] = null
+  var links: List[Map[String, String]] = Nil
 
   /**
    * holds a list of any movies we found on the page like youtube, vimeo
