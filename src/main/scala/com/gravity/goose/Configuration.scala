@@ -49,6 +49,9 @@ import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor,
  * @param socketTimeout Socket timeout for the crawler.
  * @param browserUserAgent used as the user agent that is sent with your web
  *                         requests to extract an article
+ * @param publishDateExtractor Pass in to extract article publish dates.
+ * @param additionalDataExtractor Pass in to extract any additional data not
+ *                                defined within {@link Article}.
  */
 class Configuration(
     @BeanProperty
@@ -68,24 +71,24 @@ class Configuration(
     @BeanProperty
     var browserUserAgent: String =
       "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) " +
-      "Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8") {
-
-  var contentExtractor: ContentExtractor = StandardContentExtractor
-
-  var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
-    def extract(rootElement: Element): Date = {
-      null
-    }
-  }
-  var additionalDataExtractor: AdditionalDataExtractor = new AdditionalDataExtractor
-
-  def getPublishDateExtractor: PublishDateExtractor = {
-    publishDateExtractor
-  }
+      "Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8",
+    var contentExtractor: ContentExtractor = StandardContentExtractor,
+    var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
+      def extract(rootElement: Element): Date = {
+        null
+      }
+    },
+    var additionalDataExtractor: AdditionalDataExtractor =
+      new AdditionalDataExtractor,
+    var htmlFetcher: AbstractHtmlFetcher = HtmlFetcher) {
 
   def setContentExtractor(extractor: ContentExtractor) {
     if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
     contentExtractor = extractor
+  }
+
+  def getPublishDateExtractor: PublishDateExtractor = {
+    publishDateExtractor
   }
 
   /**
@@ -110,8 +113,6 @@ class Configuration(
   def setAdditionalDataExtractor(extractor: AdditionalDataExtractor) {
     this.additionalDataExtractor = extractor
   }
-
-  var htmlFetcher: AbstractHtmlFetcher = HtmlFetcher
 
   def setHtmlFetcher(fetcher: AbstractHtmlFetcher) {
     require(fetcher != null, "fetcher MUST NOT be null!")
