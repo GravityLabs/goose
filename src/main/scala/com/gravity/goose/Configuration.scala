@@ -31,48 +31,44 @@ import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor,
  * Date: 8/16/11
  */
 
-
-class Configuration {
-
-  /**
-  * this is the local storage path used to place images to inspect them, should be writable
-  */
-  @BeanProperty
-  var localStoragePath: String = "/tmp/goose"
-  /**
-  * What's the minimum bytes for an image we'd accept is, alot of times we want to filter out the author's little images
-  * in the beginning of the article
-  */
-  @BeanProperty
-  var minBytesForImages: Int = 4500
-  /**
-  * set this guy to false if you don't care about getting images, otherwise you can either use the default
-  * image extractor to implement the ImageExtractor interface to build your own
-  */
-  @BeanProperty
-  var enableImageFetching: Boolean = true
-  /**
-  * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
-  */
-  @BeanProperty
-  var imagemagickConvertPath: String = "/opt/local/bin/convert"
-  /**
-  *  path to your imagemagick identify executable
-  */
-  @BeanProperty
-  var imagemagickIdentifyPath: String = "/opt/local/bin/identify"
-
-  @BeanProperty
-  var connectionTimeout: Int = 10000
-
-  @BeanProperty
-  var socketTimeout: Int = 10000
-
-  /**
-  * used as the user agent that is sent with your web requests to extract an article
-  */
-  @BeanProperty
-  var browserUserAgent: String = "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8"
+/**
+ * @param localStoragePath this is the local storage path used to place images
+ *                         to inspect them, should be writable
+ * @param minBytesForImages What's the minimum bytes for an image we'd accept
+ *                          is, alot of times we want to filter out the author's
+ *                          little images in the beginning of the article
+ * @param enableImageFetching set this guy to false if you don't care about
+ *                            getting images, otherwise you can either use the
+ *                            default image extractor to implement the
+ *                            ImageExtractor interface to build your own
+ * @param imagemagickConvertPath path to your imagemagick convert executable, on
+ *                               the mac using mac ports this is the default
+ *                               listed (Note: not on Linux...)
+ * @param imagemagickIdentifyPath path to your imagemagick identify executable
+ * @param connectionTimeout Connection timeout for the crawler.
+ * @param socketTimeout Socket timeout for the crawler.
+ * @param browserUserAgent used as the user agent that is sent with your web
+ *                         requests to extract an article
+ */
+class Configuration(
+    @BeanProperty
+    var localStoragePath: String = "/tmp/goose",
+    @BeanProperty
+    var minBytesForImages: Int = 4500,
+    @BeanProperty
+    var enableImageFetching: Boolean = true,
+    @BeanProperty
+    var imagemagickConvertPath: String = "/opt/local/bin/convert",
+    @BeanProperty
+    var imagemagickIdentifyPath: String = "/opt/local/bin/identify",
+    @BeanProperty
+    var connectionTimeout: Int = 10000,
+    @BeanProperty
+    var socketTimeout: Int = 10000,
+    @BeanProperty
+    var browserUserAgent: String =
+      "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) " +
+      "Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8") {
 
   var contentExtractor: ContentExtractor = StandardContentExtractor
 
