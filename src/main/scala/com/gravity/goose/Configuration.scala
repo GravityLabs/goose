@@ -82,6 +82,12 @@ class Configuration(
       new AdditionalDataExtractor,
     var htmlFetcher: AbstractHtmlFetcher = HtmlFetcher) {
 
+  /**
+   * Default constructor for Java interoperability. See
+   * https://issues.scala-lang.org/browse/SI-4278 why it looks like this. :(
+   */
+  def this() = this(minBytesForImages = 4500)
+
   def setContentExtractor(extractor: ContentExtractor) {
     if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
     contentExtractor = extractor
