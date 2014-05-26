@@ -166,6 +166,11 @@
           </execution>
         </executions>
         <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.gravity.goose.TalkToMeGoose</mainClass>
+            </manifest>
+          </archive>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
