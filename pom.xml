@@ -11,7 +11,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <scala.major>2.10</scala.major>
-    <scala.version>${scala.major}.3</scala.version>
+    <scala.version>${scala.major}.4</scala.version>
   </properties>
 
   <dependencies>
