@@ -201,15 +201,22 @@ trait ContentExtractor {
     var i: Int = 0
     val parentNodes = mutable.HashSet[Element]()
     val nodesWithText = mutable.Buffer[Element]()
+    println("NODES_WITH_TEXT")
     for (node <- nodesToCheck) {
       val nodeText: String = node.text
       val wordStats: WordStats = StopWords.getStopWordCount(nodeText)
       val highLinkDensity: Boolean = isHighLinkDensity(node)
       if (wordStats.getStopWordCount > 2 && !highLinkDensity) {
         nodesWithText.add(node)
+        println("NODE ADDED")
+      } else {
+        println("NODE LOST")
       }
+      println("WORD_STATS: " + wordStats)
+      println(node)
     }
     val numberOfNodes: Int = nodesWithText.size
+    println("NUMBER_OF_NODES", numberOfNodes)
     val negativeScoring: Int = 0
     val bottomNodesForNegativeScore: Double = numberOfNodes * 0.25
 
