@@ -58,6 +58,7 @@ class Crawler(config: Configuration) {
       parseCandidate <- URLHelper.getCleanedUrl(crawlCandidate.url)
       rawHtml <- getHTML(crawlCandidate, parseCandidate)
       doc <- getDocument(parseCandidate.url.toString, rawHtml)
+      lang = crawlCandidate.lang
     } {
       trace("Crawling url: " + parseCandidate.url)
 
@@ -82,7 +83,7 @@ class Crawler(config: Configuration) {
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
 
-      extractor.calculateBestNodeBasedOnClustering(article) match {
+      extractor.calculateBestNodeBasedOnClustering(article, lang) match {
         case Some(node: Element) => {
           article.topNode = node
           article.movies = extractor.extractVideos(article.topNode)
@@ -102,12 +103,10 @@ class Crawler(config: Configuration) {
               }
             }
           }
-          article.topNode = extractor.postExtractionCleanup(article.topNode)
+          article.topNode = extractor.postExtractionCleanup(article.topNode, lang)
 
 
-
-
-          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
+          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode, lang)
         }
         case _ => trace("NO ARTICLE FOUND")
       }

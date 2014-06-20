@@ -49,11 +49,11 @@ trait OutputFormatter {
   * @param topNode the top most node to format
   * @return the prepared Element
   */
-  @Deprecated def getFormattedElement(topNode: Element): Element = {
+  @Deprecated def getFormattedElement(topNode: Element, lang: String): Element = {
     removeNodesWithNegativeScores(topNode)
     convertLinksToText(topNode)
     replaceTagsWithText(topNode)
-    removeParagraphsWithFewWords(topNode)
+    removeParagraphsWithFewWords(topNode, lang)
     topNode
   }
 
@@ -62,11 +62,11 @@ trait OutputFormatter {
   * @param topNode the top most node to format
   * @return a formatted string with all HTML removed
   */
-  def getFormattedText(topNode: Element): String = {
+  def getFormattedText(topNode: Element, lang: String): String = {
     removeNodesWithNegativeScores(topNode)
     convertLinksToText(topNode)
     replaceTagsWithText(topNode)
-    removeParagraphsWithFewWords(topNode)
+    removeParagraphsWithFewWords(topNode, lang)
     convertToText(topNode)
   }
 
@@ -173,7 +173,7 @@ trait OutputFormatter {
   /**
   * remove paragraphs that have less than x number of words, would indicate that it's some sort of link
   */
-  private def removeParagraphsWithFewWords(topNode: Element) {
+  private def removeParagraphsWithFewWords(topNode: Element, lang: String) {
     if (topNode != null) {
       if (logger.isDebugEnabled) {
         logger.debug("removeParagraphsWithFewWords starting...")
@@ -183,7 +183,7 @@ trait OutputFormatter {
 
       for (el <- allNodes) {
         try {
-          val stopWords = StopWords.getStopWordCount(el.text)
+          val stopWords = StopWords.getStopWordCount(el.text, lang)
           if (stopWords.getStopWordCount < 3 && el.getElementsByTag("object").size == 0 && el.getElementsByTag("embed").size == 0) {
             logger.debug("removeParagraphsWithFewWords - swcnt: %d removing text: %s".format(stopWords.getStopWordCount, el.text()))
             el.remove()
