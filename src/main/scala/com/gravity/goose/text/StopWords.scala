@@ -24,7 +24,8 @@ package com.gravity.goose.text
  * Date: 8/16/11
  */
 
-import java.util._
+import java.util.ArrayList
+import java.util.List
 import com.gravity.goose.utils.FileHelper
 
 object StopWords {
@@ -32,14 +33,24 @@ object StopWords {
   // the confusing pattern below is basically just match any non-word character excluding white-space.
   private val PUNCTUATION: StringReplacement = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty)
 
-  val STOP_WORDS = FileHelper.loadResourceFile("stopwords-en.txt", StopWords.getClass).split(sys.props("line.separator")).toSet
+  // TODO: there must a better way to do this. See
+  // http://www.uofr.net/~greg/java/get-resource-listing.html?
+  val LANGUAGES: Set[String] = Set("ar", "da", "de", "en", "es", "fi", "fr",
+                                   "hu", "id", "it", "ko", "nb", "nl", "no",
+                                   "pl", "pt", "ru", "sv", "zh")
 
+  val STOP_WORDS: Map[String, Set[String]] =
+    (LANGUAGES.view map {lang =>
+      lang ->
+      FileHelper.loadResourceFile("stopwords-" + lang + ".txt",
+        StopWords.getClass).split(sys.props("line.separator")).toSet
+    }).toMap.withDefaultValue(Set())
 
   def removePunctuation(str: String): String = {
     PUNCTUATION.replaceAll(str)
   }
 
-  def getStopWordCount(content: String): WordStats = {
+  def getStopWordCount(content: String, lang: String = "en"): WordStats = {
 
     if (string.isNullOrEmpty(content)) return WordStats.EMPTY
     val ws: WordStats = new WordStats
@@ -49,14 +60,16 @@ object StopWords {
 
     val overlappingStopWords: List[String] = new ArrayList[String]
 
-    candidateWords.foreach(w => {
-       if (STOP_WORDS.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)
-    })
+    val stopWords = STOP_WORDS(lang)
+    if (stopWords.size > 0) {
+      candidateWords.foreach(w => {
+        if (stopWords.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)
+      })
+    }
     ws.setWordCount(candidateWords.length)
     ws.setStopWordCount(overlappingStopWords.size)
     ws.setStopWords(overlappingStopWords)
     ws
   }
-
 
 }
