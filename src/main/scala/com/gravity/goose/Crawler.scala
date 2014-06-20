@@ -34,7 +34,19 @@ import com.gravity.goose.outputformatters.{StandardOutputFormatter, OutputFormat
  * Date: 8/18/11
  */
 
-case class CrawlCandidate(config: Configuration, url: String, rawHTML: String = null)
+/**
+ * Represents the information we may know of a page we crawl.
+ * 
+ * @param config the configuration.
+ * @param url the URL of the page.
+ * @param rawHTML the raw HTML page source -- optional. If not specified, and
+ *                fetching is configured in {@code config}, the page will be
+ *                downloaded.
+ * @param lang the surmised language of the page -- optional. Used as a fallback
+ *             when the page does not report its language.
+ */
+case class CrawlCandidate(config: Configuration, url: String,
+                          rawHTML: String = null, lang: String = null)
 
 class Crawler(config: Configuration) {
 
