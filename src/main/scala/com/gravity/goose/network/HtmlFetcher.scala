@@ -28,6 +28,7 @@ import org.apache.http.{HttpRequest, HttpRequestInterceptor, HttpResponse, HttpR
 import org.apache.http.client.entity.GzipDecompressingEntity
 import org.apache.http.client.CookieStore
 import org.apache.http.impl.client.BasicCookieStore
+import org.apache.http.client.entity.GzipDecompressingEntity
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.params.CookiePolicy
@@ -131,6 +132,25 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
       }
 
       entity = response.getEntity
+      // via http://hc.apache.org/httpcomponents-client-ga/httpclient/examples/org/apache/http/examples/client/ClientGZipContentCompression.java
+      if (entity != null) {
+        try {
+          val ceheader: Header = entity.getContentEncoding();
+          if (ceheader != null) {
+            val codecs: Array[HeaderElement] = ceheader.getElements();
+            for(i <- 0 until codecs.length) {
+              if (codecs(i).getName().equalsIgnoreCase("gzip")) {
+                entity = new GzipDecompressingEntity(response.getEntity())
+              }
+            }
+          }
+        } catch {
+          case e: Exception => {
+            trace("Unable to get header elements: " + cleanUrl)
+          }
+        }
+      }
+
       if (entity != null) {
         instream = entity.getContent
         var encodingType: String = "UTF-8"
