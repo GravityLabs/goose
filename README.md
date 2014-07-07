@@ -54,5 +54,12 @@ Here are some of the reasons for the port to Scala:
 
 
 ##Issues
+
 It was a pretty fast Java to Scala port so lots of the nicities of the Scala language aren't in the codebase yet, but those will come over the coming months as we re-write alot of the internal methods to be more Scalesque.
 We made sure it was still nice and operable from Java as well so if you're using goose from java you still should be able to use it with a few changes to the method signatures.
+
+
+##Goose is now language aware
+
+The stopword lists introduced in the [Python-Goose project](https://github.com/grangier/python-goose) have been incorporated
+into Goose.

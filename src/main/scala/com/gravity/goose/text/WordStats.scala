@@ -21,6 +21,8 @@ package com.gravity.goose.text
 import java.util.ArrayList
 import java.util.List
 
+import scala.collection.JavaConversions._
+
 /**
 * User: Jim Plush
 * Date: Oct 29, 2010
@@ -72,6 +74,8 @@ class WordStats {
     wordCount = cnt
   }
 
-
+  override def toString: String =
+      "Word statistics: words = " + wordCount + ", stop words = " +
+      stopWordCount + " (" + stopWords.mkString(", ") + ")"
 }
 

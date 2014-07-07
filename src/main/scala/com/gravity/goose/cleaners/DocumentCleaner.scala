@@ -136,6 +136,7 @@ trait DocumentCleaner {
   }
 
   private def cleanBadTags(doc: Document): Document = {
+    /* jsoup 1.7.3 can return pages without a body. */
     if (doc.body != null) {
       val children: Elements = doc.body.children
       val naughtyList: Elements = children.select(queryNaughtyIDs)
@@ -172,6 +173,9 @@ trait DocumentCleaner {
 
         removeNode(node)
       }
+    }
+    else {
+      trace("Document has no body.")
     }
     doc
   }
