@@ -109,8 +109,8 @@ trait ContentExtractor {
   * @return
   */
   def doTitleSplits(title: String, splitter: StringSplitter): String = {
-    var largetTextLen: Int = 0
-    var largeTextIndex: Int = 0
+    var largestTextLen: Int = 0
+    var largestTextIndex: Int = 0
     val titlePieces: Array[String] = splitter.split(title)
     if (titlePieces.length > 0) {
       var i: Int = 0
@@ -123,10 +123,21 @@ trait ContentExtractor {
         }
         i += 1
 
+<<<<<<< HEAD
+=======
+      val current: String = titlePieces(i)
+      if (current.length > largestTextLen) {
+        largestTextLen = current.length
+        largestTextIndex = i
+>>>>>>> c6c25f6f5af57f260ef1157315abc7c3ceb9bfab
       }
       TITLE_REPLACEMENTS.replaceAll(titlePieces(largeTextIndex)).trim
     }
+<<<<<<< HEAD
     else null
+=======
+    TITLE_REPLACEMENTS.replaceAll(titlePieces(largestTextIndex)).trim
+>>>>>>> c6c25f6f5af57f260ef1157315abc7c3ceb9bfab
   }
 
   private def getMetaContent(doc: Document, metaName: String): String = {
@@ -744,7 +755,7 @@ trait ContentExtractor {
 
   private def debugNode(e: Element): String = {
     val sb: StringBuilder = new StringBuilder
-    sb.append("GravityScore: '")
+    sb.append("'GravityScore: '")
     sb.append(e.attr("gravityScore"))
     sb.append("' paraNodeCount: '")
     sb.append(e.attr("gravityNodes"))

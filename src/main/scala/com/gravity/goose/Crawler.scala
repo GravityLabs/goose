@@ -18,15 +18,15 @@
 
 package com.gravity.goose
 
-import cleaners.{StandardDocumentCleaner, DocumentCleaner}
+import cleaners.{ StandardDocumentCleaner, DocumentCleaner }
 import extractors.ContentExtractor
-import images.{Image, UpgradedImageIExtractor, ImageExtractor}
+import images.{ Image, UpgradedImageIExtractor, ImageExtractor }
 import org.apache.http.client.HttpClient
-import org.jsoup.nodes.{Document, Element}
+import org.jsoup.nodes.{ Document, Element }
 import org.jsoup.Jsoup
 import java.io.File
-import utils.{ParsingCandidate, URLHelper, Logging}
-import com.gravity.goose.outputformatters.{StandardOutputFormatter, OutputFormatter}
+import utils.{ ParsingCandidate, URLHelper, Logging }
+import com.gravity.goose.outputformatters.{ StandardOutputFormatter, OutputFormatter }
 
 /**
  * Created by Jim Plush
@@ -91,7 +91,8 @@ class Crawler(config: Configuration) {
               }
             } catch {
               case e: Exception => {
-                warn(e, e.toString)
+                warn(e, e.getMessage)
+                throw e
               }
             }
           }
@@ -149,9 +150,9 @@ class Crawler(config: Configuration) {
   }
 
   /**
-  * cleans up any temp files we have laying around like temp images
-  * removes any image in the temp dir that starts with the linkhash of the url we just parsed
-  */
+   * cleans up any temp files we have laying around like temp images
+   * removes any image in the temp dir that starts with the linkhash of the url we just parsed
+   */
   def releaseResources(article: Article) {
     trace(logPrefix + "STARTING TO RELEASE ALL RESOURCES")
 

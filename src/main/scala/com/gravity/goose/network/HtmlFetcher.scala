@@ -309,7 +309,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     httpParams.setParameter("http.protocol.content-charset", "UTF-8")
     httpParams.setParameter("Accept", "application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5")
     httpParams.setParameter("Cache-Control", "max-age=0")
-    httpParams.setParameter("http.connection.stalecheck", false)
+    httpParams.setParameter("http.connection.stalecheck", true)
     val schemeRegistry: SchemeRegistry = new SchemeRegistry
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
     schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
@@ -323,6 +323,18 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     httpClient.getParams.setParameter("http.protocol.wait-for-continue", 5000L)  // timeout for how long the client waits for 100-continue before sending request body
     httpClient.getParams.setParameter("http.tcp.nodelay", true)
 
+    // First check proxy configured from java properties, otherwise use env var if set
+    if (scala.sys.props.isDefinedAt("http.proxyHost")) {
+      val host = scala.sys.props.getOrElse("http.proxyHost", "")
+      val port = scala.sys.props.getOrElse("http.proxyPort", "80").toInt
+      httpClient.getParams.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(host, port))
+    } else if (sys.env.isDefinedAt("http_proxy")) {
+      val url  = new URL(sys.env.getOrElse("http_proxy", ""))
+      val host = url.getHost
+      val port = url.getPort
+      httpClient.getParams.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(host, port))
+    }
+    
     // http://hc.apache.org/httpcomponents-client-ga/httpclient/examples/org/apache/http/examples/client/ClientGZipContentCompression.java
     httpClient.asInstanceOf[AbstractHttpClient].addRequestInterceptor(new HttpRequestInterceptor() {
       def process( request: HttpRequest, context: HttpContext) {
