@@ -73,9 +73,8 @@ class Crawler(config: Configuration) {
       if (article.publishDate == null) {
         article.publishDate = extractor.getDateFromURL(article.canonicalLink)
 	  }
+      
       extractor.calculateBestNodeBasedOnClustering(article, config.language) match {
-      extractor.calculateBestNodeBasedOnClustering(article) match {
-
         case Some(node: Element) => {
           article.topNode = node
           article.movies = extractor.extractVideos(article.topNode)

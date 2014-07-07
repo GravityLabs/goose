@@ -24,13 +24,8 @@ package com.gravity.goose.text
  * Date: 8/16/11
  */
 
-<<<<<<< .mine
-import java.util.{ArrayList, List}
 import com.gravity.goose.utils.{Logging, FileHelper}
-=======
-import com.gravity.goose.utils.FileHelper
 
->>>>>>> .theirs
 import com.gravity.goose.Language._
 import com.chenlb.mmseg4j.ComplexSeg;
 import com.chenlb.mmseg4j.Dictionary;
@@ -39,11 +34,7 @@ import com.chenlb.mmseg4j.Seg;
 import com.chenlb.mmseg4j.Word;
 import java.io.StringReader;
 import scala.collection.JavaConversions._
-import java.util.HashMap
 import scala.collection.Set
-import java.util.Map
-
-import scala.collection.immutable.Map
 
 object StopWords extends Logging{
 
@@ -53,7 +44,7 @@ object StopWords extends Logging{
   // the confusing pattern below is basically just match any non-word character excluding white-space.
   private val PUNCTUATION: StringReplacement = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty)
   
-  val STOP_WORDS = Map("ca" -> FileHelper.loadResourceFile("ca.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
+  val stopWordsMap = Map("ca" -> FileHelper.loadResourceFile("ca.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
 		  				"de" -> FileHelper.loadResourceFile("de.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
 		  				"en" -> FileHelper.loadResourceFile("en.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
 		  				"es" -> FileHelper.loadResourceFile("es.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
@@ -97,13 +88,14 @@ object StopWords extends Logging{
     var overlappingStopWords: List[String] = List[String]()
     
     val languageCode : String = detectLanguage(content)
-    val stopWords:Set[String] = STOP_WORDS(languageCode)
+    val stopWords:Set[String] = stopWordsMap(languageCode)
 
     val stopWordsMatcher = languageCode match {
       case "ko" => overlappingStopWordsMatherForKorean(_, _)
       case other => overlappingStopWordsMatcherForNormal(_, _)
     }
     candidateWords.foreach(w => {
+//TODO w.toLowercase ???
       if(stopWordsMatcher(stopWords, w)) overlappingStopWords.add(w.toLowerCase)
     })
     ws.setWordCount(candidateWords.length)
@@ -121,7 +113,7 @@ object StopWords extends Logging{
    */
   def detectLanguage(content: String): String = {
     val language = detector.detectLang(content)
-    STOP_WORDS.keys.find(language == _).getOrElse("en")
+    stopWordsMap.keys.find(language == _).getOrElse("en")
   }
 
 
