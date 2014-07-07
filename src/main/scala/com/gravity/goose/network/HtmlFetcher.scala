@@ -21,13 +21,8 @@ package com.gravity.goose.network
 import org.apache.http.Header
 import org.apache.http.HeaderElement
 import org.apache.http.HttpEntity
-<<<<<<< .mine
-
-
-=======
 import org.apache.http.HttpHost
 import org.apache.http.HttpResponse
->>>>>>> .theirs
 import org.apache.http.HttpVersion
 import org.apache.http.{HttpRequest, HttpRequestInterceptor, HttpResponse, HttpResponseInterceptor, HeaderElementIterator}
 import org.apache.http.client.entity.GzipDecompressingEntity

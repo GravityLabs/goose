@@ -65,6 +65,12 @@ publishTo := Some(Resolver.file("Github Pages", Path.userHome /"repo" / "maven" 
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
 
+// Get rid of java source directories in compile
+unmanagedSourceDirectories in Compile <<= (scalaSource in Compile)(Seq(_))
+
+// Get rid of java source directories in test
+unmanagedSourceDirectories in Test <<= (scalaSource in Test)(Seq(_))
+
 //assembly: packageDistDir <<= (baseDirectory, packageDistName) { (b, n) => b / "release" }
 
 parallelExecution in Test := false
