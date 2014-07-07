@@ -24,8 +24,7 @@ package com.gravity.goose.text
  * Date: 8/16/11
  */
 
-import com.gravity.goose.utils.{Logging, FileHelper}
-
+import com.gravity.goose.utils.FileHelper
 import com.gravity.goose.Language._
 import com.chenlb.mmseg4j.ComplexSeg;
 import com.chenlb.mmseg4j.Dictionary;
@@ -34,30 +33,22 @@ import com.chenlb.mmseg4j.Seg;
 import com.chenlb.mmseg4j.Word;
 import java.io.StringReader;
 import scala.collection.JavaConversions._
+import java.util.HashMap
 import scala.collection.Set
+import java.util.Map
 
-object StopWords extends Logging{
-
-  import  me.champeau.ld.UberLanguageDetector
-  val detector = UberLanguageDetector.getInstance()
+object StopWords {
 
   // the confusing pattern below is basically just match any non-word character excluding white-space.
   private val PUNCTUATION: StringReplacement = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty)
-  
-  val stopWordsMap = Map("ca" -> FileHelper.loadResourceFile("ca.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
-		  				"de" -> FileHelper.loadResourceFile("de.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
-		  				"en" -> FileHelper.loadResourceFile("en.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
-		  				"es" -> FileHelper.loadResourceFile("es.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
-		  				"fr" -> FileHelper.loadResourceFile("fr.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
-		  				"it" -> FileHelper.loadResourceFile("it.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
-		  				"pt" -> FileHelper.loadResourceFile("pt.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
-		  				"ko" -> FileHelper.loadResourceFile("ko.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
-		  				"all" -> FileHelper.loadResourceFile("all.txt", StopWords.getClass).split(sys.props("line.separator")).toSet);
+
+  //val STOP_WORDS = FileHelper.loadResourceFile("stopwords-en.txt", StopWords.getClass).split(sys.props("line.separator")).toSet
+  private var stopWordsMap: Map[String, Set[String]] = new HashMap[String, Set[String]]()
 
   def removePunctuation(str: String): String = {
     PUNCTUATION.replaceAll(str)
   }
-
+  
   def getStopWords(language: Language): Set[String] = {
     val lname = language.toString()
     var stopWords = stopWordsMap.get(lname)
@@ -69,6 +60,7 @@ object StopWords extends Logging{
     }
     stopWords    
   }
+
   def getCandidateWords(strippedInput: String, language: Language): Array[String] = {
 	language match {
 	  case English => string.SPACE_SPLITTER.split(strippedInput)
@@ -84,39 +76,22 @@ object StopWords extends Logging{
     val strippedInput: String = removePunctuation(content)
 
     val candidateWords = getCandidateWords(strippedInput, language)
-
+      
     var overlappingStopWords: List[String] = List[String]()
-    
-    val languageCode : String = detectLanguage(content)
-    val stopWords:Set[String] = stopWordsMap(languageCode)
 
-    val stopWordsMatcher = languageCode match {
-      case "ko" => overlappingStopWordsMatherForKorean(_, _)
-      case other => overlappingStopWordsMatcherForNormal(_, _)
-    }
+    val STOP_WORDS = getStopWords(language)
+    
     candidateWords.foreach(w => {
-//TODO w.toLowercase ???
-      if(stopWordsMatcher(stopWords, w)) overlappingStopWords.add(w.toLowerCase)
+       if (STOP_WORDS.contains(w.toLowerCase)) {
+         overlappingStopWords = w.toLowerCase :: overlappingStopWords
+       }
     })
     ws.setWordCount(candidateWords.length)
     ws.setStopWordCount(overlappingStopWords.size)
     ws.setStopWords(overlappingStopWords)
     ws
   }
-
-  def overlappingStopWordsMatherForKorean(stopWords:Set[String], w:String):Boolean = stopWords.exists(w.endsWith(_))
-  def overlappingStopWordsMatcherForNormal(stopWords:Set[String],w:String):Boolean = stopWords.contains(w.toLowerCase)
   
-  /**
-   * This method returns the code of the language identified in the content
-   * passed as parameter.
-   */
-  def detectLanguage(content: String): String = {
-    val language = detector.detectLang(content)
-    stopWordsMap.keys.find(language == _).getOrElse("en")
-  }
-
-
   def  tokenize(line: String): List[String] = {
     
     var seg = new ComplexSeg(Dictionary.getInstance());
