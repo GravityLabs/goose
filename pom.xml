@@ -122,6 +122,11 @@ Goose was originally an article extractor written in Java that has most recently
 			<version>1.9.1</version>
 		</dependency>
 		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>53.1</version>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>

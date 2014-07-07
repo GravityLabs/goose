@@ -115,29 +115,17 @@ trait ContentExtractor {
     if (titlePieces.length > 0) {
       var i: Int = 0
       while (i < titlePieces.length) {
-
         val current: String = titlePieces(i)
-        if (current.length > largetTextLen) {
-          largetTextLen = current.length
-          largeTextIndex = i
+        if (current.length > largestTextLen) {
+          largestTextLen = current.length
+          largestTextIndex = i
         }
         i += 1
-
-<<<<<<< HEAD
-=======
-      val current: String = titlePieces(i)
-      if (current.length > largestTextLen) {
-        largestTextLen = current.length
-        largestTextIndex = i
->>>>>>> c6c25f6f5af57f260ef1157315abc7c3ceb9bfab
       }
-      TITLE_REPLACEMENTS.replaceAll(titlePieces(largeTextIndex)).trim
+
+      TITLE_REPLACEMENTS.replaceAll(titlePieces(largestTextIndex)).trim
     }
-<<<<<<< HEAD
     else null
-=======
-    TITLE_REPLACEMENTS.replaceAll(titlePieces(largestTextIndex)).trim
->>>>>>> c6c25f6f5af57f260ef1157315abc7c3ceb9bfab
   }
 
   private def getMetaContent(doc: Document, metaName: String): String = {
