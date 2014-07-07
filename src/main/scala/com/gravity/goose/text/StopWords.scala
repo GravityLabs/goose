@@ -24,8 +24,24 @@ package com.gravity.goose.text
  * Date: 8/16/11
  */
 
+<<<<<<< .mine
 import java.util.{ArrayList, List}
 import com.gravity.goose.utils.{Logging, FileHelper}
+=======
+import com.gravity.goose.utils.FileHelper
+
+>>>>>>> .theirs
+import com.gravity.goose.Language._
+import com.chenlb.mmseg4j.ComplexSeg;
+import com.chenlb.mmseg4j.Dictionary;
+import com.chenlb.mmseg4j.MMSeg;
+import com.chenlb.mmseg4j.Seg;
+import com.chenlb.mmseg4j.Word;
+import java.io.StringReader;
+import scala.collection.JavaConversions._
+import java.util.HashMap
+import scala.collection.Set
+import java.util.Map
 
 import scala.collection.immutable.Map
 
@@ -51,14 +67,34 @@ object StopWords extends Logging{
     PUNCTUATION.replaceAll(str)
   }
 
-  def getStopWordCount(content: String): WordStats = {
+  def getStopWords(language: Language): Set[String] = {
+    val lname = language.toString()
+    var stopWords = stopWordsMap.get(lname)
+    if (stopWords == null) {
+      var stopWordsFile = "stopwords-%s.txt" format lname
+      stopWords = FileHelper.loadResourceFile(stopWordsFile, StopWords.getClass).split(sys.props("line.separator")).toSet
+      stopWords = stopWords.map(s=>s.trim)
+      stopWordsMap.put(lname, stopWords)
+    }
+    stopWords    
+  }
+  def getCandidateWords(strippedInput: String, language: Language): Array[String] = {
+	language match {
+	  case English => string.SPACE_SPLITTER.split(strippedInput)
+	  case Chinese => tokenize(strippedInput).toArray
+	  case _ => string.SPACE_SPLITTER.split(strippedInput)
+	}
+  } 
+  
+  def getStopWordCount(content: String, language: Language): WordStats = {
+
     if (string.isNullOrEmpty(content)) return WordStats.EMPTY
     val ws: WordStats = new WordStats
     val strippedInput: String = removePunctuation(content)
 
-    val candidateWords: Array[String] = string.SPACE_SPLITTER.split(strippedInput)
+    val candidateWords = getCandidateWords(strippedInput, language)
 
-    val overlappingStopWords: List[String] = new ArrayList[String]
+    var overlappingStopWords: List[String] = List[String]()
     
     val languageCode : String = detectLanguage(content)
     val stopWords:Set[String] = STOP_WORDS(languageCode)
@@ -88,4 +124,18 @@ object StopWords extends Logging{
     STOP_WORDS.keys.find(language == _).getOrElse("en")
   }
 
+
+  def  tokenize(line: String): List[String] = {
+    
+    var seg = new ComplexSeg(Dictionary.getInstance());
+    var mmSeg = new MMSeg(new StringReader(line), seg);
+    var tokens = List[String]();
+    var word = mmSeg.next()
+    while (word != null) {
+      tokens = word.getString() :: tokens ;
+      word = mmSeg.next();
+    }
+    println(tokens)
+    return tokens;
+  }  
 }

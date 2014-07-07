@@ -24,6 +24,16 @@ import java.util.Date
 import beans.BeanProperty
 import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor, AdditionalDataExtractor, PublishDateExtractor}
 
+object Language extends Enumeration {
+  type Language = Value
+  //val Get, Set, Add, Delete, Reset = Value
+  val English = Value("en")
+  val Chinese = Value("zh")
+  val Korean = Value("kr")
+  val Arabic = Value("ar")
+}
+
+import Language._
 
 /**
  * Created by Jim Plush
@@ -33,6 +43,12 @@ import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor,
 
 
 class Configuration {
+  
+  /**
+  * this is the local storage path used to place images to inspect them, should be writable
+  */
+  @BeanProperty
+  var language: Language = Language.English
 
   /**
   * this is the local storage path used to place images to inspect them, should be writable

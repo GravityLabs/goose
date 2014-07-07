@@ -72,9 +72,10 @@ class Crawler(config: Configuration) {
 
       if (article.publishDate == null) {
         article.publishDate = extractor.getDateFromURL(article.canonicalLink)
-      }
-
+	  }
+      extractor.calculateBestNodeBasedOnClustering(article, config.language) match {
       extractor.calculateBestNodeBasedOnClustering(article) match {
+
         case Some(node: Element) => {
           article.topNode = node
           article.movies = extractor.extractVideos(article.topNode)
@@ -95,16 +96,14 @@ class Crawler(config: Configuration) {
               }
             }
           }
-          article.topNode = extractor.postExtractionCleanup(article.topNode)
-
-          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
+          article.topNode = extractor.postExtractionCleanup(article.topNode, config.language)
+          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode, config.language)
         }
         case _ => trace("NO ARTICLE FOUND")
       }
       releaseResources(article)
       article
     }
-
     article
   }
 
@@ -120,7 +119,6 @@ class Crawler(config: Configuration) {
       }
     }
   }
-
 
   def getImageExtractor(article: Article): ImageExtractor = {
     val httpClient: HttpClient = config.getHtmlFetcher.getHttpClient
