@@ -22,7 +22,7 @@ import images.Image
 import org.jsoup.nodes.{ Element, Document }
 import java.util.Date
 import scala.collection._
-import scala.reflect.BeanProperty
+import beans.BeanProperty
 
 /**
  * Created by Jim Plush

@@ -24,13 +24,16 @@ package com.gravity.goose.text
  * Date: 8/16/11
  */
 
-import java.util._
-import com.gravity.goose.utils.FileHelper
+import java.util.{ArrayList, List}
+import com.gravity.goose.utils.{Logging, FileHelper}
 
 import scala.collection.immutable.Map
 
-object StopWords {
-  
+object StopWords extends Logging{
+
+  import  me.champeau.ld.UberLanguageDetector
+  val detector = UberLanguageDetector.getInstance()
+
   // the confusing pattern below is basically just match any non-word character excluding white-space.
   private val PUNCTUATION: StringReplacement = StringReplacement.compile("[^\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}\\p{Nd}\\p{Pc}\\s]", string.empty)
   
@@ -41,6 +44,7 @@ object StopWords {
 		  				"fr" -> FileHelper.loadResourceFile("fr.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
 		  				"it" -> FileHelper.loadResourceFile("it.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
 		  				"pt" -> FileHelper.loadResourceFile("pt.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
+		  				"ko" -> FileHelper.loadResourceFile("ko.txt", StopWords.getClass).split(sys.props("line.separator")).toSet,
 		  				"all" -> FileHelper.loadResourceFile("all.txt", StopWords.getClass).split(sys.props("line.separator")).toSet);
 
   def removePunctuation(str: String): String = {
@@ -48,7 +52,6 @@ object StopWords {
   }
 
   def getStopWordCount(content: String): WordStats = {
-
     if (string.isNullOrEmpty(content)) return WordStats.EMPTY
     val ws: WordStats = new WordStats
     val strippedInput: String = removePunctuation(content)
@@ -58,24 +61,31 @@ object StopWords {
     val overlappingStopWords: List[String] = new ArrayList[String]
     
     val languageCode : String = detectLanguage(content)
-    val stopWords = STOP_WORDS(languageCode)
+    val stopWords:Set[String] = STOP_WORDS(languageCode)
 
+    val stopWordsMatcher = languageCode match {
+      case "ko" => overlappingStopWordsMatherForKorean(_, _)
+      case other => overlappingStopWordsMatcherForNormal(_, _)
+    }
     candidateWords.foreach(w => {
-       if (stopWords.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)
+      if(stopWordsMatcher(stopWords, w)) overlappingStopWords.add(w.toLowerCase)
     })
     ws.setWordCount(candidateWords.length)
     ws.setStopWordCount(overlappingStopWords.size)
     ws.setStopWords(overlappingStopWords)
     ws
   }
+
+  def overlappingStopWordsMatherForKorean(stopWords:Set[String], w:String):Boolean = stopWords.exists(w.endsWith(_))
+  def overlappingStopWordsMatcherForNormal(stopWords:Set[String],w:String):Boolean = stopWords.contains(w.toLowerCase)
   
   /**
    * This method returns the code of the language identified in the content
    * passed as parameter.
    */
   def detectLanguage(content: String): String = {
-    return "en" // TODO Fixme using some automatic language detector library
+    val language = detector.detectLang(content)
+    STOP_WORDS.keys.find(language == _).getOrElse("en")
   }
-
 
 }

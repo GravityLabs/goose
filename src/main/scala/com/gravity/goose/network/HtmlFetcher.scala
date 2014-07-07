@@ -52,7 +52,7 @@ import com.gravity.goose.utils.Logging
 import com.gravity.goose.Configuration
 import org.apache.http.impl.client.{DefaultHttpRequestRetryHandler, AbstractHttpClient, DefaultHttpClient}
 import org.apache.commons.io.IOUtils
-import org.mozilla.universalchardet.UniversalDetector
+import com.ibm.icu.text.CharsetDetector
 
 /**
  * User: Jim Plush
@@ -362,8 +362,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
   def convertStreamToString(is: InputStream, httpEncodingType: String): String = {
     try {
       var buf : Array[Byte] = IOUtils.toByteArray(is)
-      var finalEncodingType = detectEncoding(buf, httpEncodingType)
-      return new String(buf, finalEncodingType)
+      return encodedText(buf)
     }
     catch {
       case e: SocketTimeoutException => {
@@ -379,18 +378,12 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     null
   }
   
-  def detectEncoding(buf : Array[Byte], httpEncodingType : String) : String = {
-    var detector : UniversalDetector = new UniversalDetector(null)
-    detector.handleData(buf, 0, buf.size)
-    detector.dataEnd()
-    
-    var detectedEncoding = detector.getDetectedCharset()
-    
-    if(detectedEncoding != null) {
-    	return detectedEncoding
-    } else {
-    	return httpEncodingType
-    }
+  def encodedText(buf : Array[Byte]) : String = {
+    val detector = new CharsetDetector()
+    detector.setText(buf)
+    val matched = detector.detect()
+    matched.getLanguage
+    matched.getString
   }
 }
 
