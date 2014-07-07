@@ -41,29 +41,12 @@ import Language._
  * Date: 8/16/11
  */
 
+
+class Configuration {
+  
   /**
- * @param localStoragePath this is the local storage path used to place images
- *                         to inspect them, should be writable
- * @param minBytesForImages What's the minimum bytes for an image we'd accept
- *                          is, alot of times we want to filter out the author's
- *                          little images in the beginning of the article
- * @param enableImageFetching set this guy to false if you don't care about
- *                            getting images, otherwise you can either use the
- *                            default image extractor to implement the
- *                            ImageExtractor interface to build your own
- * @param imagemagickConvertPath path to your imagemagick convert executable, on
- *                               the mac using mac ports this is the default
- *                               listed (Note: not on Linux...)
- * @param imagemagickIdentifyPath path to your imagemagick identify executable
- * @param connectionTimeout Connection timeout for the crawler.
- * @param socketTimeout Socket timeout for the crawler.
- * @param browserUserAgent used as the user agent that is sent with your web
- *                         requests to extract an article
- * @param publishDateExtractor Pass in to extract article publish dates.
- * @param additionalDataExtractor Pass in to extract any additional data not
- *                                defined within {@link Article}.
+  * this is the local storage path used to place images to inspect them, should be writable
   */
-class Configuration(
   @BeanProperty
   var language: Language = Language.English
 
@@ -77,7 +60,6 @@ class Configuration(
   * in the beginning of the article
   */
   @BeanProperty
-<<<<<<< .mine
   var minBytesForImages: Int = 4500
   /**
    * Minimum legal height for an image - smaller than this considered unusable/undesirable
@@ -93,55 +75,23 @@ class Configuration(
   * set this guy to false if you don't care about getting images, otherwise you can either use the default
   * image extractor to implement the ImageExtractor interface to build your own
   */
-=======
-    var minBytesForImages: Int = 4500,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> .theirs
   @BeanProperty
-    var enableImageFetching: Boolean = true,
+  var enableImageFetching: Boolean = true
+  /**
+  * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
+  */
   @BeanProperty
-<<<<<<< .mine
   var imagemagickConvertPath: String = "convert"
   /**
   *  path to your imagemagick identify executable
   */
-=======
-    var imagemagickConvertPath: String = "/opt/local/bin/convert",
-
-
-
->>>>>>> .theirs
   @BeanProperty
-<<<<<<< .mine
   var imagemagickIdentifyPath: String = "identify"
 
-=======
-    var imagemagickIdentifyPath: String = "/opt/local/bin/identify",
-
->>>>>>> .theirs
   @BeanProperty
-<<<<<<< .mine
   var connectionTimeout: Int = 10000  // 10 seconds
 
-=======
-    var connectionTimeout: Int = 10000,
-
->>>>>>> .theirs
   @BeanProperty
-<<<<<<< .mine
   var socketTimeout: Int = 10000  // 10 seconds
 
   @BeanProperty
@@ -153,21 +103,7 @@ class Configuration(
   /**
   * used as the user agent that is sent with your web requests to extract an article
   */
-=======
-    var socketTimeout: Int = 10000,
-
-
-
-
-
-
-
-
-
-
->>>>>>> .theirs
   @BeanProperty
-<<<<<<< .mine
   var browserUserAgent: String = "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8"
 
   /**
@@ -178,40 +114,20 @@ class Configuration(
 
   var contentExtractor: ContentExtractor = StandardContentExtractor
 
-=======
-    var browserUserAgent: String =
-      "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) " +
-      "Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8",
-    var contentExtractor: ContentExtractor = StandardContentExtractor,
-
-
-
-
-
-
->>>>>>> .theirs
   var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
     def extract(rootElement: Element): Date = {
       null
     }
-    },
-    var additionalDataExtractor: AdditionalDataExtractor =
-      new AdditionalDataExtractor,
-    var htmlFetcher: AbstractHtmlFetcher = HtmlFetcher) {
+  }
+  var additionalDataExtractor: AdditionalDataExtractor = new AdditionalDataExtractor
 
-  /**
-   * Default constructor for Java interoperability. See
-   * https://issues.scala-lang.org/browse/SI-4278 why it looks like this. :(
-   */
-  def this() = this(minBytesForImages = 4500)
+  def getPublishDateExtractor: PublishDateExtractor = {
+    publishDateExtractor
+  }
 
   def setContentExtractor(extractor: ContentExtractor) {
     if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
     contentExtractor = extractor
-  }
-
-  def getPublishDateExtractor: PublishDateExtractor = {
-    publishDateExtractor
   }
 
   /**
@@ -236,6 +152,8 @@ class Configuration(
   def setAdditionalDataExtractor(extractor: AdditionalDataExtractor) {
     this.additionalDataExtractor = extractor
   }
+
+  var htmlFetcher: AbstractHtmlFetcher = HtmlFetcher
 
   def setHtmlFetcher(fetcher: AbstractHtmlFetcher) {
     require(fetcher != null, "fetcher MUST NOT be null!")
