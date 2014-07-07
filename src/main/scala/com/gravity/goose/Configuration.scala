@@ -81,12 +81,12 @@ class Configuration {
   * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
   */
   @BeanProperty
-  var imagemagickConvertPath: String = "convert"
+  var imagemagickConvertPath: String = "/usr/bin/convert"
   /**
   *  path to your imagemagick identify executable
   */
   @BeanProperty
-  var imagemagickIdentifyPath: String = "identify"
+  var imagemagickIdentifyPath: String = "/usr/bin/identify"
 
   @BeanProperty
   var connectionTimeout: Int = 10000  // 10 seconds
