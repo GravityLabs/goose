@@ -21,6 +21,13 @@ package com.gravity.goose.network
 import org.apache.http.Header
 import org.apache.http.HeaderElement
 import org.apache.http.HttpEntity
+<<<<<<< .mine
+
+
+=======
+import org.apache.http.HttpHost
+import org.apache.http.HttpResponse
+>>>>>>> .theirs
 import org.apache.http.HttpVersion
 import org.apache.http.{HttpRequest, HttpRequestInterceptor, HttpResponse, HttpResponseInterceptor, HeaderElementIterator}
 import org.apache.http.client.entity.GzipDecompressingEntity
@@ -30,6 +37,7 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.params.CookiePolicy
 import org.apache.http.client.protocol.ClientContext
+import org.apache.http.conn.params.ConnRoutePNames
 import org.apache.http.conn.ConnectionKeepAliveStrategy
 import org.apache.http.conn.scheme.PlainSocketFactory
 import org.apache.http.conn.ssl.SSLSocketFactory
@@ -44,6 +52,7 @@ import org.apache.http.entity.ContentType
 import java.io._
 import java.net.SocketException
 import java.net.SocketTimeoutException
+import java.net.URL
 import java.net.URLConnection
 import java.util.ArrayList
 import java.util.Date
@@ -305,6 +314,18 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
         if (!request.containsHeader("Accept-Encoding")) {
           request.addHeader("Accept-Encoding", "gzip")
         }
+
+    // First check proxy configured from java properties, otherwise use env var if set
+    if (scala.sys.props.isDefinedAt("http.proxyHost")) {
+      val host = scala.sys.props.getOrElse("http.proxyHost", "")
+      val port = scala.sys.props.getOrElse("http.proxyPort", "80").toInt
+      httpClient.getParams.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(host, port))
+    } else if (sys.env.isDefinedAt("http_proxy")) {
+      val url  = new URL(sys.env.getOrElse("http_proxy", ""))
+      val host = url.getHost
+      val port = url.getPort
+      httpClient.getParams.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(host, port))
+    }
       }
     })
 
