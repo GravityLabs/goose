@@ -1,12 +1,16 @@
 import sbt._
 import Keys._
 import com.typesafe.sbteclipse.plugin.EclipsePlugin.EclipseKeys
+//assembly: import com.twitter.sbt._
+//assembly: import AssemblyKeys._
+
+//assembly: seq(StandardProject.newSettings: _*)
 
 organization := "com.gravity.goose"
 
-name := "goose-fork"
+name := "goose"
 
-version := "2.1.23"
+version := "2.1.22-kkme"
 
 //scalaVersion := "2.11.1"
 scalaVersion := "2.10.2"
@@ -17,6 +21,7 @@ testFrameworks += TestFrameworks.ScalaTest
 
 testOptions in Test += Tests.Argument("-oF")
 
+//assembly: seq(assemblySettings: _*)
 resolvers ++= Seq(
   //"sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
   "central mvn repo" at "http://repo1.maven.org/",
@@ -24,6 +29,8 @@ resolvers ++= Seq(
   "JBoss Maven 2 Repository" at "http://repository.jboss.com/maven2",
   "JLangDetect Maven repository" at "https://jlangdetect.googlecode.com/svn/repo"
 )
+
+credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 
 libraryDependencies ++= {
   Seq(
@@ -57,3 +64,7 @@ libraryDependencies ++= {
 publishTo := Some(Resolver.file("Github Pages", Path.userHome /"repo" / "maven" asFile)(Patterns(true, Resolver.mavenStyleBasePattern)))
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
+
+//assembly: packageDistDir <<= (baseDirectory, packageDistName) { (b, n) => b / "release" }
+
+parallelExecution in Test := false
