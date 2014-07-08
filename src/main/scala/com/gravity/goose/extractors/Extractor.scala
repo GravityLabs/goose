@@ -36,5 +36,7 @@ trait Extractor[T] {
   * @param rootElement passed in from the {@link com.jimplush.goose.ContentExtractor} after the article has been parsed
   * @return an instance of type <code>T</code>
   */
+
+  public ArrayList<String> getAllImages()
   def extract(rootElement: Element): T
 }
