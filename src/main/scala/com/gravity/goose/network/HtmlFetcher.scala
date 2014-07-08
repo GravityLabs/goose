@@ -57,6 +57,7 @@ import com.gravity.goose.Configuration
 import org.apache.http.impl.client.{DefaultHttpRequestRetryHandler, AbstractHttpClient, DefaultHttpClient}
 import org.apache.commons.io.IOUtils
 import com.ibm.icu.text.CharsetDetector
+import org.apache.http.util.EntityUtils
 
 /**
  * User: Jim Plush
@@ -157,11 +158,6 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
         try {
           contentType = ContentType.get(entity)
           trace("Got contentType: " + contentType)
-          if (contentType == null) {
-            encodingType = "UTF-8"
-          } else {
-            encodingType = contentType.getCharset().name
-          }
         }
         catch {
           case e: Exception => {

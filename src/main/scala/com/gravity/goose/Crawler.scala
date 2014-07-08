@@ -78,7 +78,7 @@ class Crawler(config: Configuration) {
       extractor.calculateBestNodeBasedOnClustering(article, config.language) match {
         case Some(node: Element) => {
           article.movies = extractor.extractVideos(node)
-          article.links = extractor.extractLinks(article.topNode)
+          article.links = extractor.extractLinks(node)
 
           if (config.enableImageFetching) {
             trace(logPrefix + "Image fetching enabled...")
@@ -87,7 +87,7 @@ class Crawler(config: Configuration) {
               if (article.rawDoc == null) {
                 article.topImage = new Image
               } else {
-                article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+                article.topImage = imageExtractor.getBestImage(article.rawDoc, node)
               if (config.enableAllImagesFetching) {
                 article.allImages = imageExtractor.getAllImages(node)
               }
@@ -99,9 +99,9 @@ class Crawler(config: Configuration) {
               }
             }
           }
-          article.topNode = extractor.postExtractionCleanup(article.topNode, config.language)
-          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode, config.language)
-          article.htmlArticle = outputFormatter.cleanupHtml(article.topNode)
+          article.topNode = extractor.postExtractionCleanup(node, config.language)
+          article.cleanedArticleText = outputFormatter.getFormattedText(node, config.language)
+          article.htmlArticle = outputFormatter.cleanupHtml(node, config.language)
 
         }
         case _ => trace("NO ARTICLE FOUND")

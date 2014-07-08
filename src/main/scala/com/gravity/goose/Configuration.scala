@@ -49,6 +49,11 @@ class Configuration {
   
   // Refactory this in a YML file (like Ruby)
   def resolveCharSet(url: String, entity: HttpEntity): String = {
+//          if (contentType == null) {
+//            encodingType = "UTF-8"
+//          } else {
+//            encodingType = contentType.getCharset().name
+//          }
     var host = new URL(url).getHost()
 
     host match {

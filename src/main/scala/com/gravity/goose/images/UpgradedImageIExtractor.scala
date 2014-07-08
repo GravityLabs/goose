@@ -614,12 +614,3 @@ object UpgradedImageIExtractor {
   val KNOWN_IMG_DOM_NAMES = ListBuffer("yn-story-related-media", "cnn_strylccimg300cntr", "big_photo", "ap-smallphoto-a")
 
 }
-<<<<<<< .mine
-
-
-
-=======
-  }
-
-}
->>>>>>> .theirs

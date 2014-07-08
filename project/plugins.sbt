@@ -1,4 +1,3 @@
-
 resolvers ++= Seq(
 	//"releases"  at "http://scala-tools.org/repo-releases", 
 	//"umeng.com releases" at "http://122.11.52.227:8088/nexus/content/repositories/releases",
@@ -16,9 +15,9 @@ resolvers ++= Seq(
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.3.0")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
+
 // Comment to get more information during initialization
 logLevel := Level.Warn
 
 // Use the Play sbt plugin for Play projects
-//addSbtPlugin("play" % "sbt-plugin" % "2.1-SNAPSHOT")
-addSbtPlugin("play" % "sbt-plugin" % "2.1-07132012")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.1") 

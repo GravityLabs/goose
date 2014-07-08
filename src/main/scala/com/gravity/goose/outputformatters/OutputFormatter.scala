@@ -95,9 +95,9 @@ trait OutputFormatter {
   * @param topNode the top most node to format
   * @return a formatted string with all HTML
   */
-  def cleanupHtml(topNode: Element): String = {
+  def cleanupHtml(topNode: Element, language: Language): String = {
     val node = topNode.clone
-    removeParagraphsWithFewWords(node)
+    removeParagraphsWithFewWords(node, language)
     convertToHtml(node)
   }
 

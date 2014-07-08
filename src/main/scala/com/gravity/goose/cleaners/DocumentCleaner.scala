@@ -43,12 +43,11 @@ trait DocumentCleaner {
   def clean(article: Article): Document = {
 
     trace("Starting cleaning phase with DefaultDocumentCleaner")
-    var docToClean: Document = article.doc
+    var docToClean: Document = article.doc.clone
     trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     trace(docToClean.html)
     trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
-    var docToClean: Document = article.doc.clone
     docToClean = cleanEmTags(docToClean)
     docToClean = removeDropCaps(docToClean)
     docToClean = removeScriptsAndStyles(docToClean)
@@ -392,7 +391,8 @@ object DocumentCleaner extends Logging {
 
   // create negative elements
   sb.append("^side$|combx|retweet|mediaarticlerelated|menucontainer|navbar|comment(?!ed)|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll(?!able)|shoutbox|sponsor")
-  sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers|remember-tool-tip")  sb.append("|communitypromo|promo_holder|runaroundLeft|subscribe|vcard|articleheadings|date|^print$|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text")
+  sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers|remember-tool-tip")
+  sb.append("|communitypromo|promo_holder|runaroundLeft|subscribe|vcard|articleheadings|date|^print$|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text")
   /**
   * this regex is used to remove undesirable nodes from our doc
   * indicate that something maybe isn't content but more of a comment, footer or some other undesirable node
