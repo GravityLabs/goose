@@ -55,7 +55,7 @@ trait ContentExtractor {
   val SPACE_SPLITTER: StringSplitter = new StringSplitter(" ")
   val NO_STRINGS = Set.empty[String]
   val A_REL_TAG_SELECTOR: String = "a[rel=tag], a[href*=/tag/]"
-  val TOP_NODE_TAGS = new TagsEvaluator(Set("p", "td", "pre", "li"))
+  val TOP_NODE_TAGS = new TagsEvaluator(Set("p", "td", "pre", "li", "code"))
 
   def getTitle(article: Article): String = {
     var title: String = string.empty
@@ -520,8 +520,14 @@ trait ContentExtractor {
   def extractVideos(node: Element): List[Element] = {
     val candidates: ArrayList[Element] = new ArrayList[Element]
     val goodMovies = mutable.Buffer[Element]()
+
     val youtubeStr = "youtube"
     val vimdeoStr = "vimeo"
+    val bliptvStr = "blip"
+    val flickrStr = "flickr"
+    val veohStr = "veoh"
+    val dailymotionStr = "dailymotion"
+
     try {
       node.parent.getElementsByTag("embed").foreach(candidates.add(_))
       node.parent.getElementsByTag("object").foreach(candidates.add(_))
@@ -532,7 +538,14 @@ trait ContentExtractor {
         val attrs: Attributes = el.attributes()
         for (a <- attrs) {
           try {
-            if ((a.getValue.contains(youtubeStr) || a.getValue.contains(vimdeoStr)) && (a.getKey == "src")) {
+            if ((
+                a.getValue.contains(youtubeStr) ||
+                a.getValue.contains(bliptvStr) ||
+                a.getValue.contains(flickrStr) ||
+                a.getValue.contains(veohStr) ||
+                a.getValue.contains(dailymotionStr) ||
+                a.getValue.contains(vimdeoStr)
+              ) && (a.getKey == "src")) {
               trace(logPrefix + "This page has a video!: " + a.getValue)
               goodMovies += el
             }
