@@ -41,4 +41,6 @@ libraryDependencies ++= {
 
 publishMavenStyle := true
 
+pomIncludeRepository := { _ => true}
+
 publishTo := Some(Resolver.file("Github Pages", Path.userHome /"repo" / "maven" asFile)(Patterns(true, Resolver.mavenStyleBasePattern)))
