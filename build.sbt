@@ -1,3 +1,4 @@
+
 import sbt._
 import Keys._
 import com.typesafe.sbteclipse.plugin.EclipsePlugin.EclipseKeys
@@ -75,3 +76,6 @@ unmanagedSourceDirectories in Test <<= (scalaSource in Test)(Seq(_))
 parallelExecution in Test := false
 
 net.virtualvoid.sbt.graph.Plugin.graphSettings
+
+
+scalacOptions ++= Seq("-unchecked", "-deprecation")

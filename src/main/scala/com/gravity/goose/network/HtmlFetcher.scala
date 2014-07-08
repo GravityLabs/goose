@@ -43,7 +43,6 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager
 import org.apache.http.message.BasicHeaderElementIterator
 import org.apache.http.params.{HttpParams, BasicHttpParams, HttpConnectionParams, HttpProtocolParams}
 import org.apache.http.protocol.{HTTP, BasicHttpContext, HttpContext}
-import org.apache.http.util.EntityUtils
 import org.apache.http.entity.ContentType
 import java.io._
 import java.net.SocketException
@@ -153,7 +152,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
 
       if (entity != null) {
         instream = entity.getContent
-        var encodingType: String = "UTF-8"
+        val encodingType: String = config.resolveCharSet(url, entity)
 
         try {
           contentType = ContentType.get(entity)

@@ -45,6 +45,12 @@ class Article {
   @BeanProperty
   var cleanedArticleText: String = ""
 
+
+  /**
+  * article with the originals HTML tags (<p>, <a>, ..)
+  */
+  var htmlArticle: String = ""
+
   /**
    * meta description field in HTML source
    */
@@ -80,6 +86,12 @@ class Article {
    */
   @BeanProperty
   var topImage: Image = new Image
+
+  /**
+  * holds all cadidate images from article
+  */
+  @BeanProperty
+  var allImages: List[Image] = Nil 
 
   /**
    * holds a set of tags that may have been in the artcle, these are not meta keywords

@@ -32,3 +32,5 @@ Capfile.*
 geoip-db/
 config/consumer.properties
 release/
+*.sw*
+.DS_Store

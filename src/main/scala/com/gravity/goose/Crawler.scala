@@ -27,6 +27,7 @@ import org.jsoup.Jsoup
 import java.io.File
 import utils.{ ParsingCandidate, URLHelper, Logging }
 import com.gravity.goose.outputformatters.{ StandardOutputFormatter, OutputFormatter }
+import scala.collection.JavaConversions._
 
 /**
  * Created by Jim Plush
@@ -58,7 +59,7 @@ class Crawler(config: Configuration) {
       article.linkhash = parseCandidate.linkhash
       article.rawHtml = rawHtml
       article.doc = doc
-      article.rawDoc = doc.clone()
+      article.rawDoc = doc.clone
       
       article.title = extractor.getTitle(article)
       article.publishDate = config.publishDateExtractor.extract(doc)
@@ -76,8 +77,7 @@ class Crawler(config: Configuration) {
       
       extractor.calculateBestNodeBasedOnClustering(article, config.language) match {
         case Some(node: Element) => {
-          article.topNode = node
-          article.movies = extractor.extractVideos(article.topNode)
+          article.movies = extractor.extractVideos(node)
           article.links = extractor.extractLinks(article.topNode)
 
           if (config.enableImageFetching) {
@@ -88,6 +88,9 @@ class Crawler(config: Configuration) {
                 article.topImage = new Image
               } else {
                 article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+              if (config.enableAllImagesFetching) {
+                article.allImages = imageExtractor.getAllImages(node)
+              }
               }
             } catch {
               case e: Exception => {
@@ -98,6 +101,8 @@ class Crawler(config: Configuration) {
           }
           article.topNode = extractor.postExtractionCleanup(article.topNode, config.language)
           article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode, config.language)
+          article.htmlArticle = outputFormatter.cleanupHtml(article.topNode)
+
         }
         case _ => trace("NO ARTICLE FOUND")
       }

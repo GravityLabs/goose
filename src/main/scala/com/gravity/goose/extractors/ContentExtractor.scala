@@ -28,7 +28,7 @@ import scala.collection.JavaConversions._
 import org.jsoup.nodes.{Attributes, Element, Document}
 import org.jsoup.select._
 import com.gravity.goose.Language._
-
+import scala.math._
 /**
 * Created by Jim Plush
 * User: jim
@@ -282,7 +282,7 @@ trait ContentExtractor {
 
   def calculateBestNodeBasedOnClustering(article: Article, language: Language): Option[Element] = {
     trace(logPrefix + "Starting to calculate TopNode")
-    val doc = article.doc
+    val doc = article.doc.clone
     var topNode: Element = null
     val nodesToCheck = Collector.collect(TOP_NODE_TAGS, doc)
     var startingBoost: Double = 1.0
@@ -315,8 +315,8 @@ trait ContentExtractor {
       if (numberOfNodes > 15) {
         if ((numberOfNodes - i) <= bottomNodesForNegativeScore) {
           val booster: Float = bottomNodesForNegativeScore.asInstanceOf[Float] - (numberOfNodes - i).asInstanceOf[Float]
-          boostScore = -math.pow(booster, 2.asInstanceOf[Float]).asInstanceOf[Float]
-          val negscore: Float = math.abs(boostScore) + negativeScoring
+          boostScore = -pow(booster, 2.asInstanceOf[Float]).asInstanceOf[Float]
+          val negscore: Float = abs(boostScore) + negativeScoring
           if (negscore > 40) {
             boostScore = 5
           }

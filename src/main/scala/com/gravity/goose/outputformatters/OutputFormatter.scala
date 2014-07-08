@@ -64,11 +64,13 @@ trait OutputFormatter {
   * @return a formatted string with all HTML removed
   */
   def getFormattedText(topNode: Element, language: Language): String = {
-    removeNodesWithNegativeScores(topNode)
-    convertLinksToText(topNode)
-    replaceTagsWithText(topNode)
-    removeParagraphsWithFewWords(topNode, language)
-    convertToText(topNode)
+    var node = topNode.clone
+
+    removeNodesWithNegativeScores(node)
+    convertLinksToText(node)
+    replaceTagsWithText(node)
+    removeParagraphsWithFewWords(node, language)
+    convertToText(node)
   }
 
   /**
@@ -81,10 +83,34 @@ trait OutputFormatter {
     case null => ""
     case node => {
       (node.children().map((e: Element) => {
-        StringEscapeUtils.unescapeHtml(e.text).trim
+        var text = StringEscapeUtils.unescapeHtml(e.text).trim
+        text
       })).toList.mkString("\n\n")
     }
 
+  }
+
+  /**
+  * Scape the node content and return the html
+  * @param topNode the top most node to format
+  * @return a formatted string with all HTML
+  */
+  def cleanupHtml(topNode: Element): String = {
+    val node = topNode.clone
+    removeParagraphsWithFewWords(node)
+    convertToHtml(node)
+  }
+
+  private def convertToHtml(topNode: Element): String = topNode match {
+    case null => ""
+    case node => {
+      StringEscapeUtils.unescapeHtml(node.html).trim
+
+    (node.children().map((e: Element) => {
+      // FIXTHIS - Use some jsoup class to do this
+        "<p>" + StringEscapeUtils.unescapeHtml(e.html).trim + "</p>"
+      })).mkString
+    }
   }
 
   /**
@@ -180,9 +206,9 @@ trait OutputFormatter {
         logger.debug("removeParagraphsWithFewWords starting...")
       }
 
-      val allNodes = topNode.getAllElements
+      val paragraphs = topNode.getElementsByTag("p")
 
-      for (el <- allNodes) {
+      for (el <- paragraphs) {
         try {
           val stopWords = StopWords.getStopWordCount(el.text, language)
           if (el.text.size < 8 && stopWords.getStopWordCount < 3 && el.getElementsByTag("object").size == 0 && el.getElementsByTag("embed").size == 0) {

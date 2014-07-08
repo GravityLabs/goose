@@ -43,7 +43,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   val matchBadImageNames: Matcher = {
     val sb = new StringBuilder
     // create negative elements
-    sb.append(".html|.gif|.ico|button|twitter.jpg|facebook.jpg|ap_buy_photo|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com")
+  sb.append(".html|.gif|.ico|button|twitter.jpg|facebook.jpg|ap_buy_photo|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com")
     sb.append("|mediaplex.com|adsatt|view.atdmt")
     Pattern.compile(sb.toString()).matcher(string.empty)
   }
@@ -197,7 +197,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         height = locallyStoredImage.height
         if (height > MIN_HEIGHT)
         fileExtension = locallyStoredImage.fileExtension
-        if (fileExtension != ".gif" && fileExtension != "NA")
+        if (fileExtension != "NA")
         imageSrc = locallyStoredImage.imgSrc
         if ((depthLevel >= 1 && locallyStoredImage.width > 300) || depthLevel < 1)
         if (!isBannerDimensions(width, height))
@@ -224,8 +224,33 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     imageResults
   }
 
-  def getAllImages: ArrayList[Element] = {
-    null
+  def getAllImages(topNode: Element, parentDepthLevel: Int = 0, siblingDepthLevel: Int = 0): List[Image] = {
+    trace("getting All Images")
+    var images: ListBuffer[Image] = new ListBuffer()
+    getImageCandidates(topNode) match {
+      case Some(candidateImages) => {
+        for {
+          cadidateImg <- candidateImages
+          locallyStoredImg <- getLocallyStoredImage(buildImagePath(cadidateImg.attr("src")))
+        } {
+          var img = new Image 
+          img.imageSrc = locallyStoredImg.imgSrc
+          img.width = locallyStoredImg.width
+          img.height = locallyStoredImg.height
+          img.bytes = locallyStoredImg.bytes
+          images += img
+  }
+        return images.toList
+      }
+      case None => {
+        getDepthLevel(topNode, parentDepthLevel, siblingDepthLevel) match {
+          case Some(depthObj) => {
+            return getAllImages(depthObj.node, depthObj.parentDepth, depthObj.siblingDepth)
+          }
+          case None => return images.toList
+        }
+      } 
+    }
   }
 
   /**
@@ -310,7 +335,8 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       filteredImages <- filterBadNames(images)
       goodImages <- findImagesThatPassByteSizeTest(filteredImages)
     } {
-      return Some(filteredImages)
+      //return Some(filteredImages)
+      return Some(goodImages)
     }
     None
 
@@ -588,3 +614,12 @@ object UpgradedImageIExtractor {
   val KNOWN_IMG_DOM_NAMES = ListBuffer("yn-story-related-media", "cnn_strylccimg300cntr", "big_photo", "ap-smallphoto-a")
 
 }
+<<<<<<< .mine
+
+
+
+=======
+  }
+
+}
+>>>>>>> .theirs

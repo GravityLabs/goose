@@ -23,6 +23,9 @@ import org.jsoup.nodes.Element
 import java.util.Date
 import beans.BeanProperty
 import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor, AdditionalDataExtractor, PublishDateExtractor}
+import java.net.URL
+import org.apache.http.util.EntityUtils
+import org.apache.http.HttpEntity
 
 object Language extends Enumeration {
   type Language = Value
@@ -44,6 +47,16 @@ import Language._
 
 class Configuration {
   
+  // Refactory this in a YML file (like Ruby)
+  def resolveCharSet(url: String, entity: HttpEntity): String = {
+    var host = new URL(url).getHost()
+
+    host match {
+      case "www1.folha.uol.com.br" => return "ISO-8859-1"
+      case "espn.estadao.com.br" => return "ISO-8859-1"
+      case _ => return Option(EntityUtils.getContentCharSet(entity)) getOrElse "UTF-8"
+    }
+  }
   /**
   * this is the local storage path used to place images to inspect them, should be writable
   */
@@ -78,15 +91,21 @@ class Configuration {
   @BeanProperty
   var enableImageFetching: Boolean = true
   /**
+  * set this guy to false if you don't care about getting All images, otherwise you can either use the default
+  * image extractor to implement the ImageExtractor interface to build your own
+  */
+  @BeanProperty
+  var enableAllImagesFetching: Boolean = true
+  /**
   * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
   */
   @BeanProperty
-  var imagemagickConvertPath: String = "/usr/bin/convert"
+  var imagemagickConvertPath: String = "/usr/local/bin/convert"
   /**
   *  path to your imagemagick identify executable
   */
   @BeanProperty
-  var imagemagickIdentifyPath: String = "/usr/bin/identify"
+  var imagemagickIdentifyPath: String = "/usr/local/bin/identify"
 
   @BeanProperty
   var connectionTimeout: Int = 10000  // 10 seconds
