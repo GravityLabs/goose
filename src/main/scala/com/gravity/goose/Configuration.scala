@@ -54,6 +54,41 @@ class Configuration {
 //          } else {
 //            encodingType = contentType.getCharset().name
 //          }
+
+/* from andhapp@github
+        import org.mozilla.universalchardet.UniversalDetector
+        var encodingType: String = "UTF-8"
+        try {
+          encodingType = EntityUtils.getContentCharSet(entity)
+
+          if (encodingType == null) {
+
+            val buf: Array[Byte] = new Array[Byte](2048)
+            var instream2: InputStream = new ByteArrayInputStream(responseBytes)
+            var bytesRead: Int = 2048
+            var inLoop = true
+
+            detector = new UniversalDetector(null);
+
+            while (inLoop) {
+              var n: Int = instream2.read(buf)
+              bytesRead += 2048
+
+              if (n < 0) inLoop = false
+              if (inLoop && !detector.isDone()) {
+                detector.handleData(buf, 0, n)
+              }
+            }
+
+            detector.dataEnd()
+            encodingType = detector.getDetectedCharset()
+            println("The encoding: " + encodingType)
+            detector.reset()
+          }
+*/
+
+
+
     var host = new URL(url).getHost()
 
     host match {
