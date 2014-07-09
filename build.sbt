@@ -1,6 +1,6 @@
 name := "goose"
 
-version := "2.11.0"
+version := "2.2.0"
 
 organization := "com.sapienapps"
 
