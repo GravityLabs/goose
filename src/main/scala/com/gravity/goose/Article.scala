@@ -23,6 +23,7 @@ import org.jsoup.nodes.{ Element, Document }
 import java.util.Date
 import scala.collection._
 import beans.BeanProperty
+import com.gravity.goose.opengraph.OpenGraphData
 
 /**
  * Created by Jim Plush
@@ -157,4 +158,8 @@ class Article {
    */
   @BeanProperty
   var additionalData: Map[String, String] = Map.empty
-}
+
+  /**
+   * Facebook Open Graph data that that is found in Article Meta tags
+   */
+  var openGraphData: OpenGraphData = null}
