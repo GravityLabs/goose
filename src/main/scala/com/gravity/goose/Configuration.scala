@@ -21,8 +21,8 @@ package com.gravity.goose
 import network.{HtmlFetcher, AbstractHtmlFetcher}
 import org.jsoup.nodes.Element
 import java.util.Date
-import reflect.BeanProperty
 import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor, AdditionalDataExtractor, PublishDateExtractor}
+import scala.beans.BeanProperty
 
 
 /**
