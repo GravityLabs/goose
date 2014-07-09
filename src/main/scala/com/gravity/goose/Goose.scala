@@ -31,16 +31,19 @@ class Goose(config: Configuration = new Configuration) {
   initializeEnvironment()
 
   /**
-  * Main method to extract an article object from a URL, pass in a url and get back a Article
-  * @param url you want to extract
+  * Main method to extract an article object from a URL, pass in a url and get
+  * back an Article.
+  * 
+ * @param url the URL of the page.
+ * @param rawHTML the raw HTML page source -- optional. If not specified, and
+ *                fetching is configured in {@code config}, the page will be
+ *                downloaded.
+ * @param lang the surmised language of the page -- optional. Used as a fallback
+ *             when the page does not report its language.
   */
-  def extractContent(url: String, rawHTML: String): Article = {
-    val cc = new CrawlCandidate(config, url, rawHTML)
-    sendToActor(cc)
-  }
-
-  def extractContent(url: String): Article = {
-    val cc = new CrawlCandidate(config, url, null)
+  def extractContent(url: String,
+                     rawHTML: String = null, lang: String = "en"): Article = {
+    val cc = new CrawlCandidate(config, url, rawHTML, lang)
     sendToActor(cc)
   }
 

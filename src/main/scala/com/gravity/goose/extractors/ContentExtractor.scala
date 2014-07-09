@@ -281,7 +281,9 @@ trait ContentExtractor {
   * @return
   */
 
-  def calculateBestNodeBasedOnClustering(article: Article, language: Language): Option[Element] = {
+  //def calculateBestNodeBasedOnClustering(article: Article, language: Language): Option[Element] = {
+  def calculateBestNodeBasedOnClustering(article: Article,
+                                         lang:String): Option[Element] = {
     trace(logPrefix + "Starting to calculate TopNode")
     val doc = article.doc.clone
     var topNode: Element = null
@@ -293,7 +295,8 @@ trait ContentExtractor {
     val nodesWithText = mutable.Buffer[Element]()
     for (node <- nodesToCheck) {
       val nodeText: String = node.text
-      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, language)
+//      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, language)
+      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, lang)
       val highLinkDensity: Boolean = isHighLinkDensity(node)
       if (wordStats.getStopWordCount > 2 && !highLinkDensity) {
         nodesWithText.add(node)
@@ -307,7 +310,8 @@ trait ContentExtractor {
 
     for (node <- nodesWithText) {
       var boostScore: Float = 0
-      if (isOkToBoost(node, language)) {
+//      if (isOkToBoost(node, language)) {
+      if (isOkToBoost(node, lang)) {
         if (cnt >= 0) {
           boostScore = ((1.0 / startingBoost) * 50).asInstanceOf[Float]
           startingBoost += 1
@@ -327,7 +331,8 @@ trait ContentExtractor {
       trace(logPrefix + "Location Boost Score: " + boostScore + " on interation: " + i + " tag='"+ node.tagName +"' id='" + node.parent.id + "' class='" + node.parent.attr("class"))
 
       val nodeText: String = node.text
-      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, language)
+//      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, language)
+      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, lang)
       val upscore: Int = (wordStats.getStopWordCount + boostScore).asInstanceOf[Int]
       updateScore(node.parent, upscore)
       updateScore(node.parent.parent, upscore / 2)
@@ -383,7 +388,8 @@ trait ContentExtractor {
   * @param node
   * @return
   */
-  private def isOkToBoost(node: Element, language: Language): Boolean = {
+//  private def isOkToBoost(node: Element, language: Language): Boolean = {
+  private def isOkToBoost(node: Element, lang: String): Boolean = {
     val para = "p"
     var stepsAway: Int = 0
     val minimumStopWordCount = 5
@@ -397,7 +403,8 @@ trait ContentExtractor {
             return false
           }
           val paraText: String = currentNode.text
-          val wordStats: WordStats = StopWords.getStopWordCount(paraText, language)
+//          val wordStats: WordStats = StopWords.getStopWordCount(paraText, language)
+          val wordStats: WordStats = StopWords.getStopWordCount(paraText, lang)
           if (wordStats.getStopWordCount > minimumStopWordCount) {
             trace(logPrefix + "We're gonna boost this node, seems contenty")
             return true
@@ -619,10 +626,12 @@ trait ContentExtractor {
   * @param targetNode
   * @return
   */
-  def postExtractionCleanup(targetNode: Element, language: Language): Element = {
+//  def postExtractionCleanup(targetNode: Element, language: Language): Element = {
+  def postExtractionCleanup(targetNode: Element, lang: String): Element = {
 
     trace(logPrefix + "Starting cleanup Node")
-    val node = addSiblings(targetNode, language)
+//    val node = addSiblings(targetNode, language)
+    val node = addSiblings(targetNode, lang)
     for {
       e <- node.children
       if (e.tagName != "p" || isHighLinkDensity(e))
@@ -663,7 +672,10 @@ trait ContentExtractor {
   * @param currentSibling
   * @return
   */
-  def getSiblingContent(currentSibling: Element, baselineScoreForSiblingParagraphs: Int, language: Language): Option[String] = {
+//  def getSiblingContent(currentSibling: Element, baselineScoreForSiblingParagraphs: Int, language: Language): Option[String] = {
+  def getSiblingContent(currentSibling: Element,
+                        baselineScoreForSiblingParagraphs: Int,
+                        lang: String): Option[String] = {
 
     if (currentSibling.tagName == "p" && currentSibling.text.length() > 0) {
       Some(currentSibling.outerHtml)
@@ -678,7 +690,8 @@ trait ContentExtractor {
         Some((for {
           firstParagraph <- potentialParagraphs
           if (firstParagraph.text.length() > 0)
-          wordStats: WordStats = StopWords.getStopWordCount(firstParagraph.text, language)
+//          wordStats: WordStats = StopWords.getStopWordCount(firstParagraph.text, language)
+          wordStats: WordStats = StopWords.getStopWordCount(firstParagraph.text, lang)
           paragraphScore: Int = wordStats.getStopWordCount
           siblingBaseLineScore: Double = .30
           if ((baselineScoreForSiblingParagraphs * siblingBaseLineScore).toDouble < paragraphScore)
@@ -707,14 +720,17 @@ trait ContentExtractor {
     b
   }
 
-  private def addSiblings(topNode: Element, language: Language): Element = {
+//  private def addSiblings(topNode: Element, language: Language): Element = {
+  private def addSiblings(topNode: Element, lang: String): Element = {
 
     trace(logPrefix + "Starting to add siblings")
 
-    val baselineScoreForSiblingParagraphs: Int = getBaselineScoreForSiblings(topNode, language)
+//    val baselineScoreForSiblingParagraphs: Int = getBaselineScoreForSiblings(topNode, language)
+    val baselineScoreForSiblingParagraphs: Int = getBaselineScoreForSiblings(topNode, lang)
     val results = walkSiblings(topNode) {
       currentNode => {
-        getSiblingContent(currentNode, baselineScoreForSiblingParagraphs, language)
+//        getSiblingContent(currentNode, baselineScoreForSiblingParagraphs, language)
+        getSiblingContent(currentNode, baselineScoreForSiblingParagraphs, lang)
 
       }
     }.reverse.flatMap(itm => itm)
@@ -731,7 +747,8 @@ trait ContentExtractor {
   * @param topNode
   * @return
   */
-  private def getBaselineScoreForSiblings(topNode: Element, language: Language): Int = {
+//  private def getBaselineScoreForSiblings(topNode: Element, language: Language): Int = {
+  private def getBaselineScoreForSiblings(topNode: Element, lang: String): Int = {
     var base: Int = 100000
     var numberOfParagraphs: Int = 0
     var scoreOfParagraphs: Int = 0
@@ -739,7 +756,8 @@ trait ContentExtractor {
 
     for (node <- nodesToCheck) {
       val nodeText: String = node.text
-      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, language)
+//      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, language)
+      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, lang)
       val highLinkDensity: Boolean = isHighLinkDensity(node)
       if (wordStats.getStopWordCount > 2 && !highLinkDensity) {
         numberOfParagraphs += 1;

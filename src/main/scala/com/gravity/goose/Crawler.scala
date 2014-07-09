@@ -35,7 +35,19 @@ import scala.collection.JavaConversions._
  * Date: 8/18/11
  */
 
-case class CrawlCandidate(config: Configuration, url: String, rawHTML: String = null)
+/**
+ * Represents the information we may know of a page we crawl.
+ * 
+ * @param config the configuration.
+ * @param url the URL of the page.
+ * @param rawHTML the raw HTML page source -- optional. If not specified, and
+ *                fetching is configured in {@code config}, the page will be
+ *                downloaded.
+ * @param lang the surmised language of the page -- optional. Used as a fallback
+ *             when the page does not report its language.
+ */
+case class CrawlCandidate(config: Configuration, url: String,
+                          rawHTML: String = null, lang: String = null)
 
 class Crawler(config: Configuration) {
 
@@ -47,6 +59,7 @@ class Crawler(config: Configuration) {
       parseCandidate <- URLHelper.getCleanedUrl(crawlCandidate.url)
       rawHtml <- getHTML(crawlCandidate, parseCandidate)
       doc <- getDocument(parseCandidate.url.toString, rawHtml)
+      lang = crawlCandidate.lang
     } {
       trace("Crawling url: " + parseCandidate.url)
 
@@ -71,11 +84,13 @@ class Crawler(config: Configuration) {
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
 
+
       if (article.publishDate == null) {
         article.publishDate = extractor.getDateFromURL(article.canonicalLink)
 	  }
       
-      extractor.calculateBestNodeBasedOnClustering(article, config.language) match {
+//      extractor.calculateBestNodeBasedOnClustering(article, config.language) match {
+      extractor.calculateBestNodeBasedOnClustering(article, lang) match {
         case Some(node: Element) => {
           article.movies = extractor.extractVideos(node)
           article.links = extractor.extractLinks(node)
@@ -99,9 +114,11 @@ class Crawler(config: Configuration) {
               }
             }
           }
-          article.topNode = extractor.postExtractionCleanup(node, config.language)
-          article.cleanedArticleText = outputFormatter.getFormattedText(node, config.language)
-          article.htmlArticle = outputFormatter.cleanupHtml(node, config.language)
+
+          article.topNode = extractor.postExtractionCleanup(node, lang)
+          article.cleanedArticleText = outputFormatter.getFormattedText(node, lang)
+          article.htmlArticle = outputFormatter.cleanupHtml(node, lang)
+
 
         }
         case _ => trace("NO ARTICLE FOUND")
