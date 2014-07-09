@@ -11,7 +11,7 @@ organization := "com.gravity.goose"
 
 name := "goose"
 
-version := "2.1.22-kkme"
+version := "2.2.1"
 
 //scalaVersion := "2.11.1"
 scalaVersion := "2.10.2"
@@ -66,6 +66,7 @@ publishMavenStyle := true
 pomIncludeRepository := { _ => true}
 
 publishTo := Some(Resolver.file("Github Pages", Path.userHome /"repo" / "maven" asFile)(Patterns(true, Resolver.mavenStyleBasePattern)))
+//publishTo := Some(Resolver.file("goose",  new File(Path.userHome + "/Dropbox/public/libs" )) )
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
 
