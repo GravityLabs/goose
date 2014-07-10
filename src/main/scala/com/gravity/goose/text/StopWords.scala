@@ -103,6 +103,7 @@ object StopWords {
 //    val stopWords = getStopWords(language)
     val stopWords = getStopWords(lang)
 if (stopWords.size > 0) {
+    //scala-ify? overlappingStopWords = candidateWords.filter(w=>stopWords.contains(w.toLowerCase)).map(w=>w.toLowerCase)
     candidateWords.foreach(w => {
        if (stopWords.contains(w.toLowerCase)) {
          overlappingStopWords = w.toLowerCase :: overlappingStopWords
