@@ -48,7 +48,7 @@ trait DocumentCleaner {
     trace(docToClean.html)
     trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
-    docToClean = cleanEmTags(docToClean)
+    docToClean = cleanTextTags(docToClean)
     docToClean = removeDropCaps(docToClean)
     docToClean = removeScriptsAndStyles(docToClean)
     docToClean = cleanBadTags(docToClean)
@@ -69,20 +69,25 @@ trait DocumentCleaner {
   }
 
   /**
-  * replaces <em> tags with textnodes
+  * replaces various tags with textnodes
   */
-  private def cleanEmTags(doc: Document): Document = {
-    val ems: Elements = doc.getElementsByTag("em")
-
+  private def cleanTextTags(doc: Document): Document = {
+    var ems: Elements = doc.getElementsByTag("em")
+    ems ++= doc.getElementsByTag("strong")
+    ems ++= doc.getElementsByTag("b")
+    ems ++= doc.getElementsByTag("i")
+    ems ++= doc.getElementsByTag("strike")
+    ems ++= doc.getElementsByTag("del")
+    ems ++= doc.getElementsByTag("ins")
     for {
       node <- ems
       images: Elements = node.getElementsByTag("img")
       if (images.size == 0)
     } {
-      val tn: TextNode = new TextNode(node.text, doc.baseUri)
+      val tn: TextNode = new TextNode(node.text.trim+" ", doc.baseUri)
       node.replaceWith(tn)
     }
-    trace(ems.size + " EM tags modified")
+    trace(ems.size + " EM/strong/b/i/strike/del/ins tags modified")
     doc
   }
 
