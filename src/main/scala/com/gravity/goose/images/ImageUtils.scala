@@ -23,6 +23,7 @@ package com.gravity.goose.images
  * Date: 8/18/11
  */
 
+import javax.activation.MimetypesFileTypeMap
 import javax.imageio.ImageIO
 import java.awt.color.CMMException
 import java.awt.image.BufferedImage
@@ -49,11 +50,11 @@ object ImageUtils extends Logging {
   * User: Jim Plush
   * gets the image dimensions for an image file, pass in the path to the image who's dimensions you want to get
   * this will use imageMagick since the Java IO and imaging shit SUCKS for getting mime types and file info for jpg and png files
-  *
+  * raisercostin: this one uses the executable imageMagick. In 2014 let's give again a chance to the java one :D
   * @param filePath
   * @return
   */
-  def getImageDimensions(identifyProgram: String, filePath: String): ImageDetails = {
+  def getImageDimensions2(identifyProgram: String, filePath: String): ImageDetails = {
     val imageInfo = execToString(Array(identifyProgram, filePath))
     val imageDetails: ImageDetails = new ImageDetails
     if (imageInfo == null || imageInfo.contains("no decode delegate for this image format")) {
@@ -80,6 +81,25 @@ object ImageUtils extends Logging {
     imageDetails.setHeight(height)
     imageDetails
   }
+  /**
+  * User: Jim Plush
+  * gets the image dimensions for an image file, pass in the path to the image who's dimensions you want to get
+  * this will use imageMagick since the Java IO and imaging shit SUCKS for getting mime types and file info for jpg and png files
+  *
+  * @param filePath
+  * @return
+  */
+  def getImageDimensions(identifyProgram: String, filePath: String): ImageDetails = {
+
+    val (mimeType, width, height) = getImageDimensionsJava(filePath)
+    val imageDetails: ImageDetails = new ImageDetails
+
+    imageDetails.setMimeType(mimeType)
+    imageDetails.setWidth(width)
+    imageDetails.setHeight(height)
+
+    imageDetails
+  }
 
   /**
   * gets the image dimensions for an image file, pass in the path to the image who's dimensions you want to get, uses the built in java commands
@@ -87,15 +107,13 @@ object ImageUtils extends Logging {
   * @param filePath
   * @return
   */
-  def getImageDimensionsJava(filePath: String): HashMap[String, Integer] = {
+  def getImageDimensionsJava(filePath: String): (String, Integer,Integer) = {
     var image: BufferedImage = null
     try {
       val f: File = new File(filePath)
       image = ImageIO.read(f)
-      val results: HashMap[String, Integer] = new HashMap[String, Integer]
-      results.put("height", image.getHeight)
-      results.put("width", image.getWidth)
-      results
+      val mimeType : String = new MimetypesFileTypeMap().getContentType(f)
+      (mimeType, image.getWidth, image.getHeight)
     }
     catch {
       case e: CMMException => {
