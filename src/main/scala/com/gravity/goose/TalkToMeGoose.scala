@@ -41,12 +41,19 @@ object TalkToMeGoose {
 
   def talk(url: String) {
     val config: Configuration = new Configuration
-    config.enableImageFetching = false
+
+      config.enableImageFetching = false
+      config.imagemagickConvertPath = "/usr/bin/convert"
+      config.imagemagickIdentifyPath = "/usr/bin/identify"
+      config.localStoragePath = "/tmp/goose"
+      config.minBytesForImages = 4500
     val goose = new Goose(config)
     val article = goose.extractContent(url)
     println("TITLE: " + article.title)
     println("DATE: " + article.publishDate)
     println("TAGS: " + article.tags)
     println("TEXT: " + article.cleanedArticleText)
+      println(article.topImage.imageSrc)
+      println(article.title)
   }
 }
