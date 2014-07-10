@@ -3,20 +3,6 @@ package com.gravity.goose
 import java.io._
 import scala.collection.JavaConversions._
 import scala.io.Source
-import com.netflix.astyanax.AstyanaxContext
-import com.netflix.astyanax.Keyspace
-import com.netflix.astyanax.MutationBatch
-import com.netflix.astyanax.connectionpool.NodeDiscoveryType
-import com.netflix.astyanax.connectionpool.OperationResult
-import com.netflix.astyanax.connectionpool.impl.ConnectionPoolConfigurationImpl
-import com.netflix.astyanax.connectionpool.impl.CountingConnectionPoolMonitor
-import com.netflix.astyanax.impl.AstyanaxConfigurationImpl
-import com.netflix.astyanax.model.ColumnFamily
-import com.netflix.astyanax.model.Row
-import com.netflix.astyanax.serializers.StringSerializer
-import com.netflix.astyanax.serializers.StringSerializer
-import com.netflix.astyanax.thrift.ThriftFamilyFactory
-import com.netflix.astyanax.util.RangeBuilder
 
 
 object TalkToMeGoose {
@@ -65,6 +51,20 @@ object TalkToMeGoose {
 	 */
 
 	def mainCasandra(args: Array[String]) {
+import com.netflix.astyanax.AstyanaxContext
+import com.netflix.astyanax.Keyspace
+import com.netflix.astyanax.MutationBatch
+import com.netflix.astyanax.connectionpool.NodeDiscoveryType
+import com.netflix.astyanax.connectionpool.OperationResult
+import com.netflix.astyanax.connectionpool.impl.ConnectionPoolConfigurationImpl
+import com.netflix.astyanax.connectionpool.impl.CountingConnectionPoolMonitor
+import com.netflix.astyanax.impl.AstyanaxConfigurationImpl
+import com.netflix.astyanax.model.ColumnFamily
+import com.netflix.astyanax.model.Row
+import com.netflix.astyanax.serializers.StringSerializer
+import com.netflix.astyanax.serializers.StringSerializer
+import com.netflix.astyanax.thrift.ThriftFamilyFactory
+import com.netflix.astyanax.util.RangeBuilder
 		val keyspace_name: String = args(0)
 		val column_family_name: String = args(1)
 		val context = new AstyanaxContext.Builder()
