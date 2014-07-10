@@ -1,4 +1,4 @@
-package eu.ec.dgempl.eessi.utils
+package com.gravity.goose.util
 
 import java.io._
 import com.fasterxml.jackson.core._
