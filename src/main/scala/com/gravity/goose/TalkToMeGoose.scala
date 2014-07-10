@@ -6,6 +6,10 @@ import scala.io.Source
 
 
 object TalkToMeGoose {
+
+    val URLConfig: LocalURLFetchServiceTestConfig = new LocalURLFetchServiceTestConfig()
+    val Helper: LocalServiceTestHelper = new LocalServiceTestHelper(URLConfig)
+
   /**
    * You can use this method to run goose from the command line
    * to extract html from a bash script, or to just test its functionality:
@@ -20,22 +24,20 @@ object TalkToMeGoose {
    *   sbt
    *   > run http://www.thestar.com/news/insight/2013/04/26/spotting_tiny_gnatcatcher_can_put_a_spring_in_your_step.html
    *
-   * Some top gun love:
-   * Officer: [in the midst of the MIG battle] Both Catapults are broken, sir.
-   * Stinger: How long will it take?
-   * Officer: It'll take ten minutes.
-   * Stinger: Bullshit ten minutes! This thing will be over in two minutes! Get on it!
-   *
-   * @param args
    */
   def main(args: Array[String]) {
     try {
-      talk(args(0))
+            println("URL to extract article from:")
+            val url: String = if (args.isEmpty) readLine() else args(0)
+      talk(url)
+      //talk2(url)
     } catch {
       case e: Exception => {
         System.out.println("Make sure you pass in a valid URL: " + e.toString)
         e.printStackTrace()
       }
+        } finally {
+            Helper.tearDown()
     }
   }
 
@@ -56,4 +58,18 @@ object TalkToMeGoose {
       println(article.topImage.imageSrc)
       println(article.title)
   }
+  def talk2(url: String) {
+            Helper.setUp()
+            BasicConfigurator.configure();
+
+            val config: Configuration = new Configuration
+            config.enableImageFetching = false
+
+            val goose = new Goose()
+            goose.setConfig(config)
+
+            val article = goose.extractContent(url)
+            println("Tags: " + article.getTagsSet())
+            println(article.cleanedArticleText)
+}
 }

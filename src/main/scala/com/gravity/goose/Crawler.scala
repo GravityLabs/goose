@@ -179,6 +179,7 @@ class Crawler(config: Configuration) {
   def releaseResources(article: Article) {
     trace(logPrefix + "STARTING TO RELEASE ALL RESOURCES")
 
+        if (config.getEnableImageFetching) {
     val dir: File = new File(config.localStoragePath)
 
     dir.list.foreach(filename => {
@@ -190,6 +191,7 @@ class Crawler(config: Configuration) {
       }
     })
   }
+    }
 
 }
 

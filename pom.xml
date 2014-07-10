@@ -69,6 +69,9 @@ Goose was originally an article extractor written in Java that has most recently
 		<source.version>1.7</source.version>
 		<scala.version>2.10.4</scala.version>
 		<!--<scala.version>2.9.0-1</scala.version>-->
+		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
+		<gae.version>1.7.1</gae.version>
+		<gae.home>${appengine.sdk.root}</gae.home>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -140,6 +143,28 @@ Goose was originally an article extractor written in Java that has most recently
 			<version>1.7.6</version>
 			<scope>test</scope>
 		</dependency>
+<!--gae-->
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-labs</artifactId>
+            <version>${gae.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-stubs</artifactId>
+            <version>${gae.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-testing</artifactId>
+            <version>${gae.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-1.0-sdk</artifactId>
+            <version>${gae.version}</version>
+            <scope>compile</scope>
+        </dependency>
 		<!--json-->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

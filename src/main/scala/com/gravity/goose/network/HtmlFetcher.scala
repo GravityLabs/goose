@@ -158,7 +158,8 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
         try {
           contentType = ContentType.get(entity)
           trace("Got contentType: " + contentType)
-        }
+
+                    }
         catch {
           case e: Exception => {
             if (logger.isDebugEnabled) {
@@ -255,7 +256,9 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
           trace("GRVBIGFAIL: " + mimeType + " - " + cleanUrl)
           throw new NotHtmlException(cleanUrl)
         }
+
       } 
+
       else {
         trace("no mimetype?: " + mimeType + " - " + cleanUrl)
         throw new NotHtmlException(cleanUrl)
@@ -305,6 +308,9 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     httpParams.setParameter("Accept", "application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5")
     httpParams.setParameter("Cache-Control", "max-age=0")
     httpParams.setParameter("http.connection.stalecheck", true)
+//gae???
+        val cm = new GAEConnectionManager()
+
     val schemeRegistry: SchemeRegistry = new SchemeRegistry
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
     schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
@@ -406,7 +412,9 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     try {
       var buf : Array[Byte] = IOUtils.toByteArray(is)
       return encodedText(buf)
+
     }
+
     catch {
       case e: SocketTimeoutException => {
         logger.warn(e.toString + " " + e.getMessage)

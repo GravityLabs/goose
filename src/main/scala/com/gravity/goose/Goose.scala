@@ -20,15 +20,20 @@ package com.gravity.goose
 
 import network.HtmlFetcher
 import java.io.File
+import org.apache.commons.lang.NotImplementedException
 
 /**
  * Created by Jim Plush - Gravity.com
  * Date: 8/14/11
  */
-class Goose(config: Configuration = new Configuration) {
+class Goose() {
 
+    var config : Configuration = new Configuration()
 
-  initializeEnvironment()
+    def setConfig(configuration: Configuration) = {
+        config = configuration
+        if (configuration.getEnableImageFetching) throw new NotImplementedException("image fetching should be rewritten before it can be used in GAE")
+    }
 
   /**
   * Main method to extract an article object from a URL, pass in a url and get
@@ -60,20 +65,15 @@ class Goose(config: Configuration = new Configuration) {
   def initializeEnvironment() {
 
     val f = new File(config.localStoragePath)
-    try {
       if (!f.isDirectory) {
         f.mkdirs()
       }
-    } catch {
-      case e: Exception =>
-    }
     if (!f.isDirectory) {
       throw new Exception(config.localStoragePath + " directory does not seem to exist, you need to set this for image processing downloads")
     }
     if (!f.canWrite) {
       throw new Exception(config.localStoragePath + " directory is not writeble, you need to set this for image processing downloads")
     }
-
     // todo cleanup any jank that may be in the tmp folder currently
   }
 
