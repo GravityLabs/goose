@@ -5,6 +5,7 @@ target/
 /goose.iml
 /goose.ipr
 /goose.iws
+
 config/development.scala
 config/production.scala
 config/test.scala
@@ -37,3 +38,4 @@ config/consumer.properties
 release/
 *.sw*
 .DS_Store
+bin/
