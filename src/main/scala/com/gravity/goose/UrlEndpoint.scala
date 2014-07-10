@@ -44,7 +44,7 @@ class URLEndpoint extends Container {
   def handle(request: Request, response: Response) {
     try {
       val body = response.getPrintStream
-      val map = new HashMap[String,Any]()
+      val map = Map[String,Any]()
       val url = request.getQuery.get("url")
       println("read article from ["+url+"]")
       if (url == null || url.length == 0) {

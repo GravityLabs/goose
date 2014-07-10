@@ -4,6 +4,7 @@ import java.io._
 import com.fasterxml.jackson.core._
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 object JsonUtil {
 
@@ -14,6 +15,7 @@ object JsonUtil {
   private def create(): ObjectMapper = {
     val mapper = new ObjectMapper()
     mapper.configure(SerializationFeature.INDENT_OUTPUT, true)
+    mapper.registerModule(DefaultScalaModule)
     mapper
   }
 
