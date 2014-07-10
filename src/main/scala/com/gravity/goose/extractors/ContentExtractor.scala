@@ -56,7 +56,7 @@ trait ContentExtractor {
   val SPACE_SPLITTER: StringSplitter = new StringSplitter(" ")
   val NO_STRINGS = Set.empty[String]
   val A_REL_TAG_SELECTOR: String = "a[rel=tag], a[href*=/tag/]"
-  val TOP_NODE_TAGS = new TagsEvaluator(Set("p", "td", "pre", "li", "code"))
+  val TOP_NODE_TAGS = new TagsEvaluator(Set("p", "td", "pre", "strong", "li", "code"))
 
   def getTitle(article: Article): String = {
     var title: String = string.empty
@@ -298,6 +298,7 @@ trait ContentExtractor {
 //      val wordStats: WordStats = StopWords.getStopWordCount(nodeText, language)
       val wordStats: WordStats = StopWords.getStopWordCount(nodeText, lang)
       val highLinkDensity: Boolean = isHighLinkDensity(node)
+      trace("Candidate: " + node.tagName() + " score: " + wordStats + " d:" + highLinkDensity + " text:" + nodeText)
       if (wordStats.getStopWordCount > 2 && !highLinkDensity) {
         nodesWithText.add(node)
       }
@@ -364,6 +365,11 @@ trait ContentExtractor {
       }
     }
     printTraceLog(topNode)
+    if(topNode != null && getScore(topNode) < 20)
+    {
+      debug("TopNode score is too small!")
+      return None
+    }
     if (topNode == null) None else Some(topNode)
   }
 
@@ -397,7 +403,7 @@ trait ContentExtractor {
 
     walkSiblings(node) {
       currentNode => {
-        if (currentNode.tagName == para) {
+        if (currentNode.tagName == para || currentNode.tagName == "strong") {
           if (stepsAway >= maxStepsAwayFromNode) {
             trace(logPrefix + "Next paragraph is too far away, not boosting")
             return false
@@ -406,7 +412,7 @@ trait ContentExtractor {
 //          val wordStats: WordStats = StopWords.getStopWordCount(paraText, language)
           val wordStats: WordStats = StopWords.getStopWordCount(paraText, lang)
           if (wordStats.getStopWordCount > minimumStopWordCount) {
-            trace(logPrefix + "We're gonna boost this node, seems contenty")
+            trace(logPrefix + "We're gonna boost this node, seems contenty " + debugNode(node))
             return true
           }
           stepsAway += 1
@@ -427,8 +433,11 @@ trait ContentExtractor {
   * @param e
   * @return
   */
-  private def isHighLinkDensity(e: Element): Boolean = {
+//  private def isHighLinkDensity(e: Element, limit: Double = 0.1): Boolean = {
+   private def isHighLinkDensity(e: Element, limit: Double = 1.0): Boolean = {
+
     val links: Elements = e.getElementsByTag("a")
+    links.addAll(e.getElementsByAttribute("onclick"))
     if (links.size == 0) {
       return false
     }
@@ -448,7 +457,7 @@ trait ContentExtractor {
 
     trace(logPrefix + "Calculated link density score as: " + score + " for node: " + getShortText(e.text, 50))
 
-    if (score >= 1) {
+    if (score >= limit) {
       return true
     }
     false
@@ -595,7 +604,7 @@ trait ContentExtractor {
 
   def isTableTagAndNoParagraphsExist(e: Element): Boolean = {
 
-    val subParagraphs: Elements = e.getElementsByTag("p")
+    val subParagraphs: Elements = getChildParagraphs(e)
     for (p <- subParagraphs) {
       if (p.text.length < 25) {
         p.remove()
@@ -603,6 +612,7 @@ trait ContentExtractor {
     }
 
     val subParagraphs2: Elements = e.getElementsByTag("p")
+    //val subParagraphs2: Elements = getChildParagraphs(e)
     if (subParagraphs2.size == 0 && e.tagName != "td") {
       if (e.tagName == "ul" || e.tagName == "ol") {
         val linkTextLength = e.getElementsByTag("a").map(_.text.length).sum
@@ -635,6 +645,7 @@ trait ContentExtractor {
     for {
       e <- node.children
       if (e.tagName != "p" || isHighLinkDensity(e))
+      //if (e.tagName != "p" && e.tagName != "strong")
     } {
       trace(logPrefix + "CLEANUP  NODE: " + e.id + " class: " + e.attr("class"))
       if (isHighLinkDensity(e) || isTableTagAndNoParagraphsExist(e) || !isNodeScoreThreshholdMet(node, e)) {
@@ -658,12 +669,19 @@ trait ContentExtractor {
     trace(logPrefix + "topNodeScore: " + topNodeScore + " currentNodeScore: " + currentNodeScore + " threshold: " + thresholdScore)
 
     if ((currentNodeScore < thresholdScore) && e.tagName != "td") {
-      trace(logPrefix + "Removing node due to low threshold score")
+      trace(logPrefix + "Removing node due to low threshold score " + debugNode(e))
       false
     } else {
       trace(logPrefix + "Not removing TD node")
       true
     }
+  }
+
+  def getChildParagraphs(e: Element): Elements =
+  {
+    val potentialParagraphs: Elements = e.getElementsByTag("p")
+    potentialParagraphs.addAll(e.getElementsByTag("strong"))
+    potentialParagraphs
   }
 
   /**
@@ -677,12 +695,12 @@ trait ContentExtractor {
                         baselineScoreForSiblingParagraphs: Int,
                         lang: String): Option[String] = {
 
-    if (currentSibling.tagName == "p" && currentSibling.text.length() > 0) {
+    if ((currentSibling.tagName == "p" || currentSibling.tagName == "strong") && currentSibling.text.length() > 0) {
       Some(currentSibling.outerHtml)
 
     } else {
 
-      val potentialParagraphs: Elements = currentSibling.getElementsByTag("p")
+      val potentialParagraphs: Elements = getChildParagraphs(currentSibling)
       if (potentialParagraphs.first == null) {
         None
       } else {
@@ -752,7 +770,7 @@ trait ContentExtractor {
     var base: Int = 100000
     var numberOfParagraphs: Int = 0
     var scoreOfParagraphs: Int = 0
-    val nodesToCheck: Elements = topNode.getElementsByTag("p")
+    val nodesToCheck: Elements = getChildParagraphs(topNode)
 
     for (node <- nodesToCheck) {
       val nodeText: String = node.text
@@ -775,6 +793,8 @@ trait ContentExtractor {
 
   private def debugNode(e: Element): String = {
     val sb: StringBuilder = new StringBuilder
+    sb.append("tag '")
+    sb.append(e.tagName)
     sb.append("'GravityScore: '")
     sb.append(e.attr("gravityScore"))
     sb.append("' paraNodeCount: '")
@@ -783,6 +803,11 @@ trait ContentExtractor {
     sb.append(e.id)
     sb.append("' className: '")
     sb.append(e.attr("class"))
+    sb.append("' GravityScore: '")
+    sb.append(e.attr("gravityScore"))
+    sb.append("' paraNodeCount: '")
+    sb.append(e.attr("gravityNodes"))
+    sb.append("'")
     sb.toString()
   }
 }
