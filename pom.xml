@@ -140,6 +140,18 @@ Goose was originally an article extractor written in Java that has most recently
 			<version>1.7.6</version>
 			<scope>test</scope>
 		</dependency>
+		<!--json-->
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.4</version>
+			<classifier>jdk15</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.simpleframework</groupId>
+			<artifactId>simple</artifactId>
+			<version>4.1.21</version>
+		</dependency>
 		<!-- add cassandra
 		<dependency>
 			<groupId>com.netflix.astyanax</groupId>
