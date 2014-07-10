@@ -59,7 +59,8 @@ libraryDependencies ++= {
     ,"com.chenlb.mmseg4j" % "mmseg4j-core" % "1.9.1"
 	,"com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
 	//add json service
-	,"net.sf.json-lib" % "json-lib" % "2.4" classifier "jdk15"
+	,"com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2"
+	,"com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.2.2"
 	,"org.simpleframework" % "simple" % "4.1.21"
 	//add cassandra
 	//,"com.netflix.astyanax" % "astyanax-core" % "1.56.43"

@@ -1,18 +1,17 @@
-import com.jimplush.goose._
-import com.jimplush.goose.images.Image
+package com.gravity.goose
+
+import com.gravity.goose._
 import org.simpleframework.http.core.Container
-import org.simpleframework.transport.connect.Connection
 import org.simpleframework.transport.connect.SocketConnection
 import org.simpleframework.http.Response
 import org.simpleframework.http.Request
 import java.net.InetSocketAddress
-import java.net.SocketAddress
-import java.io.PrintStream
-import java.util._
-import net.sf.json._
 import URLEndpoint._
-//remove if not needed
 import scala.collection.JavaConversions._
+import com.gravity.goose.extractors.ContentExtractor
+import scala.collection.mutable.Map
+import java.util.HashMap
+import eu.ec.dgempl.eessi.utils.JsonUtil
 
 object URLEndpoint {
 
@@ -45,29 +44,32 @@ class URLEndpoint extends Container {
   def handle(request: Request, response: Response) {
     try {
       val body = response.getPrintStream
-      val map = new HashMap()
+      val map = new HashMap[String,Any]()
       val url = request.getQuery.get("url")
+      println("read article from ["+url+"]")
       if (url == null || url.length == 0) {
         map.put("error", true)
         map.put("message", "No URL specified")
       } else {
-        val config = new Configuration()
+        val config = new Configuration
         config.setImagemagickConvertPath("/usr/bin/convert")
         config.setImagemagickIdentifyPath("/usr/bin/identify")
         config.setLocalStoragePath("./storage")
-        val contentExtractor = new ContentExtractor(config)
-        val article = contentExtractor.extractContent(url)
+	    val goose = new Goose(config)
+	    val article = goose.extractContent(url)
         map.put("success", true)
         map.put("title", encodeHTML(article.getTitle))
         val image = article.getTopImage
         if (image != null) {
           map.put("image", article.getTopImage.getImageSrc)
         }
-        map.put("images", article.getImageCandidates)
+        map.put("images", article.getAllImages)
         map.put("link", article.getCanonicalLink)
         map.put("text", encodeHTML(article.getCleanedArticleText))
       }
-      body.println(JSONObject.fromObject(map).toString)
+      val responseString = JsonUtil.toJson(map)
+      println(responseString)
+      body.println(responseString)
       response.set("Content-Type", "application/json")
       val time = System.currentTimeMillis()
       response.setDate("Date", time)
