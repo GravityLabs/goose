@@ -138,7 +138,23 @@ Goose was originally an article extractor written in Java that has most recently
 			<version>1.7.6</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+<!--
+    <dependency>
+      <groupId>com.netflix.astyanax</groupId>
+      <artifactId>astyanax-core</artifactId>
+      <version>1.56.43</version>
+    </dependency>
+    <dependency>
+      <groupId>com.netflix.astyanax</groupId>
+      <artifactId>astyanax-thrift</artifactId>
+      <version>1.56.43</version>
+    </dependency>
+    <dependency>
+      <groupId>com.netflix.astyanax</groupId>
+      <artifactId>astyanax-cassandra</artifactId>
+      <version>1.56.43</version>
+    </dependency>
+-->	</dependencies>
 	<!-- Hey... since we're open source, let's compile the source and javadocs into jars as well -->
 	<build>
 		<defaultGoal>package</defaultGoal>
