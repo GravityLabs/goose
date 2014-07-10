@@ -38,6 +38,10 @@ Goose is licensed by Gravity.com under the Apache 2.0 license, see the LICENSE f
 
 ##Environment Prerequisites
 
+The default behaviour is by using java image processing capabilities.
+
+### ImageMagick
+
 You will need to have ImageMagick installed for Goose to work correctly.
 
 On osx, you can install with brew:
@@ -46,10 +50,18 @@ On osx, you can install with brew:
 Update Configuration.scala with the location of identify and convert (eg /usr/local/bin)
 
 ##Take it for a spin
+
+### SBT
 To use goose from the command line:
 
     cd into the goose directory
     sbt "run-main com.gravity.goose.TalkToMeGoose http://techcrunch.com/2011/05/13/native-apps-or-web-apps-particle-code-wants-you-to-do-both/"
+
+### MVN
+    cd into the goose directory
+    mvn compile
+    MAVEN_OPTS="-Xms256m -Xmx2000m"; mvn exec:java -Dexec.mainClass=com.gravity.goose.TalkToMeGoose -Dexec.args="http://techcrunch.com/2011/05/13/native-apps-or-web-apps-particle-code-wants-you-to-do-both/" -e -q > ~/Desktop/gooseresult.txt
+
 
 ##Testing
 To run the junit tests, kick off the sbt test target:
