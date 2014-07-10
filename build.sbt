@@ -1,4 +1,3 @@
-
 import sbt._
 import Keys._
 import com.typesafe.sbteclipse.plugin.EclipsePlugin.EclipseKeys
@@ -7,11 +6,20 @@ import com.typesafe.sbteclipse.plugin.EclipsePlugin.EclipseKeys
 
 //assembly: seq(StandardProject.newSettings: _*)
 
+//organization := "GravityLabs"
 organization := "com.gravity.goose"
 
 name := "goose"
 
 version := "2.2.1"
+
+organizationHomepage := Some(url("http://gravity.com/"))
+
+homepage := Some(url("https://github.com/GravityLabs/goose"))
+
+description := "Extracts text, metadata, and key image from web articles."
+
+licenses += "Apache2" -> url("http://www.apache.org/licenses/")
 
 //scalaVersion := "2.11.1"
 scalaVersion := "2.10.2"
