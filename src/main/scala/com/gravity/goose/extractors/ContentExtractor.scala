@@ -793,9 +793,9 @@ trait ContentExtractor {
 
   private def debugNode(e: Element): String = {
     val sb: StringBuilder = new StringBuilder
-    sb.append("tag '")
+    sb.append("'tag '")
     sb.append(e.tagName)
-    sb.append("'GravityScore: '")
+    sb.append("' GravityScore: '")
     sb.append(e.attr("gravityScore"))
     sb.append("' paraNodeCount: '")
     sb.append(e.attr("gravityNodes"))
@@ -803,10 +803,6 @@ trait ContentExtractor {
     sb.append(e.id)
     sb.append("' className: '")
     sb.append(e.attr("class"))
-    sb.append("' GravityScore: '")
-    sb.append(e.attr("gravityScore"))
-    sb.append("' paraNodeCount: '")
-    sb.append(e.attr("gravityNodes"))
     sb.append("'")
     sb.toString()
   }
