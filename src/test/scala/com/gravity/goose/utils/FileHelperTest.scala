@@ -14,7 +14,7 @@ class FileHelperTest {
 
   @Test
   def loadFileContents() {
-    val txt = FileHelper.loadResourceFile("en.txt", StopWords.getClass)
+    val txt = FileHelper.loadResourceFile("stopwords-en.txt", StopWords.getClass)
     assertTrue(txt.startsWith("a's"))
   }
 
