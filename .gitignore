@@ -1,5 +1,6 @@
 .idea
-
+.idea/
+.idea_modules/
 target/
 /goose.iml
 /goose.ipr
@@ -36,4 +37,3 @@ config/consumer.properties
 release/
 *.sw*
 .DS_Store
-*~
