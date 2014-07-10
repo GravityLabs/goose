@@ -51,9 +51,9 @@ libraryDependencies ++= {
     ,"com.chenlb.mmseg4j" % "mmseg4j-core" % "1.9.1"
 	,"com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
 	//add cassandra
-	,"com.netflix.astyanax" % "astyanax-core" % "1.56.43"
-	,"com.netflix.astyanax" % "astyanax-thrift" % "1.56.43"
-	,"com.netflix.astyanax" % "astyanax-cassandra" % "1.56.43"
+	//,"com.netflix.astyanax" % "astyanax-core" % "1.56.43"
+	//,"com.netflix.astyanax" % "astyanax-thrift" % "1.56.43"
+	//,"com.netflix.astyanax" % "astyanax-cassandra" % "1.56.43"
 	//tests
 	,"junit" % "junit" % "4.11" % "test"
     ,"org.scalatest" %% "scalatest" % "2.1.6" % "test"

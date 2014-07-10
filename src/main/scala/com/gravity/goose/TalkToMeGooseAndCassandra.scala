@@ -16,6 +16,8 @@ object TalkToMeGooseAndCassandra {
 	 */
 
 	def main(args: Array[String]) {
+	  println("for cassandra uncomment this and dependencies in build.sbt and/or pom.xml")
+	  /*
 import com.netflix.astyanax.AstyanaxContext
 import com.netflix.astyanax.Keyspace
 import com.netflix.astyanax.MutationBatch
@@ -105,5 +107,6 @@ import com.netflix.astyanax.util.RangeBuilder
 				}
 			}
 		}
+		*/
 	}
 }
