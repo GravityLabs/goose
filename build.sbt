@@ -11,7 +11,7 @@ organization := "com.gravity.goose"
 
 name := "goose"
 
-version := "2.2.1"
+version := "2.2.0"
 
 organizationHomepage := Some(url("http://gravity.com/"))
 
