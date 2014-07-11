@@ -4,7 +4,12 @@ import java.io._
 import scala.collection.JavaConversions._
 import scala.io.Source
 
-object TalkToMeGoose {
+object TalkToMeGooseAndGae {
+  import com.google.appengine.tools.development.testing.LocalURLFetchServiceTestConfig
+  import com.google.appengine.tools.development.testing.LocalServiceTestHelper
+  val URLConfig: LocalURLFetchServiceTestConfig = new LocalURLFetchServiceTestConfig()
+  val Helper: LocalServiceTestHelper = new LocalServiceTestHelper(URLConfig)
+
   /**
    * You can use this method to run goose from the command line
    * to extract html from a bash script, or to just test its functionality:
@@ -31,24 +36,24 @@ object TalkToMeGoose {
         System.out.println("Make sure you pass in a valid URL: " + e.toString)
         e.printStackTrace()
       }
+    } finally {
+      Helper.tearDown()
     }
   }
 
   def talk(url: String) {
-    val config: Configuration = new Configuration
+    import org.apache.log4j.BasicConfigurator
+    Helper.setUp()
+    BasicConfigurator.configure();
 
+    val config: Configuration = new Configuration
     config.enableImageFetching = false
-    config.imagemagickConvertPath = "/usr/bin/convert"
-    config.imagemagickIdentifyPath = "/usr/bin/identify"
-    config.localStoragePath = "/tmp/goose"
-    config.minBytesForImages = 4500
-    val goose = new Goose(config)
+
+    val goose = new Goose()
+    goose.setConfig(config)
+
     val article = goose.extractContent(url)
-    println("TITLE: " + article.title)
-    println("DATE: " + article.publishDate)
-    println("TAGS: " + article.tags)
-    println("TEXT: " + article.cleanedArticleText)
-    println(article.topImage.imageSrc)
-    println(article.title)
+    println("Tags: " + article.getTags())
+    println(article.cleanedArticleText)
   }
 }

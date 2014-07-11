@@ -58,6 +58,11 @@ libraryDependencies ++= {
     ,"org.jsoup" % "jsoup" % "1.7.3"
     ,"com.chenlb.mmseg4j" % "mmseg4j-core" % "1.9.1"
 	,"com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
+	//gae
+	,"com.google.appengine" % "appengine-api-labs" % "1.7.1"
+	,"com.google.appengine" % "appengine-api-stubs" % "1.7.1"
+	,"com.google.appengine" % "appengine-testing" % "1.7.1"
+	,"com.google.appengine" % "appengine-api-1.0-sdk" % "1.7.1"
 	//add json service
 	,"com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2"
 	,"com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.2.2"

@@ -26,10 +26,7 @@ import org.apache.commons.lang.NotImplementedException
  * Created by Jim Plush - Gravity.com
  * Date: 8/14/11
  */
-class Goose() {
-
-    var config : Configuration = new Configuration()
-
+class Goose(var config : Configuration = new Configuration) {
     def setConfig(configuration: Configuration) = {
         config = configuration
         if (configuration.getEnableImageFetching) throw new NotImplementedException("image fetching should be rewritten before it can be used in GAE")

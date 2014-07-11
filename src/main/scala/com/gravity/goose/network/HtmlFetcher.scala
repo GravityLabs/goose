@@ -58,6 +58,9 @@ import org.apache.http.impl.client.{DefaultHttpRequestRetryHandler, AbstractHttp
 import org.apache.commons.io.IOUtils
 import com.ibm.icu.text.CharsetDetector
 import org.apache.http.util.EntityUtils
+import org.apache.http.conn.ClientConnectionManager
+import com.gravity.goose.network.gae.GAEConnectionManager
+import org.apache.http.conn.HttpClientConnectionManager
 
 /**
  * User: Jim Plush
@@ -309,14 +312,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     httpParams.setParameter("Cache-Control", "max-age=0")
     httpParams.setParameter("http.connection.stalecheck", true)
 //gae???
-        val cm = new GAEConnectionManager()
-
-    val schemeRegistry: SchemeRegistry = new SchemeRegistry
-    schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
-    schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
-    val cm = new PoolingClientConnectionManager(schemeRegistry)
-    cm.setMaxTotal(4000)
-    cm.setDefaultMaxPerRoute(20)
+    val cm = createConnectionManager
 
     httpClient = new DefaultHttpClient(cm, httpParams)
     httpClient.asInstanceOf[AbstractHttpClient].setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
@@ -435,6 +431,23 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     val matched = detector.detect()
     matched.getLanguage
     matched.getString
+  }
+  
+  def createConnectionManager:ClientConnectionManager = createDefaultConnectionManager
+  //enable gae connection manager
+  //def createConnectionManager:ClientConnectionManager = createGaeConnectionManager
+
+  
+  def createGaeConnectionManager = new GAEConnectionManager
+  def createDefaultConnectionManager:ClientConnectionManager = {    
+    val schemeRegistry: SchemeRegistry = new SchemeRegistry
+    schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
+    schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
+
+    val cm = new PoolingClientConnectionManager(schemeRegistry)
+    cm.setMaxTotal(4000)
+    cm.setDefaultMaxPerRoute(20)
+    cm
   }
 }
 
