@@ -36,7 +36,7 @@ resolvers ++= Seq(
   "central mvn repo" at "http://repo1.maven.org/",
   "Oracle Maven 2 Repository" at "http://download.oracle.com/maven",
   "JBoss Maven 2 Repository" at "http://repository.jboss.com/maven2",
-  "JLangDetect Maven repository" at "https://jlangdetect.googlecode.com/svn/repo"
+  "JLangDetect Maven repository" at "https://jlangdetect.googlecode.com/svn/repo",
   "raisercostin repository" at "svn://raisercostin.synology.me/repo/maven/releases"
 )
 
@@ -110,8 +110,8 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 //to see https://bitbucket.org/diversit/webdav4sbt
 def svnPub = Command.args("svn", "<tag>") { (state, args) =>
-    svnUrl := "svn://raisercostin.synology.me/repo/maven/releases"
-	val tag = s"""svn import -b "binary release" target\publish\ $svnUrl """
+    val svnUrl = """svn://raisercostin.synology.me/repo/maven/releases"""
+	val tag = s"""svn import -m "binary release" target\\publish\\ $svnUrl """
 	println(s"\nexecute $tag")
 	tag.!
 	state
