@@ -46,10 +46,9 @@ class Article {
   @BeanProperty
   var cleanedArticleText: String = ""
 
-
   /**
-  * article with the originals HTML tags (<p>, <a>, ..)
-  */
+   * article with the originals HTML tags (<p>, <a>, ..)
+   */
   var htmlArticle: String = ""
 
   /**
@@ -89,10 +88,10 @@ class Article {
   var topImage: Image = new Image
 
   /**
-  * holds all cadidate images from article
-  */
+   * holds all cadidate images from article
+   */
   @BeanProperty
-  var allImages: List[Image] = Nil 
+  var allImages: List[Image] = Nil
 
   /**
    * holds a set of tags that may have been in the artcle, these are not meta keywords
@@ -117,13 +116,13 @@ class Article {
    * escaped fragments were found in the starting url
    */
   @BeanProperty
-  var finalUrl: String = "";
+  var finalUrl: String = ""
 
   /**
    * stores the MD5 hash of the url to use for various identification tasks
    */
   @BeanProperty
-  var linkhash: String = "";
+  var linkhash: String = ""
 
   /**
    * stores the RAW HTML straight from the network connection
@@ -162,4 +161,33 @@ class Article {
   /**
    * Facebook Open Graph data that that is found in Article Meta tags
    */
-  var openGraphData: OpenGraphData = null}
+  var openGraphData: OpenGraphData = null
+
+  override def toString =
+    fields.filterNot(_._1=="rawHtml").filterNot(_._1=="doc").filterNot(_._1=="rawDoc").mkString("\n")
+//    s"""Article{
+//  title=$title,
+//  finalUrl=$finalUrl,
+//  cleanedArticleText=$cleanedArticleText,
+//  topImage=$topImage,
+//  tags=$tags,
+//  openGraphData=${openGraphData.values.mkString("\n    ")},
+//  metaDescription=$metaDescription,
+//  metaKeywords=[$metaKeywords],
+//  canonicalLink=$canonicalLink,
+//  allImages=$allImages,
+//  additionalData=$additionalData
+//}"""
+  def fields = {
+    import reflect.runtime.universe._
+    import reflect.runtime.currentMirror
+
+    val r = currentMirror.reflect(this)
+    r.symbol.typeSignature.members.toStream
+      .collect { case s: TermSymbol if !s.isMethod => r.reflectField(s) }
+      .map{r =>
+        //println(r.symbol)
+        r.symbol.name.toString.trim -> (if(r.get==null) "" else r.get.toString)
+      }.toMap
+  }
+}

@@ -71,4 +71,16 @@ class Image {
   def getImageSrc = {
     imageSrc
   }
+  
+  
+  
+  override def toString =
+    s"""Image{
+  imageSrc=$imageSrc,
+  imageScore=$imageScore,
+  height=$height,
+  width=$width,
+  imageExtractionType=$imageExtractionType
+}"""
+
 }

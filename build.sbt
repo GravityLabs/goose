@@ -110,7 +110,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 //to see https://bitbucket.org/diversit/webdav4sbt
 def svnPub = Command.args("svn", "<tag>") { (state, args) =>
-    val svnUrl = """svn://raisercostin.synology.me/repo/maven/releases"""
+    val svnUrl = """https://raisercostin.googlecode.com/svn/maven2"""
 	val tag = s"""svn import -m "binary release" target\\publish\\ $svnUrl """
 	println(s"\nexecute $tag")
 	tag.!

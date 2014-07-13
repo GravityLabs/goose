@@ -44,7 +44,7 @@ class Goose(var config : Configuration = new Configuration) {
  *             when the page does not report its language.
   */
   def extractContent(url: String,
-                     rawHTML: String = null, lang: String = "en"): Article = {
+                     rawHTML: String = null, lang: String = "all"): Article = {
     val cc = new CrawlCandidate(config, url, rawHTML, lang)
     sendToActor(cc)
   }

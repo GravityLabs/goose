@@ -78,7 +78,7 @@ object StopWords {
     stopWords    
   }
   def getCandidateWords(strippedInput: String, language: String): Array[String] = getCandidateWords(strippedInput, 
-      Language.withName(language))
+      Language(language))
 
   def getCandidateWords(strippedInput: String, language: Language): Array[String] = {
 	language match {

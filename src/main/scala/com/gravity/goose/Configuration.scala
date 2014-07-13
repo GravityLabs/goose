@@ -18,7 +18,7 @@
 
 package com.gravity.goose
 
-import network.{HtmlFetcher, AbstractHtmlFetcher}
+import network.{ HtmlFetcher, AbstractHtmlFetcher }
 import org.jsoup.nodes.Element
 import java.util.Date
 import beans.BeanProperty
@@ -27,14 +27,13 @@ import java.net.URL
 import org.apache.http.util.EntityUtils
 import org.apache.http.HttpEntity
 
-object Language extends Enumeration {
-  type Language = Value
-  //val Get, Set, Add, Delete, Reset = Value
-  val English = Value("en")
-  val Chinese = Value("zh")
-  val Korean = Value("kr")
-  val Arabic = Value("ar")
+object Language {
+  object English extends Language("en")
+  object Chinese extends Language("zh")
+  object Korean extends Language("kr")
+  object Arabic extends Language("ar")
 }
+case class Language(lang: String)
 
 import Language._
 
@@ -44,18 +43,137 @@ import Language._
  * Date: 8/16/11
  */
 
+case class Configuration(
+  /**
+   * Local storage path used to place images to inspect them, should be writable
+   */
+  @BeanProperty var language: Language = Language.English,
 
-class Configuration {
-  
+  /**
+   * this is the local storage path used to place images to inspect them, should be writable
+   */
+  @BeanProperty var localStoragePath: String = "/tmp/goose",
+  /**
+   * What's the minimum bytes for an image we'd accept is, alot of times we want to filter out the author's little images
+   * in the beginning of the article
+   */
+  @BeanProperty var minBytesForImages: Int = 4500,
+  /**
+   * Minimum legal height for an image - smaller than this considered unusable/undesirable
+   */
+  @BeanProperty var minWidth: Int = 120,
+  /**
+   * Minimum legal width for an image - smaller than this considered unusable/undesirable
+   */
+  @BeanProperty var minHeight: Int = 120,
+  /**
+   * set this guy to false if you don't care about getting images, otherwise you can either use the default
+   * image extractor to implement the ImageExtractor interface to build your own
+   */
+  @BeanProperty var enableImageFetching: Boolean = true,
+  /**
+   * set this guy to false if you don't care about getting All images, otherwise you can either use the default
+   * image extractor to implement the ImageExtractor interface to build your own
+   */
+  @BeanProperty var enableAllImagesFetching: Boolean = true,
+  /**
+   * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
+   */
+  @BeanProperty //var imagemagickConvertPath: String = "/usr/local/bin/convert"
+  var imagemagickConvertPath: String = "convert",
+  /**
+   *  path to your imagemagick identify executable
+   */
+  @BeanProperty //var imagemagickIdentifyPath: String = "/usr/local/bin/identify"
+  var imagemagickIdentifyPath: String = "identify",
+
+  @BeanProperty var connectionTimeout: Int = 10000 // 10 seconds
+  ,
+
+  @BeanProperty var socketTimeout: Int = 10000 // 10 seconds
+  ,
+
+  @BeanProperty var imageConnectionTimeout: Int = 2000 // 2 seconds
+  ,
+
+  @BeanProperty var imageSocketTimeout: Int = 5000 // 5 seconds
+  ,
+
+  /**
+   * used as the user agent that is sent with your web requests to extract an article
+   */
+  @BeanProperty var browserUserAgent: String = "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8",
+
+  /**
+   * sent as the referer header
+   */
+  @BeanProperty var browserReferer: String = "https://www.google.com") {
+
+  var contentExtractor: ContentExtractor = StandardContentExtractor
+
+  var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
+    def extract(rootElement: Element): Date = {
+      null
+    }
+  }
+  var additionalDataExtractor: AdditionalDataExtractor = new AdditionalDataExtractor
+
+  def getPublishDateExtractor: PublishDateExtractor = {
+    publishDateExtractor
+  }
+
+  def setContentExtractor(extractor: ContentExtractor) {
+    if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
+    contentExtractor = extractor
+  }
+
+  /**
+   * Pass in to extract article publish dates.
+   * @param extractor a concrete instance of {@link PublishDateExtractor}
+   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
+   */
+  def setPublishDateExtractor(extractor: PublishDateExtractor) {
+    if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
+    this.publishDateExtractor = extractor
+  }
+
+  def getAdditionalDataExtractor: AdditionalDataExtractor = {
+    additionalDataExtractor
+  }
+
+  /**
+   * Pass in to extract any additional data not defined within {@link Article}
+   * @param extractor a concrete instance of {@link AdditionalDataExtractor}
+   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
+   */
+  def setAdditionalDataExtractor(extractor: AdditionalDataExtractor) {
+    this.additionalDataExtractor = extractor
+  }
+
+  var openGraphDataExtractor: OpenGraphDataExtractor = new OpenGraphDataExtractor
+
+  def getOpenGraphDataExtractor: OpenGraphDataExtractor = {
+    openGraphDataExtractor
+  }
+
+  var htmlFetcher: AbstractHtmlFetcher = HtmlFetcher
+
+  def setHtmlFetcher(fetcher: AbstractHtmlFetcher) {
+    require(fetcher != null, "fetcher MUST NOT be null!")
+    this.htmlFetcher = fetcher
+  }
+
+  def getHtmlFetcher: AbstractHtmlFetcher = htmlFetcher
+
   // Refactory this in a YML file (like Ruby)
   def resolveCharSet(url: String, entity: HttpEntity): String = {
-//          if (contentType == null) {
-//            encodingType = "UTF-8"
-//          } else {
-//            encodingType = contentType.getCharset().name
-//          }
+    //          if (contentType == null) {
+    //            encodingType = "UTF-8"
+    //          } else {
+    //            encodingType = contentType.getCharset().name
+    //          }
 
-/* from andhapp@github
+    /* from andhapp@github
         import org.mozilla.universalchardet.UniversalDetector
         var encodingType: String = "UTF-8"
         try {
@@ -86,9 +204,6 @@ class Configuration {
             detector.reset()
           }
 */
-
-
-
     var host = new URL(url).getHost()
 
     host match {
@@ -97,136 +212,5 @@ class Configuration {
       case _ => return Option(EntityUtils.getContentCharSet(entity)) getOrElse "UTF-8"
     }
   }
-  /**
-  * this is the local storage path used to place images to inspect them, should be writable
-  */
-  @BeanProperty
-  var language: Language = Language.English
-
-  /**
-  * this is the local storage path used to place images to inspect them, should be writable
-  */
-  @BeanProperty
-  var localStoragePath: String = "/tmp/goose"
-  /**
-  * What's the minimum bytes for an image we'd accept is, alot of times we want to filter out the author's little images
-  * in the beginning of the article
-  */
-  @BeanProperty
-  var minBytesForImages: Int = 4500
-  /**
-   * Minimum legal height for an image - smaller than this considered unusable/undesirable
-   */
-  @BeanProperty
-  var minWidth: Int = 120
-  /**
-   * Minimum legal width for an image - smaller than this considered unusable/undesirable
-   */
-  @BeanProperty
-  var minHeight: Int = 120
-  /**
-  * set this guy to false if you don't care about getting images, otherwise you can either use the default
-  * image extractor to implement the ImageExtractor interface to build your own
-  */
-  @BeanProperty
-  var enableImageFetching: Boolean = true
-  /**
-  * set this guy to false if you don't care about getting All images, otherwise you can either use the default
-  * image extractor to implement the ImageExtractor interface to build your own
-  */
-  @BeanProperty
-  var enableAllImagesFetching: Boolean = true
-  /**
-  * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
-  */
-  @BeanProperty
-  //var imagemagickConvertPath: String = "/usr/local/bin/convert"
-  var imagemagickConvertPath: String = "convert"
-  /**
-  *  path to your imagemagick identify executable
-  */
-  @BeanProperty
-  //var imagemagickIdentifyPath: String = "/usr/local/bin/identify"
-  var imagemagickIdentifyPath: String = "identify"
-
-  @BeanProperty
-  var connectionTimeout: Int = 10000  // 10 seconds
-
-  @BeanProperty
-  var socketTimeout: Int = 10000  // 10 seconds
-
-  @BeanProperty
-  var imageConnectionTimeout: Int = 2000  // 2 seconds
-
-  @BeanProperty
-  var imageSocketTimeout: Int = 5000  // 5 seconds
-
-  /**
-  * used as the user agent that is sent with your web requests to extract an article
-  */
-  @BeanProperty
-  var browserUserAgent: String = "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8"
-
-  /**
-  * sent as the referer header
-  */
-  @BeanProperty
-  var browserReferer: String = "https://www.google.com"
-
-  var contentExtractor: ContentExtractor = StandardContentExtractor
-
-  var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
-    def extract(rootElement: Element): Date = {
-      null
-    }
-  }
-  var additionalDataExtractor: AdditionalDataExtractor = new AdditionalDataExtractor
-
-  def getPublishDateExtractor: PublishDateExtractor = {
-    publishDateExtractor
-  }
-
-  def setContentExtractor(extractor: ContentExtractor) {
-    if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
-    contentExtractor = extractor
-  }
-
-  /**
-  * Pass in to extract article publish dates.
-  * @param extractor a concrete instance of {@link PublishDateExtractor}
-  * @throws IllegalArgumentException if the instance passed in is <code>null</code>
-  */
-  def setPublishDateExtractor(extractor: PublishDateExtractor) {
-    if (extractor == null) throw new IllegalArgumentException("extractor must not be null!")
-    this.publishDateExtractor = extractor
-  }
-
-  def getAdditionalDataExtractor: AdditionalDataExtractor = {
-    additionalDataExtractor
-  }
-
-  /**
-  * Pass in to extract any additional data not defined within {@link Article}
-  * @param extractor a concrete instance of {@link AdditionalDataExtractor}
-  * @throws IllegalArgumentException if the instance passed in is <code>null</code>
-  */
-  def setAdditionalDataExtractor(extractor: AdditionalDataExtractor) {
-    this.additionalDataExtractor = extractor
-  }
-
-  var openGraphDataExtractor: OpenGraphDataExtractor = new OpenGraphDataExtractor
-
-  def getOpenGraphDataExtractor: OpenGraphDataExtractor = {
-    openGraphDataExtractor
-  }
-
-  var htmlFetcher: AbstractHtmlFetcher = HtmlFetcher
-
-  def setHtmlFetcher(fetcher: AbstractHtmlFetcher) {
-    require(fetcher != null, "fetcher MUST NOT be null!")
-    this.htmlFetcher = fetcher
-  }
-
-  def getHtmlFetcher: AbstractHtmlFetcher = htmlFetcher
 
 }

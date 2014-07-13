@@ -37,7 +37,7 @@ import scala.collection.JavaConversions._
 
 /**
  * Represents the information we may know of a page we crawl.
- * 
+ *
  * @param config the configuration.
  * @param url the URL of the page.
  * @param rawHTML the raw HTML page source -- optional. If not specified, and
@@ -47,7 +47,7 @@ import scala.collection.JavaConversions._
  *             when the page does not report its language.
  */
 case class CrawlCandidate(config: Configuration, url: String,
-                          rawHTML: String = null, lang: String = null)
+  rawHTML: String = null, lang: String = null)
 
 class Crawler(config: Configuration) {
 
@@ -73,7 +73,7 @@ class Crawler(config: Configuration) {
       article.rawHtml = rawHtml
       article.doc = doc
       article.rawDoc = doc.clone
-      
+
       article.title = extractor.getTitle(article)
       article.publishDate = config.publishDateExtractor.extract(doc)
       article.additionalData = config.getAdditionalDataExtractor.extract(doc)
@@ -85,12 +85,11 @@ class Crawler(config: Configuration) {
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
 
-
       if (article.publishDate == null) {
         article.publishDate = extractor.getDateFromURL(article.canonicalLink)
-	  }
-      
-//      extractor.calculateBestNodeBasedOnClustering(article, config.language) match {
+      }
+
+      //      extractor.calculateBestNodeBasedOnClustering(article, config.language) match {
       extractor.calculateBestNodeBasedOnClustering(article, lang) match {
         case Some(node: Element) => {
           article.movies = extractor.extractVideos(node)
@@ -104,9 +103,9 @@ class Crawler(config: Configuration) {
                 article.topImage = new Image
               } else {
                 article.topImage = imageExtractor.getBestImage(article.rawDoc, node)
-              if (config.enableAllImagesFetching) {
-                article.allImages = imageExtractor.getAllImages(node)
-              }
+                if (config.enableAllImagesFetching) {
+                  article.allImages = imageExtractor.getAllImages(node)
+                }
               }
             } catch {
               case e: Exception => {
@@ -119,7 +118,6 @@ class Crawler(config: Configuration) {
           article.topNode = extractor.postExtractionCleanup(node, lang)
           article.cleanedArticleText = outputFormatter.getFormattedText(node, lang)
           article.htmlArticle = outputFormatter.cleanupHtml(node, lang)
-
 
         }
         case _ => trace("NO ARTICLE FOUND")
@@ -178,20 +176,24 @@ class Crawler(config: Configuration) {
    */
   def releaseResources(article: Article) {
     trace(logPrefix + "STARTING TO RELEASE ALL RESOURCES")
-
-        if (config.getEnableImageFetching) {
-    val dir: File = new File(config.localStoragePath)
-
-    dir.list.foreach(filename => {
-      if (filename.startsWith(article.linkhash)) {
-        val f: File = new File(dir.getAbsolutePath + "/" + filename)
-        if (!f.delete) {
-          warn("Unable to remove temp file: " + filename)
+    if (config.getEnableImageFetching) {
+      val dir: File = new File(config.localStoragePath)
+      if (dir.isDirectory && dir.exists) {
+        val list = dir.list
+        if (list == null) {
+          throw new RuntimeException(s"Can't list dir ${dir.getAbsolutePath}")
         }
+        list.foreach(filename => {
+          if (filename.startsWith(article.linkhash)) {
+            val f: File = new File(dir.getAbsolutePath + "/" + filename)
+            if (!f.delete) {
+              warn("Unable to remove temp file: " + filename)
+            }
+          }
+        })
       }
-    })
-  }
     }
+  }
 
 }
 

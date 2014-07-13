@@ -15,8 +15,7 @@ Copyright [2014] Robby Pond
  */
 package com.gravity.goose.opengraph;
 
-class OpenGraphData {
-
+case class OpenGraphData {
   var title: String = ""
   var siteName: String = ""
   var url: String = ""
