@@ -11,7 +11,7 @@ organization := "com.gravity.goose"
 
 name := "goose"
 
-version := "2.2.0"
+version := "2.2.1"
 
 organizationHomepage := Some(url("http://gravity.com/"))
 
@@ -109,12 +109,28 @@ net.virtualvoid.sbt.graph.Plugin.graphSettings
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 //to see https://bitbucket.org/diversit/webdav4sbt
-def svnPub = Command.args("svn", "<tag>") { (state, args) =>
+def svnPublish = Command.args("svnPublish", "<tag>") { (state, args) =>
+	val ver = "2.2.1"
     val svnUrl = """https://raisercostin.googlecode.com/svn/maven2"""
-	val tag = s"""svn import -m "binary release" target\\publish\\ $svnUrl """
-	println(s"\nexecute $tag")
-	tag.!
+	val command = s"""svn import -m "binary release" target\\publish\\com\\gravity\\goose\\goose_2.10\\$ver $svnUrl/com/gravity/goose/goose_2.10/$ver """
+	println(s"\nexecute $command")
+	command.!
 	state
 }
 
-commands ++= Seq(svnPub)
+commands ++= Seq(svnPublish)
+
+version <<= version { v => //only release *if* -Drelease=true is passed to JVM
+	val release = Option(System.getProperty("release")) == Some("true")
+	if (release) {
+		v
+	} else {
+		val suffix = Option(System.getProperty("suffix"))
+		val i = (v.indexOf('-'), v.length) match {
+			case (x, l) if x < 0 => l
+			case (x, l) if v substring (x + 1) matches """\d+""" => l //patch level, not RCx
+			case (x, _) => x
+		}
+		v.substring(0, i) + "-" + (suffix getOrElse "SNAPSHOT")
+	}
+}
