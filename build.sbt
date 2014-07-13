@@ -11,7 +11,7 @@ organization := "com.gravity.goose"
 
 name := "goose"
 
-version := "2.2.1"
+version := "2.2.2-SNAPSHOT"
 
 organizationHomepage := Some(url("http://gravity.com/"))
 
@@ -110,7 +110,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 //to see https://bitbucket.org/diversit/webdav4sbt
 def svnPublish = Command.args("svnPublish", "<tag>") { (state, args) =>
-	val ver = "2.2.1"
+	val ver = "2.2.2-SNAPSHOT"
     val svnUrl = """https://raisercostin.googlecode.com/svn/maven2"""
 	val command = s"""svn import -m "binary release" target\\publish\\com\\gravity\\goose\\goose_2.10\\$ver $svnUrl/com/gravity/goose/goose_2.10/$ver """
 	println(s"\nexecute $command")
