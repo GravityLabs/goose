@@ -71,6 +71,8 @@ To run the junit tests, kick off the sbt test target:
 Note that there are currently problems in the tests. (8 failures in 41 tests on 2014-07-10 - raisercostin)
 
 ##Usage as a maven dependency
+Last version (goose_2.10-2.2.0.jar) is hosted at http://raisercostin.googlecode.com/svn/maven2/com/gravity/goose/
+
 
 Goose is hosted on Sonatype's OSS repository, https://oss.sonatype.org/content/repositories/releases/com/gravity/goose/
 
