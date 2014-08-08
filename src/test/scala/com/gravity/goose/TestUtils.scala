@@ -4,6 +4,7 @@ import images.Image
 import junit.framework.Assert._
 import com.gravity.goose.extractors.AdditionalDataExtractor
 import org.jsoup.nodes.Element
+import scala.util.Try
 
 /**
  * Created by Jim Plush
@@ -18,7 +19,9 @@ object TestUtils {
   private val TAB = "\t\t";
   val articleReport = new StringBuilder("=======================::. ARTICLE REPORT .::======================\n");
 
-  val DEFAULT_CONFIG: Configuration = new Configuration
+  val DEFAULT_CONFIG: Configuration = new Configuration(
+      localStoragePath=Try{java.io.File.createTempFile("temp", null).getParentFile().getAbsolutePath()}.getOrElse(null)
+  )
   //DEFAULT_CONFIG. 
   val NO_IMAGE_CONFIG: Configuration = new Configuration
   NO_IMAGE_CONFIG.enableImageFetching = false

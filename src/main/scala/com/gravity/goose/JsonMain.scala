@@ -12,7 +12,7 @@ object JsonMain {
       val json = getArticleAsJson(url)
       println(json)
     } catch {
-      case e: Exception => println(e.toString)
+      case e: Exception => e.printStackTrace()
     }
   }
   def getArticleAsJson(url: String) = {

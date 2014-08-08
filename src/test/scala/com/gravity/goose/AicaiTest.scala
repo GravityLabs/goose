@@ -34,10 +34,7 @@ class AicaiTest {
     val url = "http://luoxiaowei.baijia.baidu.com/article/11833"
       
     val html = Source.fromURL(url)
-    
-    println("tt")
     val goose = new Goose(config)
-    
     val article = goose.extractContent(url)
     
     println(article.cleanedArticleText)

@@ -126,7 +126,6 @@ if (stopWords.size > 0) {
       tokens = word.getString() :: tokens ;
       word = mmSeg.next();
     }
-    println(tokens)
     return tokens;
   }  
 }

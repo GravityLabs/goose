@@ -31,7 +31,9 @@ object FetchMany {
             }
           }
           catch {
-            case e: Exception => { println(e) }
+            case e: Exception => {
+              e.printStackTrace()
+            }
           }
         }
         out.close
@@ -40,7 +42,7 @@ object FetchMany {
     }
     catch {
       case e: Exception => {
-        System.out.println(e.toString)
+        e.printStackTrace();
       }
     }
   }

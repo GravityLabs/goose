@@ -355,7 +355,6 @@ trait ContentExtractor {
       trace(logPrefix + "ParentNode: score='" + e.attr("gravityScore") + "' nodeCount='" + e.attr("gravityNodes") + "' id='" + e.id + "' class='" + e.attr("class") + "' ")
 
       val score: Int = getScore(e)
-      println(score)
       if (score > topNodeScore) {
         topNode = e
         topNodeScore = score
