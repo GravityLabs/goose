@@ -54,10 +54,11 @@ Goose was originally an article extractor written in Java that has most recently
 		-->
 	</distributionManagement>
 	<scm>
-		<connection>scm:git:git@github.com:raisercostin/goose.git</connection>
-		<developerConnection>scm:git:git@github.com:raisercostin/goose.git</developerConnection>
-		<!--<url>git@github.com:raisercostin/goose.git</url>-->
-		<url>https://github.com/raisercostin/goose</url>
+		<!--https://github.com/raisercostin/goose.git-->
+		<connection>scm:git:https://github.com/raisercostin/goose.git</connection>
+		<developerConnection>scm:git:https://github.com/raisercostin/goose.git</developerConnection>
+		<url>https://github.com/raisercostin/goose.git</url>
+		<tag>HEAD</tag>
 	</scm>
 	<developers>
 		<developer>
