@@ -5,6 +5,9 @@
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
 	</parent>
+	<prerequisites>
+		<maven>3.0.4</maven>
+	</prerequisites>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gravity</groupId>
 	<artifactId>goose</artifactId>
@@ -26,6 +29,10 @@ Goose was originally an article extractor written in Java that has most recently
 			<id>raisercostin-releases</id>
 			<url>svn:https://raisercostin.googlecode.com/svn/maven2/</url>
 		</repository>
+		<snapshotRepository>
+			<id>raisercostin-snapshots</id>
+			<url>svn:https://raisercostin.googlecode.com/svn/maven2-snapshots/</url>
+		</snapshotRepository>
 		<!--
 		<repository>
 			<id>unfold-release</id>
@@ -148,6 +155,11 @@ Goose was originally an article extractor written in Java that has most recently
 			<scope>test</scope>
 		</dependency>
 <!--gae-->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+		</dependency>
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-labs</artifactId>
@@ -176,8 +188,8 @@ Goose was originally an article extractor written in Java that has most recently
 			<version>2.2.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-module-scala</artifactId>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-scala_2.10</artifactId>
 			<version>2.2.2</version>
 		</dependency>
 		<dependency>
@@ -206,10 +218,10 @@ Goose was originally an article extractor written in Java that has most recently
 	<!-- Hey... since we're open source, let's compile the source and javadocs into jars as well -->
 	<build>
 		<defaultGoal>package</defaultGoal>
+		<directory>${project.basedir}/target</directory>
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
 		<testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-		<directory>${project.basedir}/src/main/scala</directory>
 		<outputDirectory>${project.basedir}/target/scala-2.10/classes</outputDirectory>
 		<testOutputDirectory>${project.basedir}/target/scala-2.10/test-classes</testOutputDirectory>
 		<plugins>
@@ -305,19 +317,6 @@ Goose was originally an article extractor written in Java that has most recently
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<executions>
@@ -380,19 +379,6 @@ Goose was originally an article extractor written in Java that has most recently
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.8</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.4</version>
 				<configuration>
@@ -433,6 +419,7 @@ Goose was originally an article extractor written in Java that has most recently
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>2.8.1</version>
 			</plugin>
+			<!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
@@ -447,6 +434,8 @@ Goose was originally an article extractor written in Java that has most recently
 					</execution>
 				</executions>
 			</plugin>
+			-->
+			<!--
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
@@ -463,11 +452,57 @@ Goose was originally an article extractor written in Java that has most recently
 							<mainClass>com.gravity.goose.TalkToMeGoose</mainClass>
 						</manifest>
 					</archive>
+					<excludes>
+						<exclude>**/*.zip</exclude>
+					</excludes>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 				</configuration>
 			</plugin>
+			-->
 		</plugins>
+        <extensions>
+            <extension>
+                <groupId>com.google.code.maven-svn-wagon</groupId>
+                <artifactId>maven-svn-wagon</artifactId>
+                <version>1.4</version>
+            </extension>
+        </extensions>
 	</build>
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.9.1</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>2.3</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
