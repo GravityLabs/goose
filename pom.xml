@@ -23,6 +23,12 @@ Goose was originally an article extractor written in Java that has most recently
 	</licenses>
 	<distributionManagement>
 		<repository>
+			<id>raisercostin-releases</id>
+			<url>svn:https://raisercostin.googlecode.com/svn/maven2/</url>
+		</repository>
+	</distributionManagement>
+	<distributionManagement>
+		<repository>
 			<id>unfold-release</id>
 			<name>Unfold Nexus Release Repository</name>
 			<url>http://nexus.unfold.com:8081/nexus/content/repositories/releases</url>
