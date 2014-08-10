@@ -13,7 +13,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gravity</groupId>
 	<artifactId>goose</artifactId>
-	<version>2.2.2</version>
+	<version>2.2.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>goose</name>
 	<url>https://github.com/raisercostin/goose</url>
@@ -58,7 +58,7 @@ Goose was originally an article extractor written in Java that has most recently
 		<connection>scm:git:https://github.com/raisercostin/goose.git</connection>
 		<developerConnection>scm:git:https://github.com/raisercostin/goose.git</developerConnection>
 		<url>https://github.com/raisercostin/goose.git</url>
-		<tag>goose-2.2.2</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<developers>
 		<developer>
