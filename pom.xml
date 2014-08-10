@@ -11,7 +11,7 @@
 		<maven>3.0.4</maven>
 	</prerequisites>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.gravity</groupId>
+	<groupId>com.gravity.goose</groupId>
 	<artifactId>goose_2.10</artifactId>
 	<version>2.2.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
