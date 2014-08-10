@@ -71,9 +71,8 @@ To run the junit tests, kick off the sbt test target:
 Note that there are currently problems in the tests. (8 failures in 41 tests on 2014-07-10 - raisercostin)
 
 ##Usage as a maven dependency
+
 Last version (goose_2.10-2.2.0.jar) is hosted at http://raisercostin.googlecode.com/svn/maven2/com/gravity/goose/
-
-
 Goose is hosted on Sonatype's OSS repository, https://oss.sonatype.org/content/repositories/releases/com/gravity/goose/
 
     <dependency>
@@ -102,3 +101,19 @@ We made sure it was still nice and operable from Java as well so if you're using
 
 The stopword lists introduced in the [Python-Goose project](https://github.com/grangier/python-goose) have been incorporated
 into Goose.
+
+##Release
+- release with standard maven process at http://raisercostin.googlecode.com/svn/maven2/com/gravity/goose/
+
+	    mvn release:prepare -Prelease -DskipTests -Darguments="-DskipTests -Prelease"
+		mvn release:perform -Prelease -DskipTests -Darguments="-DskipTests -Prelease"
+
+- configure your ~/.m2/settings.xml as
+
+		<servers>
+		  <server>
+			<id>raisercostin-releases</id>
+			<username>svn-user</username>
+			<password>svn-pass</password>
+		  </server>
+		</servers>
