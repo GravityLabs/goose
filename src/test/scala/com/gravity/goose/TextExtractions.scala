@@ -382,5 +382,15 @@ class TextExtractions {
       expectedImage = null)
   }
 
-
+  @Test
+  def bug1() {
+    // html is not parsed properly
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("bug1.html")
+    val url: String = "http://www.tulsaworld.com/site/articlepath.aspx?articleid=20111118_61_A16_Opposi344152&rss_lnk=7"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "            Produsele naturale şi ecologice au devenit u",
+      expectedImage = null)
+  }
 }

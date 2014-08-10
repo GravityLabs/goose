@@ -186,7 +186,6 @@ class Article {
     r.symbol.typeSignature.members.toStream
       .collect { case s: TermSymbol if !s.isMethod => r.reflectField(s) }
       .map{r =>
-        //println(r.symbol)
         r.symbol.name.toString.trim -> (if(r.get==null) "" else r.get.toString)
       }.toMap
   }

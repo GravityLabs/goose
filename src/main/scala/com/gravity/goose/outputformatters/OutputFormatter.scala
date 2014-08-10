@@ -67,8 +67,9 @@ trait OutputFormatter {
   */
 //  def getFormattedText(topNode: Element, language: Language): String = {
   def getFormattedText(topNode: Element, lang: String): String = {
-    var node = topNode.clone
-
+    //with clonning replacing text cannot happen since nodes don't have a parent and this trigger exceptions in jsoup: convertLinksToText/item.replaceWith(tn)
+    //var node = topNode.clone
+		  val node = topNode
     removeNodesWithNegativeScores(node)
     convertLinksToText(node)
     replaceTagsWithText(node)
@@ -101,7 +102,9 @@ trait OutputFormatter {
   */
   //def cleanupHtml(topNode: Element, language: Language): String = {
   def cleanupHtml(topNode: Element, language: String): String = {
-    val node = topNode.clone
+    //with clonning replacing text cannot happen since nodes don't have a parent and this trigge
+    //val node = topNode.clone
+    val node = topNode
     removeParagraphsWithFewWords(node, language)
     convertToHtml(node)
   }
