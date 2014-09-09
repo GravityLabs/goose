@@ -1,5 +1,7 @@
 name := "goose"
- 
+
+organization := "com.gravity"
+
 version := "2.2.1-SNAPSHOT"
  
 scalaVersion := "2.11.1"
