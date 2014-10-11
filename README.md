@@ -1,5 +1,9 @@
 #Goose - Article Extractor
 
+## This is a fork
+
+If you haven't guessed already, this is a fork of the wonderful [Goose library](http://github.com/GravityLabs/goose) by Gravity Labs. The original repo hasn't been updated for 2 years now, and I wanted to get the project up an running with the latest release of Scala using sbt instead of Maven (there have been a few pull requests in the past for moving to sbt but they have not been accepted and appear to also be dorment).
+
 ##Intro
 
 
@@ -38,9 +42,8 @@ Goose is licensed by Gravity.com under the Apache 2.0 license, see the LICENSE f
 ##Take it for a spin
 To use goose from the command line:
 
-    cd into the goose directory
-    mvn compile
-    MAVEN_OPTS="-Xms256m -Xmx2000m"; mvn exec:java -Dexec.mainClass=com.gravity.goose.TalkToMeGoose -Dexec.args="http://techcrunch.com/2011/05/13/native-apps-or-web-apps-particle-code-wants-you-to-do-both/" -e -q > ~/Desktop/gooseresult.txt
+    sbt
+    run http://your.url.here
 
 
 ##Regarding the port from JAVA to Scala
