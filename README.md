@@ -2,7 +2,9 @@
 
 ## This is a fork
 
-If you haven't guessed already, this is a fork of the wonderful [Goose library](http://github.com/GravityLabs/goose) by Gravity Labs. The original repo hasn't been updated for 2 years now, and I wanted to get the project up an running with the latest release of Scala using sbt instead of Maven (there have been a few pull requests in the past for moving to sbt but they have not been accepted and appear to also be dorment).
+If you haven't guessed already, this is a fork of the wonderful [Goose library](http://github.com/GravityLabs/goose) by Gravity Labs. The original repo hasn't been updated for 2 years now, and I wanted to get the project up an running with the latest release of Scala using sbt instead of Maven
+
+There have been quite [a few nice pull requests](https://github.com/GravityLabs/goose/pulls) that are lying dormant, so have started to integrate these.
 
 ##Intro
 
