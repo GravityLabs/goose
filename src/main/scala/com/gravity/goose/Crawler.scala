@@ -67,6 +67,7 @@ class Crawler(config: Configuration) {
       article.metaKeywords = extractor.getMetaKeywords(article)
       article.canonicalLink = extractor.getCanonicalLink(article)
       article.tags = extractor.extractTags(article)
+      article.openGraphData = config.getOpenGraphDataExtractor.extract(doc)
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
 

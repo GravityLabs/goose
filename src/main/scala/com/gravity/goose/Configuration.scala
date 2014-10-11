@@ -22,7 +22,7 @@ import network.{HtmlFetcher, AbstractHtmlFetcher}
 import org.jsoup.nodes.Element
 import java.util.Date
 import scala.beans.BeanProperty
-import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor, AdditionalDataExtractor, PublishDateExtractor}
+import com.gravity.goose.extractors._
 
 
 /**
@@ -113,6 +113,12 @@ class Configuration {
   */
   def setAdditionalDataExtractor(extractor: AdditionalDataExtractor) {
     this.additionalDataExtractor = extractor
+  }
+
+  var openGraphDataExtractor: OpenGraphDataExtractor = new OpenGraphDataExtractor
+
+  def getOpenGraphDataExtractor: OpenGraphDataExtractor = {
+    openGraphDataExtractor
   }
 
   var htmlFetcher: AbstractHtmlFetcher = HtmlFetcher
