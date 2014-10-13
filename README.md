@@ -2,9 +2,15 @@
 
 ## This is a fork
 
-If you haven't guessed already, this is a fork of the wonderful [Goose library](http://github.com/GravityLabs/goose) by Gravity Labs. The original repo hasn't been updated for 2 years now, and I wanted to get the project up an running with the latest release of Scala using sbt instead of Maven
+If you haven't guessed already, this is a fork of the wonderful [Goose library](http://github.com/GravityLabs/goose) by Gravity Labs. The original repo hasn't been updated for 2 years now, and there have been quite [a few nice pull requests](https://github.com/GravityLabs/goose/pulls) that are lying dormant.
 
-There have been quite [a few nice pull requests](https://github.com/GravityLabs/goose/pulls) that are lying dormant, so have started to integrate these.
+The project now uses sbt, and is hosted on Sonatype. Add the following to to your `build.sbt` to pull it in:
+
+```
+libraryDependencies ++= Seq("com.gravity" %% "goose" % "2.1.25-SNAPSHOT")
+
+resolvers += Resolver.sonatypeRepo("public")
+```
 
 ##Intro
 

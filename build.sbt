@@ -1,12 +1,12 @@
 name := "Goose"
 
-version := "2.1.22-SNAPSHOT"
+version := "2.1.25-SNAPSHOT"
 
 organization := "com.gravity"
 
 organizationHomepage := Some(url("http://gravity.com/"))
 
-homepage := Some(url("https://github.com/GravityLabs/goose"))
+homepage := Some(url("https://github.com/warrd/goose-fork"))
 
 description := "Html Content / Article Extractor in Scala"
 
@@ -28,4 +28,21 @@ libraryDependencies ++= Seq(
   "org.slf4j"                 % "slf4j-log4j12"   % "1.6.1" % Test,
   // Build dependencies
   "org.slf4j"                 % "slf4j-api"       % "1.6.1" % Compile
+)
+
+publishMavenStyle := true
+
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
+
+pomExtra := (
+  <scm>
+    <url>git@github.com:warrd/goose-fork.git</url>
+    <connection>scm:git:git@github.com:warrd/goose-fork.git</connection>
+  </scm>
 )
