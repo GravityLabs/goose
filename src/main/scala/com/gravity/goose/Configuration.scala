@@ -18,6 +18,7 @@
 
 package com.gravity.goose
 
+import scala.collection.JavaConversions._
 import network.{HtmlFetcher, AbstractHtmlFetcher}
 import org.jsoup.nodes.Element
 import com.github.nscala_time.time.Imports._
@@ -78,6 +79,10 @@ class Configuration {
 
   var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
     def extract(rootElement: Element): DateTime = {
+      // Try to retrieve publish time from open graph data
+      val dateParser = org.joda.time.format.ISODateTimeFormat.dateTimeParser
+      for (el <- rootElement.select("meta[property=article:published_time]"))
+        return dateParser.parseDateTime(el.attr("content"))
       null
     }
   }
