@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
   "commons-io"                % "commons-io"      % "2.0.1",
   "org.apache.httpcomponents" % "httpclient"      % "4.1.2",
   "commons-lang"              % "commons-lang"    % "2.6",
+  "com.github.nscala-time"   %% "nscala-time"     % "1.4.0",
   // Testing dependencies
   "com.novocode"              % "junit-interface" % "0.9"   % Test,
   "org.slf4j"                 % "slf4j-log4j12"   % "1.6.1" % Test,
