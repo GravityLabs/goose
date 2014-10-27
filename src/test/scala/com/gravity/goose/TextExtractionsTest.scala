@@ -15,7 +15,7 @@ import java.util.Date
  * Date: 8/19/11
  */
 
-class TextExtractions {
+class TextExtractionsTest {
 
   def getHtml(filename: String): String = {
     FileHelper.loadResourceFile(TestUtils.staticHtmlDir + filename, Goose.getClass)

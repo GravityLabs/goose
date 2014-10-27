@@ -15,7 +15,7 @@ import java.util.Date
  * Date: 27/10/14
  */
 
-class AllImages {
+class AllImagesTest {
 
   def getHtml(filename: String): String = {
     FileHelper.loadResourceFile(TestUtils.staticHtmlDir + filename, Goose.getClass)
