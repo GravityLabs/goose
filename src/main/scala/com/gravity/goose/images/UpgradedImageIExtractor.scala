@@ -19,6 +19,8 @@ import io.Source
 * Date: 9/22/11
 */
 
+case class DepthTraversal(node: Element, parentDepth: Int, siblingDepth: Int)
+
 class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: Configuration) extends ImageExtractor {
 
   import UpgradedImageIExtractor._
