@@ -74,6 +74,18 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     new Image
   }
 
+  def getAllImages(node: Element): List[Image] = {
+    getImageCandidates(node) match {
+      case Some(goodImages) => {
+        val scoredImages = downloadImagesAndGetResults(goodImages, 0)
+        scoredImages.map((scoredImage: (LocallyStoredImage, Float)) => scoredImageToResultImage(scoredImage._1, scoredImages.size)).toList
+      }
+      case None => {
+        Nil
+      }
+    }
+  }
+
   private def checkForMetaTag: Option[Image] = {
     checkForLinkTag match {
       case Some(image) => return Some(image)
@@ -110,12 +122,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         // get the high score image in a tuple
         scoredImages.sortBy(-_._2).take(1).headOption match {
           case Some(highScoreImage) => {
-            val mainImage = new Image
-            // mainImage.topImageNode = highScoreImage
-            mainImage.imageSrc = highScoreImage._1.imgSrc
-            mainImage.imageExtractionType = "bigimage"
-            mainImage.bytes = highScoreImage._1.bytes
-            mainImage.confidenceScore = if (scoredImages.size > 0) (100 / scoredImages.size) else 0
+            val mainImage = scoredImageToResultImage(highScoreImage._1, scoredImages.size)
             trace("IMAGE COMPLETE: High Score Image is: " + mainImage.imageSrc + " Score is: " + highScoreImage._2)
             return Some(mainImage)
           }
@@ -143,6 +150,15 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     }
 
     None
+  }
+
+  private def scoredImageToResultImage(scoredImage: LocallyStoredImage, scoredImagesLength: Int): Image = {
+    val mainImage = new Image
+    mainImage.imageSrc = scoredImage.imgSrc
+    mainImage.imageExtractionType = "bigimage"
+    mainImage.bytes = scoredImage.bytes
+    mainImage.confidenceScore = 100 / scoredImagesLength
+    mainImage
   }
 
   def getDepthLevel(node: Element, parentDepth: Int, siblingDepth: Int): Option[DepthTraversal] = {
