@@ -1,0 +1,986 @@
+<html class="js video maskImage placeholder" lang="en"><!--<![endif]--><head>
+  <meta charset="utf-8">
+  <title>Understanding StatsD and Graphite - pkhamre.blog</title>
+  <meta name="author" content="Pål-Kristian Hamre">
+
+
+  <meta name="description" content="After a short conversation with BryanWB_ on the #logstash channel at Freenode,
+I realized that I did not know how my data was sent and how it was …">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+
+  <link rel="canonical" href="http://blog.pkhamre.com/2012/07/24/understanding-statsd-and-graphite/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="https://apis.google.com/_/scs/apps-static/_/js/k=oz.gapi.en_GB.hE_reuZ6VdE.O/m=auth/exm=plusone/rt=j/sv=1/d=1/ed=1/am=AQ/rs=AGLTcCPj66Crj6soG8dKJE8lBSc_RPXXKA/cb=gapi.loaded_1" async=""></script><script src="https://apis.google.com/_/scs/apps-static/_/js/k=oz.gapi.en_GB.hE_reuZ6VdE.O/m=plusone/rt=j/sv=1/d=1/ed=1/am=AQ/rs=AGLTcCPj66Crj6soG8dKJE8lBSc_RPXXKA/cb=gapi.loaded_0" async=""></script><script type="text/javascript" src="/javascripts/libs/jXHR.js"></script><script type="text/javascript" async="" src="https://apis.google.com/js/plusone.js" gapi_processed="true"></script><script id="facebook-jssdk" src="//connect.facebook.net/en_US/all.js#appId=212934732101925&amp;xfbml=1"></script><script type="text/javascript" async="" src="http://www.google-analytics.com/ga.js"></script><script src="/javascripts/modernizr-2.0.js"></script><style type="text/css"></style>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="pkhamre.blog" type="application/atom+xml">
+  <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20157713-4']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+<script type="text/javascript" async="" src="/javascripts/pinboard.js"></script><script type="text/javascript" async="" src="http://pkhamreblog.disqus.com/embed.js"></script><script type="text/javascript" async="" src="http://platform.twitter.com/widgets.js"></script><script type="text/javascript" src="http://api.twitter.com/1/statuses/user_timeline/pkhamre.json?trim_user=true&amp;count=23&amp;include_entities=1&amp;exclude_replies=1&amp;callback=reqwest_1" async=""></script><script type="text/javascript" async="" src="http://feeds.pinboard.in/json/v1/u:pkhamre/?cb=pinboardNS_show_bmarks&amp;count=3"></script><style type="text/css">.fb_hidden{position:absolute;top:-10000px;z-index:10001}.fb_invisible{display:none}.fb_reset{background:none;border:0;border-spacing:0;color:#000;cursor:auto;direction:ltr;font-family:"lucida grande", tahoma, verdana, arial, sans-serif;font-size:11px;font-style:normal;font-variant:normal;font-weight:normal;letter-spacing:normal;line-height:1;margin:0;overflow:visible;padding:0;text-align:left;text-decoration:none;text-indent:0;text-shadow:none;text-transform:none;visibility:visible;white-space:normal;word-spacing:normal}.fb_reset>div{overflow:hidden}.fb_link img{border:none}
+.fb_dialog{background:rgba(82, 82, 82, .7);position:absolute;top:-10000px;z-index:10001}.fb_reset .fb_dialog_legacy{overflow:visible}.fb_dialog_advanced{padding:10px;-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px}.fb_dialog_content{background:#fff;color:#333}.fb_dialog_close_icon{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 0 transparent;_background-image:url(http://static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif);cursor:pointer;display:block;height:15px;position:absolute;right:18px;top:17px;width:15px}.fb_dialog_mobile .fb_dialog_close_icon{top:5px;left:5px;right:auto}.fb_dialog_padding{background-color:transparent;position:absolute;width:1px;z-index:-1}.fb_dialog_close_icon:hover{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -15px transparent;_background-image:url(http://static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}.fb_dialog_close_icon:active{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -30px transparent;_background-image:url(http://static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}.fb_dialog_loader{background-color:#f2f2f2;border:1px solid #606060;font-size:24px;padding:20px}.fb_dialog_top_left,.fb_dialog_top_right,.fb_dialog_bottom_left,.fb_dialog_bottom_right{height:10px;width:10px;overflow:hidden;position:absolute}.fb_dialog_top_left{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 0;left:-10px;top:-10px}.fb_dialog_top_right{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -10px;right:-10px;top:-10px}.fb_dialog_bottom_left{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -20px;bottom:-10px;left:-10px}.fb_dialog_bottom_right{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -30px;right:-10px;bottom:-10px}.fb_dialog_vert_left,.fb_dialog_vert_right,.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{position:absolute;background:#525252;filter:alpha(opacity=70);opacity:.7}.fb_dialog_vert_left,.fb_dialog_vert_right{width:10px;height:100%}.fb_dialog_vert_left{margin-left:-10px}.fb_dialog_vert_right{right:0;margin-right:-10px}.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{width:100%;height:10px}.fb_dialog_horiz_top{margin-top:-10px}.fb_dialog_horiz_bottom{bottom:0;margin-bottom:-10px}.fb_dialog_iframe{line-height:0}.fb_dialog_content .dialog_title{background:#6d84b4;border:1px solid #3b5998;color:#fff;font-size:14px;font-weight:bold;margin:0}.fb_dialog_content .dialog_title>span{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yd/r/Cou7n-nqK52.gif) no-repeat 5px 50%;float:left;padding:5px 0 7px 26px}body.fb_hidden{-webkit-transform:none;height:100%;margin:0;overflow:visible;position:absolute;top:-10000px;left:0;width:100%}.fb_dialog.fb_dialog_mobile.loading{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ya/r/3rhSv5V8j3o.gif) white no-repeat 50% 50%;min-height:100%;min-width:100%;overflow:hidden;position:absolute;top:0;z-index:10001}.fb_dialog.fb_dialog_mobile.loading.centered{max-height:590px;min-height:590px;max-width:500px;min-width:500px}#fb-root #fb_dialog_ipad_overlay{background:rgba(0, 0, 0, .45);position:absolute;left:0;top:0;width:100%;min-height:100%;z-index:10000}#fb-root #fb_dialog_ipad_overlay.hidden{display:none}.fb_dialog.fb_dialog_mobile.loading iframe{visibility:hidden}.fb_dialog_content .dialog_header{-webkit-box-shadow:white 0 1px 1px -1px inset;background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#738ABA), to(#2C4987));border-bottom:1px solid;border-color:#1d4088;color:#fff;font:14px Helvetica, sans-serif;font-weight:bold;text-overflow:ellipsis;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0;vertical-align:middle;white-space:nowrap}.fb_dialog_content .dialog_header table{-webkit-font-smoothing:subpixel-antialiased;height:43px;width:100%}.fb_dialog_content .dialog_header td.header_left{font-size:12px;padding-left:5px;vertical-align:middle;width:60px}.fb_dialog_content .dialog_header td.header_right{font-size:12px;padding-right:5px;vertical-align:middle;width:60px}.fb_dialog_content .touchable_button{background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#4966A6), color-stop(.5, #355492), to(#2A4887));border:1px solid #29447e;-webkit-background-clip:padding-box;-webkit-border-radius:3px;-webkit-box-shadow:rgba(0, 0, 0, .117188) 0 1px 1px inset, rgba(255, 255, 255, .167969) 0 1px 0;display:inline-block;margin-top:3px;max-width:85px;line-height:18px;padding:4px 12px;position:relative}.fb_dialog_content .dialog_header .touchable_button input{border:none;background:none;color:#fff;font:12px Helvetica, sans-serif;font-weight:bold;margin:2px -12px;padding:2px 6px 3px 6px;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog_content .dialog_header .header_center{color:#fff;font-size:16px;font-weight:bold;line-height:18px;text-align:center;vertical-align:middle}.fb_dialog_content .dialog_content{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat 50% 50%;border:1px solid #555;border-bottom:0;border-top:0;height:150px}.fb_dialog_content .dialog_footer{background:#f2f2f2;border:1px solid #555;border-top-color:#ccc;height:40px}#fb_dialog_loader_close{float:left}.fb_dialog.fb_dialog_mobile .fb_dialog_close_button{text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog.fb_dialog_mobile .fb_dialog_close_icon{visibility:hidden}
+.fb_iframe_widget{display:inline-block;position:relative}.fb_iframe_widget span{display:inline-block;position:relative;text-align:justify}.fb_iframe_widget iframe{position:absolute}.fb_iframe_widget_lift{z-index:1}.fb_hide_iframes iframe{position:relative;left:-10000px}.fb_iframe_widget_loader{position:relative;display:inline-block}.fb_iframe_widget_fluid{display:inline}.fb_iframe_widget_fluid span{width:100%}.fb_iframe_widget_loader iframe{min-height:32px;z-index:2;zoom:1}.fb_iframe_widget_loader .FB_Loader{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat;height:32px;width:32px;margin-left:-16px;position:absolute;left:50%;z-index:4}
+.fbpluginrecommendationsbarleft,.fbpluginrecommendationsbarright{position:fixed !important;bottom:0;z-index:999}.fbpluginrecommendationsbarleft{left:10px}.fbpluginrecommendationsbarright{right:10px}</style></head>
+
+<body data-twttr-rendered="true" data-feedly-mini="yes">
+  <header role="banner"><hgroup>
+  <h1><a href="/">pkhamre.blog</a></h1>
+
+    <h2>thoughts, devops, tools and stuff.</h2>
+
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.pkhamre.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search">
+  </fieldset><fieldset class="mobile-nav"><select><option value="">Navigate…</option><option value="http://blog.pkhamre.com/about/">» About pkhamre</option><option value="http://blog.pkhamre.com/projects/">» Projects</option><option value="http://blog.pkhamre.com/archives">» Archives</option><option value="http://blog.pkhamre.com/atom.xml">» RSS</option></select></fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/about/">About pkhamre</a></li>
+  <li><a href="/projects/">Projects</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+
+        <h1 class="entry-title">Understanding StatsD and Graphite</h1>
+
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2012-07-24T17:17:00+02:00" pubdate="" data-updated="true">Jul 24<span>th</span>, 2012</time>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p><img src="/images/irssi-conversation.png" title="Understanding StatsD and Graphite"></p>
+
+<p>After a short conversation with <a href="https://twitter.com/bryanwb">BryanWB_</a> on the #logstash channel at Freenode,
+I realized that I did not know how my data was sent and how it was stored in Graphite.
+I knew that StatsD collects and aggregates my metrics. And I knew that StatsD
+ships them off to Graphite. Which I knew stores the time-series data and
+enables us to render graphs based on these data.</p>
+
+<p>What I did not know was if my http-access graphs displayed requests per second,
+average requests per retention or anything else.</p>
+
+<p>It was time to research how these things worked in order to get a complete
+understanding.</p>
+
+<h2>StatsD</h2>
+
+<p>To get a full understanding of how <a href="https://github.com/etsy/statsd">StatsD</a> works, I started to read the source
+code. I knew StatsD was a simple application, but I did not knew it was <em>this</em>
+simple. Just over 300 lines of code in <a href="https://github.com/etsy/statsd/blob/master/stats.js">the main script</a> and around 150
+lines in <a href="https://github.com/etsy/statsd/blob/master/backends/graphite.js">the graphite backend code</a>.</p>
+
+<h3>Concepts in StatsD</h3>
+
+<p>StatsD has a few concepts <a href="https://github.com/etsy/statsd#concepts">listed in the documentation</a> that should be
+understood.</p>
+
+<h4>Buckets</h4>
+
+<p>Each stat is in its own “bucket”. They are not predefined anywhere. Buckets can be
+named anything that will translate to Graphite (periods make folders, etc)</p>
+
+<h4>Values</h4>
+
+<p>Each stat will have a value. How it is interpreted depends on modifiers. In general
+values should be integer.</p>
+
+<h4>Flush interval</h4>
+
+<p>After the flush interval timeout (default 10 seconds), stats are aggregated and
+sent to an upstream backend service.</p>
+
+<h3>Metric types</h3>
+
+<h4>Counters</h4>
+
+<p>Counters are simple. It adds a value to a bucket and stays in memory until the
+flush interval.</p>
+
+<p>Lets take a look at the source code that generates the counter stats that gets
+flushed to the backend.</p>
+
+<figure class="code"> <div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="k">for</span> <span class="p">(</span><span class="nx">key</span> <span class="k">in</span> <span class="nx">counters</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">  <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">counters</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+</span><span class="line">  <span class="kd">var</span> <span class="nx">valuePerSecond</span> <span class="o">=</span> <span class="nx">value</span> <span class="o">/</span> <span class="p">(</span><span class="nx">flushInterval</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">);</span> <span class="c1">// calculate "per second" rate</span>
+</span><span class="line">
+</span><span class="line">  <span class="nx">statString</span> <span class="o">+=</span> <span class="s1">'stats.'</span>        <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">valuePerSecond</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">  <span class="nx">statString</span> <span class="o">+=</span> <span class="s1">'stats_counts.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">value</span>          <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">
+</span><span class="line">  <span class="nx">numStats</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class="line"><span class="p">}</span>
+</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<p>First, StatsD iterates over any counters received, where it starts by assigning
+two variables. One variable holds the counter value, and one variable
+holds the per-second value. It then adds the values to the statString and
+increases the numStats variable.</p>
+
+<p>If you have the default flush interval, 10 seconds, and send StatsD
+7 increments on a counter with the flush interval, the counter would be 7 and
+the per-second value would be 0.7. No magic.</p>
+
+<h4>Timers</h4>
+
+<p>Timers collects numbers. They does not necessarily need to contain a value of
+time. You can collect bytes read, number of objects in some storage, or
+anything that is a number. A good thing about timer, is that you get the mean,
+the sum, the count, the upper and the lower values for free. Feed StatsD
+a timer and this gets automatically calculated for you before it is flushed to
+Graphite. Oh, I almost forgot to mention that you also get the 90 percentile
+calculated for the mean, sum and upper values as well. You can also configure
+StatsD to use an array of numbers as percentiles, which means you can get 50
+percentile, 90 percentile and 95 percentile calculated for you if you want.</p>
+
+<p>The source code for timer stats is a bit more advanced than the code for the
+counters.</p>
+
+<figure class="code"> <div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="k">for</span> <span class="p">(</span><span class="nx">key</span> <span class="k">in</span> <span class="nx">timers</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">  <span class="k">if</span> <span class="p">(</span><span class="nx">timers</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="kd">var</span> <span class="nx">values</span> <span class="o">=</span> <span class="nx">timers</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">sort</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">a</span><span class="o">-</span><span class="nx">b</span><span class="p">;</span> <span class="p">});</span>
+</span><span class="line">    <span class="kd">var</span> <span class="nx">count</span> <span class="o">=</span> <span class="nx">values</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+</span><span class="line">    <span class="kd">var</span> <span class="nx">min</span> <span class="o">=</span> <span class="nx">values</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class="line">    <span class="kd">var</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">values</span><span class="p">[</span><span class="nx">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+</span><span class="line">
+</span><span class="line">    <span class="kd">var</span> <span class="nx">cumulativeValues</span> <span class="o">=</span> <span class="p">[</span><span class="nx">min</span><span class="p">];</span>
+</span><span class="line">    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">count</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">        <span class="nx">cumulativeValues</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">values</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">+</span> <span class="nx">cumulativeValues</span><span class="p">[</span><span class="nx">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class="line">    <span class="p">}</span>
+</span><span class="line">
+</span><span class="line">    <span class="kd">var</span> <span class="nx">sum</span> <span class="o">=</span> <span class="nx">min</span><span class="p">;</span>
+</span><span class="line">    <span class="kd">var</span> <span class="nx">mean</span> <span class="o">=</span> <span class="nx">min</span><span class="p">;</span>
+</span><span class="line">    <span class="kd">var</span> <span class="nx">maxAtThreshold</span> <span class="o">=</span> <span class="nx">max</span><span class="p">;</span>
+</span><span class="line">
+</span><span class="line">    <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="s2">""</span><span class="p">;</span>
+</span><span class="line">
+</span><span class="line">    <span class="kd">var</span> <span class="nx">key2</span><span class="p">;</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">for</span> <span class="p">(</span><span class="nx">key2</span> <span class="k">in</span> <span class="nx">pctThreshold</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">      <span class="kd">var</span> <span class="nx">pct</span> <span class="o">=</span> <span class="nx">pctThreshold</span><span class="p">[</span><span class="nx">key2</span><span class="p">];</span>
+</span><span class="line">      <span class="k">if</span> <span class="p">(</span><span class="nx">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">        <span class="kd">var</span> <span class="nx">thresholdIndex</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(((</span><span class="mi">100</span> <span class="o">-</span> <span class="nx">pct</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span> <span class="o">*</span> <span class="nx">count</span><span class="p">);</span>
+</span><span class="line">        <span class="kd">var</span> <span class="nx">numInThreshold</span> <span class="o">=</span> <span class="nx">count</span> <span class="o">-</span> <span class="nx">thresholdIndex</span><span class="p">;</span>
+</span><span class="line">
+</span><span class="line">        <span class="nx">maxAtThreshold</span> <span class="o">=</span> <span class="nx">values</span><span class="p">[</span><span class="nx">numInThreshold</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+</span><span class="line">        <span class="nx">sum</span> <span class="o">=</span> <span class="nx">cumulativeValues</span><span class="p">[</span><span class="nx">numInThreshold</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+</span><span class="line">        <span class="nx">mean</span> <span class="o">=</span> <span class="nx">sum</span> <span class="o">/</span> <span class="nx">numInThreshold</span><span class="p">;</span>
+</span><span class="line">      <span class="p">}</span>
+</span><span class="line">
+</span><span class="line">      <span class="kd">var</span> <span class="nx">clean_pct</span> <span class="o">=</span> <span class="s1">''</span> <span class="o">+</span> <span class="nx">pct</span><span class="p">;</span>
+</span><span class="line">      <span class="nx">clean_pct</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">'.'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">);</span>
+</span><span class="line">      <span class="nx">message</span> <span class="o">+=</span> <span class="s1">'stats.timers.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">'.mean_'</span>  <span class="o">+</span> <span class="nx">clean_pct</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">mean</span>           <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">      <span class="nx">message</span> <span class="o">+=</span> <span class="s1">'stats.timers.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">'.upper_'</span> <span class="o">+</span> <span class="nx">clean_pct</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">maxAtThreshold</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">      <span class="nx">message</span> <span class="o">+=</span> <span class="s1">'stats.timers.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">'.sum_'</span> <span class="o">+</span> <span class="nx">clean_pct</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">sum</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">    <span class="p">}</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">sum</span> <span class="o">=</span> <span class="nx">cumulativeValues</span><span class="p">[</span><span class="nx">count</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+</span><span class="line">    <span class="nx">mean</span> <span class="o">=</span> <span class="nx">sum</span> <span class="o">/</span> <span class="nx">count</span><span class="p">;</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">message</span> <span class="o">+=</span> <span class="s1">'stats.timers.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">'.upper '</span> <span class="o">+</span> <span class="nx">max</span>   <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">    <span class="nx">message</span> <span class="o">+=</span> <span class="s1">'stats.timers.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">'.lower '</span> <span class="o">+</span> <span class="nx">min</span>   <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">    <span class="nx">message</span> <span class="o">+=</span> <span class="s1">'stats.timers.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">'.count '</span> <span class="o">+</span> <span class="nx">count</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">    <span class="nx">message</span> <span class="o">+=</span> <span class="s1">'stats.timers.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">'.sum '</span> <span class="o">+</span> <span class="nx">sum</span>  <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">    <span class="nx">message</span> <span class="o">+=</span> <span class="s1">'stats.timers.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">'.mean '</span> <span class="o">+</span> <span class="nx">mean</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">    <span class="nx">statString</span> <span class="o">+=</span> <span class="nx">message</span><span class="p">;</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">numStats</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class="line">  <span class="p">}</span>
+</span><span class="line"><span class="p">}</span>
+</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<p>StatsD iterates over each timer and processes the timer if the value is above
+0. It then sorts the array of values and simply counts it and locates the
+minimum and maximum values. An array of the cumulative values is created and
+a few variables are assigned before it starts to iterate over the percentile
+thresholds array to calculate percentiles and creates the messages to assign to
+the statString variable. When percentile calculation is done, the final sum
+gets assigned and the final statString is created.</p>
+
+<p>If you send the following timer values to StatsD during the default flush interval</p>
+
+<ul>
+<li>450</li>
+<li>120</li>
+<li>553</li>
+<li>994</li>
+<li>334</li>
+<li>844</li>
+<li>675</li>
+<li>496</li>
+</ul>
+
+
+<p>StatsD will calculate the following values</p>
+
+<ul>
+<li>mean_90 496</li>
+<li>upper_90 844</li>
+<li>sum_90 3472</li>
+<li>upper 994</li>
+<li>lower 120</li>
+<li>count 8</li>
+<li>sum 4466</li>
+<li>mean 558.25</li>
+</ul>
+
+
+<h4>Gauges</h4>
+
+<p>A gauge simply indicates an arbitrary value at a point in time and is the most
+simple type in StatsD. It just takes any number and ships it to the backend.</p>
+
+<p>The source code for gauge stats is just four lines.</p>
+
+<figure class="code"> <div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="k">for</span> <span class="p">(</span><span class="nx">key</span> <span class="k">in</span> <span class="nx">gauges</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">  <span class="nx">statString</span> <span class="o">+=</span> <span class="s1">'stats.gauges.'</span> <span class="o">+</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">gauges</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">ts</span> <span class="o">+</span> <span class="s2">"\n"</span><span class="p">;</span>
+</span><span class="line">  <span class="nx">numStats</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class="line"><span class="p">}</span>
+</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<p>Feed StatsD a number and it sends it unprocessed to the backend. A thing to
+note is that only the last value of a gauge during a flush interval is flushed
+to the backend. That means that if you send the following gauge values to
+StatsD during a flush interval</p>
+
+<ul>
+<li>643</li>
+<li>754</li>
+<li>583</li>
+</ul>
+
+
+<p>The only value that gets flushed to the backend is <strong>583</strong>. The value of this
+gauge will be kept in memory in StatsD and be sent to the backend at the end of
+every flush interval.</p>
+
+<h2>Graphite</h2>
+
+<p>Now that we know how our data is sent from StatsD, lets take a look at how it
+is stored and processed in Graphite.</p>
+
+<h3>Overview</h3>
+
+<p>In the Graphite documentation we can find the <a href="http://graphite.readthedocs.org/en/latest/overview.html#what-graphite-is-and-is-not">Graphite overview</a>. It sums
+up Graphite with these two simple points.</p>
+
+<ul>
+<li>Graphite stores numeric time-series data.</li>
+<li>Graphite renders graphs of this data on demand.</li>
+</ul>
+
+
+<p>Graphite consists of three parts.</p>
+
+<ul>
+<li><strong>carbon</strong> - a daemon that listens for time-series data.</li>
+<li><strong>whisper</strong> - a simple database library for storing time-series data.</li>
+<li><strong>webapp</strong> - a (Django) webapp that renders graphs on demand.</li>
+</ul>
+
+
+<p>The format for time-series data in graphite looks like this</p>
+
+<figure class="code"><div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">&lt;key&gt; &lt;numeric value&gt; &lt;timestamp&gt;</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<h3>Storage schemas</h3>
+
+<p>Graphite uses configurable storage schemas too define retention rates for
+storing data. It matches data paths with a pattern and tells what frequency and
+history for our data to store.</p>
+
+<p>The following configuration example is taken from the StatsD documentation.</p>
+
+<figure class="code"><div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">[stats]
+</span><span class="line">pattern = ^stats\..*
+</span><span class="line">retentions = 10:2160,60:10080,600:262974</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<p>Which means these retentions will be used for every entry with a key matching
+the pattern defined. The retention format is frequency:history. So this
+configuration lets us store 10 second data for 6 hours, 1 minute data for
+1 week, and 10 minute data for 5 years.</p>
+
+<h3>Visualizing a timer in Graphite</h3>
+
+<p>Knowing all this, we can now take a look at my simple ruby-script that collects
+timings for a HTTP requests.</p>
+
+<figure class="code"> <div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class="line">
+</span><span class="line"><span class="nb">require</span> <span class="s1">'rubygems'</span> <span class="k">if</span> <span class="no">RUBY_VERSION</span> <span class="o">&lt;</span> <span class="s1">'1.9.0'</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">'./statsdclient.rb'</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">'typhoeus'</span>
+</span><span class="line">
+</span><span class="line"><span class="no">Statsd</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="s1">'localhost'</span>
+</span><span class="line"><span class="no">Statsd</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">8125</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">to_ms</span> <span class="n">time</span>
+</span><span class="line">  <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="k">while</span> <span class="kp">true</span>
+</span><span class="line">  <span class="n">start_time</span> <span class="o">=</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="o">.</span><span class="n">to_f</span>
+</span><span class="line">
+</span><span class="line">  <span class="n">resp</span> <span class="o">=</span> <span class="no">Typhoeus</span><span class="o">::</span><span class="no">Request</span><span class="o">.</span><span class="n">get</span> <span class="s1">'http://www.example.org/system/information'</span>
+</span><span class="line">
+</span><span class="line">  <span class="n">end_time</span> <span class="o">=</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="o">.</span><span class="n">to_f</span>
+</span><span class="line">
+</span><span class="line">  <span class="n">elapsed_time</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="n">end_time</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">to_ms</span> <span class="n">start_time</span><span class="p">)</span>
+</span><span class="line">  <span class="n">response_time</span> <span class="o">=</span> <span class="n">to_ms</span> <span class="n">resp</span><span class="o">.</span><span class="n">time</span>
+</span><span class="line">  <span class="n">start_transfer_time</span> <span class="o">=</span> <span class="n">to_ms</span> <span class="n">resp</span><span class="o">.</span><span class="n">start_transfer_time</span>
+</span><span class="line">  <span class="n">app_connect_time</span> <span class="o">=</span> <span class="n">to_ms</span> <span class="n">resp</span><span class="o">.</span><span class="n">app_connect_time</span>
+</span><span class="line">  <span class="n">pretransfer_time</span> <span class="o">=</span> <span class="n">to_ms</span> <span class="n">resp</span><span class="o">.</span><span class="n">pretransfer_time</span>
+</span><span class="line">  <span class="n">connect_time</span> <span class="o">=</span> <span class="n">to_ms</span> <span class="n">resp</span><span class="o">.</span><span class="n">connect_time</span>
+</span><span class="line">  <span class="n">name_lookup_time</span> <span class="o">=</span> <span class="n">to_ms</span> <span class="n">resp</span><span class="o">.</span><span class="n">name_lookup_time</span>
+</span><span class="line">
+</span><span class="line">  <span class="no">Statsd</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s1">'http_request.elapsed_time'</span><span class="p">,</span> <span class="n">elapsed_time</span><span class="p">)</span>
+</span><span class="line">  <span class="no">Statsd</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s1">'http_request.response_time'</span><span class="p">,</span> <span class="n">response_time</span><span class="p">)</span>
+</span><span class="line">  <span class="no">Statsd</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s1">'http_request.start_transfer_time'</span><span class="p">,</span> <span class="n">start_transfer_time</span><span class="p">)</span>
+</span><span class="line">  <span class="no">Statsd</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s1">'http_request.app_connect_time'</span><span class="p">,</span> <span class="n">app_connect_time</span><span class="p">)</span>
+</span><span class="line">  <span class="no">Statsd</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s1">'http_request.pretransfer_time'</span><span class="p">,</span> <span class="n">pretransfer_time</span><span class="p">)</span>
+</span><span class="line">  <span class="no">Statsd</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s1">'http_request.connect_time'</span><span class="p">,</span> <span class="n">connect_time</span><span class="p">)</span>
+</span><span class="line">  <span class="no">Statsd</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s1">'http_request.name_lookup_time'</span><span class="p">,</span> <span class="n">name_lookup_time</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">  <span class="nb">sleep</span> <span class="mi">10</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<p>Lets take a look at the visualized Graphite render from this data. The data is
+from the last 2 minutes, and the <strong>elapsed_time</strong> target from our script above.</p>
+
+<h4>Image visualization</h4>
+
+<h5>Render URL</h5>
+
+<p>Render URL used for the image below.</p>
+
+<figure class="code"><div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">/render/?width=586&amp;height=308&amp;from=-2minutes&amp;target=stats.timers.http_request.elapsed_time.sum</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<h5>Rendered image from Graphite</h5>
+
+<p>Rendered image from Graphite, a simple graph visualizing elapsed_time for http
+requests over time.</p>
+
+<p><img src="/images/graphite-render.png" title="Rendered graph from Graphite"></p>
+
+<h4>JSON-data</h4>
+
+<h5>Render URL</h5>
+
+<p>Render URL used for the JSON-data below.</p>
+
+<figure class="code"><div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">/render/?width=586&amp;height=308&amp;from=-2minutes&amp;target=stats.timers.http_request.elapsed_time.sum&amp;format=json</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<h5>JSON-output from Graphite</h5>
+
+<p>In the results below, we can see the raw data from Graphite. It is data from 12
+different data points which means 2 minutes with the StatsD 10-second flush
+interval. It is really this simple, Graphite just visualizes its data.</p>
+
+<p>The JSON-data is beautified with <a href="http://jsonlint.com/">JSONLint</a> for viewing purposes.</p>
+
+<figure class="code"> <div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+<span class="line-number">55</span>
+</pre></td><td class="code"><pre><code class="json"><span class="line"><span class="p">[</span>
+</span><span class="line">    <span class="p">{</span>
+</span><span class="line">        <span class="nt">"target"</span><span class="p">:</span> <span class="s2">"stats.timers.http_request.elapsed_time.sum"</span><span class="p">,</span>
+</span><span class="line">        <span class="nt">"datapoints"</span><span class="p">:</span> <span class="p">[</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">53.449951171875</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038130</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">50.3916015625</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038140</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">50.1357421875</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038150</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">39.601806640625</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038160</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">41.5263671875</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038170</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">34.3974609375</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038180</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">36.3818359375</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038190</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">35.009033203125</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038200</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">37.0087890625</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038210</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">38.486572265625</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038220</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="mf">45.66064453125</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038230</span>
+</span><span class="line">            <span class="p">],</span>
+</span><span class="line">            <span class="p">[</span>
+</span><span class="line">                <span class="kc">null</span><span class="p">,</span>
+</span><span class="line">                <span class="mi">1343038240</span>
+</span><span class="line">            <span class="p">]</span>
+</span><span class="line">        <span class="p">]</span>
+</span><span class="line">    <span class="p">}</span>
+</span><span class="line"><span class="p">]</span>
+</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<h3>Visualizing a gauge in Graphite</h3>
+
+<p>The following simple script ships a gauge to StatsD, simulating a number of
+user registrations.</p>
+
+<figure class="code"> <div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class="line">
+</span><span class="line"><span class="nb">require</span> <span class="s1">'./statsdclient.rb'</span>
+</span><span class="line">
+</span><span class="line"><span class="no">Statsd</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="s1">'localhost'</span>
+</span><span class="line"><span class="no">Statsd</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">8125</span>
+</span><span class="line">
+</span><span class="line"><span class="n">user_registrations</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class="line">
+</span><span class="line"><span class="k">while</span> <span class="kp">true</span>
+</span><span class="line">  <span class="n">user_registrations</span> <span class="o">+=</span> <span class="no">Random</span><span class="o">.</span><span class="n">rand</span> <span class="mi">128</span>
+</span><span class="line">
+</span><span class="line">  <span class="no">Statsd</span><span class="o">.</span><span class="n">gauge</span><span class="p">(</span><span class="s1">'user_registrations'</span><span class="p">,</span> <span class="n">user_registrations</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">  <span class="nb">sleep</span> <span class="mi">10</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<h4>Image visualization - Number of user registrations</h4>
+
+<h5>Render URL</h5>
+
+<p>Render URL used for the image below.</p>
+
+<figure class="code"><div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">/render/?width=586&amp;height=308&amp;from=-20minutes&amp;target=stats.gauges.user_registrations</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<h5>Rendered image from Graphite</h5>
+
+<p>Another simple graph, just showing the total number of registrations.</p>
+
+<p><img src="/images/graphite-registrations.png" title="Number of user registrations"></p>
+
+<h4>Image visualization - Number of user registrations per minute</h4>
+
+<p>By using the derivative-function in Graphite, we can get the number of user
+registrations per minute.</p>
+
+<h5>Render URL</h5>
+
+<p>Render URL used for the image below.</p>
+
+<figure class="code"><div class="highlight"><table><tbody><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">/render/?width=586&amp;height=308&amp;from=-20minutes&amp;target=derivative(stats.gauges.user_registrations)</span></code></pre></td></tr></tbody></table></div></figure>
+
+
+<h5>Rendered image from Graphite</h5>
+
+<p>A graph based on the same data as above, but with the derivative function
+applied to visualize a per-minute rate.</p>
+
+<p><img src="/images/graphite-registrations-derivative.png" title="Number of user registrations per minute"></p>
+
+<h2>Conclusion</h2>
+
+<p>Knowing more about how StatsD and Graphite works, it will be alot easier to
+know what kind of data to ship StatsD, to know how to ship the data to StatsD,
+and to know how to read the data from Graphite.</p>
+
+<p>Got any comments or questions? Let me know in the comment section below.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">Pål-Kristian Hamre</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2012-07-24T17:17:00+02:00" pubdate="" data-updated="true">Jul 24<span>th</span>, 2012</time>
+
+
+<span class="categories">
+
+    <a class="category" href="/blog/categories/graphite/">graphite</a>, <a class="category" href="/blog/categories/metrics/">metrics</a>, <a class="category" href="/blog/categories/monitoring/">monitoring</a>, <a class="category" href="/blog/categories/statsd/">statsd</a>
+
+</span>
+
+
+    </p>
+
+      <div class="sharing">
+
+  <iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" src="http://platform.twitter.com/widgets/tweet_button.2df3b13213b70e6d91180bf64c17db20.en.html#_=1413461762515&amp;count=horizontal&amp;counturl=http%3A%2F%2Fblog.pkhamre.com%2F2012%2F07%2F24%2Funderstanding-statsd-and-graphite%2F&amp;id=twitter-widget-0&amp;lang=en&amp;original_referer=http%3A%2F%2Fblog.pkhamre.com%2F2012%2F07%2F24%2Funderstanding-statsd-and-graphite%2F&amp;size=m&amp;text=Understanding%20StatsD%20and%20Graphite%20-%20pkhamre.blog&amp;url=http%3A%2F%2Fblog.pkhamre.com%2F2012%2F07%2F24%2Funderstanding-statsd-and-graphite%2F&amp;via=pkhamre" class="twitter-share-button twitter-tweet-button twitter-share-button twitter-count-horizontal" title="Twitter Tweet Button" data-twttr-rendered="true" style="width: 108px; height: 20px;"></iframe>
+
+
+  <div id="___plusone_0" style="text-indent: 0px; margin: 0px; padding: 0px; border-style: none; float: none; line-height: normal; font-size: 1px; vertical-align: baseline; display: inline-block; width: 90px; height: 20px; background: transparent;"><iframe frameborder="0" hspace="0" marginheight="0" marginwidth="0" scrolling="no" style="position: static; top: 0px; width: 90px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 20px;" tabindex="0" vspace="0" width="100%" id="I0_1413461762458" name="I0_1413461762458" src="https://apis.google.com/u/0/se/0/_/+1/fastbutton?usegapi=1&amp;size=medium&amp;origin=http%3A%2F%2Fblog.pkhamre.com&amp;url=http%3A%2F%2Fblog.pkhamre.com%2F2012%2F07%2F24%2Funderstanding-statsd-and-graphite%2F&amp;gsrc=3p&amp;ic=1&amp;jsh=m%3B%2F_%2Fscs%2Fapps-static%2F_%2Fjs%2Fk%3Doz.gapi.en_GB.hE_reuZ6VdE.O%2Fm%3D__features__%2Fam%3DAQ%2Frt%3Dj%2Fd%3D1%2Ft%3Dzcms%2Frs%3DAGLTcCPj66Crj6soG8dKJE8lBSc_RPXXKA#_methods=onPlusOne%2C_ready%2C_close%2C_open%2C_resizeMe%2C_renderstart%2Concircled%2Cdrefresh%2Cerefresh%2Conload&amp;id=I0_1413461762458&amp;parent=http%3A%2F%2Fblog.pkhamre.com&amp;pfname=&amp;rpctoken=43780211" data-gapiattached="true" title="+1"></iframe></div>
+
+
+    <div class="fb-like fb_iframe_widget" data-send="true" data-width="450" data-show-faces="false" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=212934732101925&amp;href=http%3A%2F%2Fblog.pkhamre.com%2F2012%2F07%2F24%2Funderstanding-statsd-and-graphite%2F&amp;locale=en_US&amp;sdk=joey&amp;send=true&amp;show_faces=false&amp;width=450"><span style="vertical-align: bottom; width: 450px; height: 20px;"><iframe name="f3a147d7" width="450px" height="1000px" frameborder="0" allowtransparency="true" scrolling="no" title="fb:like Facebook Social Plugin" src="http://www.facebook.com/plugins/like.php?app_id=212934732101925&amp;channel=http%3A%2F%2Fstatic.ak.facebook.com%2Fconnect%2Fxd_arbiter%2Fw9JKbyW340G.js%3Fversion%3D41%23cb%3Df5b5be598%26domain%3Dblog.pkhamre.com%26origin%3Dhttp%253A%252F%252Fblog.pkhamre.com%252Ff14044de74%26relation%3Dparent.parent&amp;href=http%3A%2F%2Fblog.pkhamre.com%2F2012%2F07%2F24%2Funderstanding-statsd-and-graphite%2F&amp;locale=en_US&amp;sdk=joey&amp;send=true&amp;show_faces=false&amp;width=450" style="border: none; visibility: visible; width: 450px; height: 20px;" class=""></iframe></span></div>
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left articlenav" href="/2012/07/06/speed-reading-how-i-started-to-read-faster-and-more/" title="Previous Post: Speed reading - How I started to read faster and more">« Speed reading - How I started to read faster and more</a>
+
+
+        <a class="basic-alignment right articlenav" href="/2012/08/23/logging-to-logstash-json-format-in-nginx/" title="Next Post: Logging to Logstash JSON format in nginx">Logging to Logstash JSON format in nginx »</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><iframe id="dsq-2" data-disqus-uid="2" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="http://disqus.com/embed/comments/?base=default&amp;disqus_version=aa0a352c&amp;f=pkhamreblog&amp;t_i=http%3A%2F%2Fblog.pkhamre.com%2F2012%2F07%2F24%2Funderstanding-statsd-and-graphite%2F&amp;t_u=http%3A%2F%2Fblog.pkhamre.com%2F2012%2F07%2F24%2Funderstanding-statsd-and-graphite%2F&amp;t_d=Understanding%20StatsD%20and%20Graphite&amp;t_t=Understanding%20StatsD%20and%20Graphite&amp;s_o=default#2" style="width: 100% !important; border: none !important; overflow: hidden !important; height: 3289px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div>
+  </section>
+
+</div>
+
+<aside class="sidebar thirds">
+
+    <section class="first odd">
+  <h1>About pkhamre</h1>
+  <p>Linux sysadmin and devops-guy. Loves Ruby :)</p>
+</section>
+<section class="even">
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/2013/03/01/the-anti-todo-list/">The anti-todo list</a>
+      </li>
+
+      <li class="post">
+        <a href="/2012/09/13/maintenance-windows-in-pingdom-checks/">Maintenance windows in Pingdom checks</a>
+      </li>
+
+      <li class="post">
+        <a href="/2012/08/23/logging-to-logstash-json-format-in-nginx/">Logging to Logstash JSON format in nginx</a>
+      </li>
+
+      <li class="post">
+        <a href="/2012/07/24/understanding-statsd-and-graphite/">Understanding StatsD and Graphite</a>
+      </li>
+
+      <li class="post">
+        <a href="/2012/07/06/speed-reading-how-i-started-to-read-faster-and-more/">Speed reading - How I started to read faster and more</a>
+      </li>
+
+  </ul>
+</section>
+
+<section class="odd">
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos"><li><a href="https://github.com/pkhamre/fieldfunder">fieldfunder</a><p></p></li><li><a href="https://github.com/pkhamre/wp-varnish">wp-varnish</a><p>A WordPress plugin for purging Varnish cache when content is published or edited.</p></li><li><a href="https://github.com/pkhamre/puppet-basic">puppet-basic</a><p>Basic puppet repository</p></li></ul>
+
+  <a href="https://github.com/pkhamre">@pkhamre</a> on GitHub
+
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'pkhamre',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="first even">
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("pkhamre", 3, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+
+    <iframe id="twitter-widget-1" scrolling="no" frameborder="0" allowtransparency="true" src="http://platform.twitter.com/widgets/follow_button.b44c7db4edf962ad9e7d1d791040bf60.en.html#_=1413461762532&amp;id=twitter-widget-1&amp;lang=en&amp;screen_name=pkhamre&amp;show_count=false&amp;show_screen_name=true&amp;size=m" class="twitter-follow-button twitter-follow-button" title="Twitter Follow Button" data-twttr-rendered="true" style="width: 119px; height: 20px;"></iframe>
+
+</section>
+
+
+<section class="odd">
+  <h1>My Pinboard</h1>
+  <ul id="pinboard_linkroll"><li class="pin-item"><p><a class="pin-title" href="http://en.wikipedia.org/wiki/Wolf_Children">Wolf Children - Wikipedia, the free encyclopedia</a> <a class="pin-tag" href="http://pinboard.in/u:pkhamre/t:movies">movies</a>  <a class="pin-tag" href="http://pinboard.in/u:pkhamre/t:anime">anime</a> </p></li>
+
+<li class="pin-item"><p><a class="pin-title" href="https://www.sohelpful.me/spikemorelli">SoHelpful - Spike Morelli</a> <a class="pin-tag" href="http://pinboard.in/u:pkhamre/t:sohelpful">sohelpful</a>  <a class="pin-tag" href="http://pinboard.in/u:pkhamre/t:help">help</a>  <a class="pin-tag" href="http://pinboard.in/u:pkhamre/t:startup">startup</a> </p></li>
+
+<li class="pin-item"><p><a class="pin-title" href="https://medium.com/design-philosophy/super-normal-c1d22838572a">Super Normal — Design Philosophy — Medium</a> <a class="pin-tag" href="http://pinboard.in/u:pkhamre/t:innovation">innovation</a> </p></li>
+</ul>
+  <p><a href="http://pinboard.in/u:pkhamre">My Pinboard Bookmarks »</a></p>
+</section>
+<script type="text/javascript">
+  var linkroll = 'pinboard_linkroll'; //id target for pinboard list
+  var pinboard_user = "pkhamre"; //id target for pinboard list
+  var pinboard_count = 3; //id target for pinboard list
+  (function(){
+    var pinboardInit = document.createElement('script');
+    pinboardInit.type = 'text/javascript';
+    pinboardInit.async = true;
+    pinboardInit.src = '/javascripts/pinboard.js';
+    document.getElementsByTagName('head')[0].appendChild(pinboardInit);
+  })();
+</script>
+
+
+
+</aside>
+
+
+    <span class="toggle-sidebar"></span></div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright © 2013 - Pål-Kristian Hamre -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'pkhamreblog';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.pkhamre.com/2012/07/24/understanding-statsd-and-graphite/';
+        var disqus_url = 'http://blog.pkhamre.com/2012/07/24/understanding-statsd-and-graphite/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root" class=" fb_reset"><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div><iframe name="fb_xdm_frame_http" frameborder="0" allowtransparency="true" scrolling="no" id="fb_xdm_frame_http" aria-hidden="true" title="Facebook Cross Domain Communication Frame" tabindex="-1" src="http://static.ak.facebook.com/connect/xd_arbiter/w9JKbyW340G.js?version=41#channel=f14044de74&amp;origin=http%3A%2F%2Fblog.pkhamre.com" style="border: none;"></iframe><iframe name="fb_xdm_frame_https" frameborder="0" allowtransparency="true" scrolling="no" id="fb_xdm_frame_https" aria-hidden="true" title="Facebook Cross Domain Communication Frame" tabindex="-1" src="https://s-static.ak.facebook.com/connect/xd_arbiter/w9JKbyW340G.js?version=41#channel=f14044de74&amp;origin=http%3A%2F%2Fblog.pkhamre.com" style="border: none;"></iframe></div></div><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div><iframe name="f28a98cc48" frameborder="0" allowtransparency="true" scrolling="no" src="https://www.facebook.com/connect/ping?client_id=212934732101925&amp;domain=blog.pkhamre.com&amp;origin=1&amp;redirect_uri=http%3A%2F%2Fstatic.ak.facebook.com%2Fconnect%2Fxd_arbiter%2Fw9JKbyW340G.js%3Fversion%3D41%23cb%3Dfcb4b2b0%26domain%3Dblog.pkhamre.com%26origin%3Dhttp%253A%252F%252Fblog.pkhamre.com%252Ff14044de74%26relation%3Dparent&amp;response_type=token%2Csigned_request%2Ccode&amp;sdk=joey" style="display: none;"></iframe></div></div></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+
+
+<iframe name="oauth2relay562612403" id="oauth2relay562612403" src="https://accounts.google.com/o/oauth2/postmessageRelay?parent=http%3A%2F%2Fblog.pkhamre.com#rpctoken=584686483&amp;forcesecure=1" tabindex="-1" style="width: 1px; height: 1px; position: absolute; top: -100px;"></iframe><div id="feedly-mini" title="feedly Mini tookit"></div><script id="hiddenlpsubmitdiv" style="display: none;"></script><script>try{for(var lastpass_iter=0; lastpass_iter < document.forms.length; lastpass_iter++){ var lastpass_f = document.forms[lastpass_iter]; if(typeof(lastpass_f.lpsubmitorig2)=="undefined"){ lastpass_f.lpsubmitorig2 = lastpass_f.submit; lastpass_f.submit = function(){ var form=this; var customEvent = document.createEvent("Event"); customEvent.initEvent("lpCustomEvent", true, true); var d = document.getElementById("hiddenlpsubmitdiv"); if (d) {for(var i = 0; i < document.forms.length; i++){ if(document.forms[i]==form){ d.innerText=i; } } d.dispatchEvent(customEvent); }form.lpsubmitorig2(); } } }}catch(e){}</script></body></html>
