@@ -16,7 +16,8 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.util.concurrent.TimeUnit
 import GAEClientConnection._
-import scala.reflect.{ BeanProperty, BooleanBeanProperty }
+import scala.beans._
+//import scala.reflect.{ BeanProperty, BooleanBeanProperty }
 import scala.collection.JavaConversions._
 import org.apache.http.conn.HttpClientConnectionManager
 import java.net.Socket

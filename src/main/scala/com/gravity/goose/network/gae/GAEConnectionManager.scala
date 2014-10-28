@@ -11,7 +11,8 @@ import org.apache.http.params.HttpParams
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.TimeUnit
-import scala.reflect.BeanProperty
+//import scala.reflect.BeanProperty
+import scala.beans.BeanProperty
 import com.gravity.goose.network.GAEClientConnection
 import org.apache.http.conn.HttpClientConnectionManager
 

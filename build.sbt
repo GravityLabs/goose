@@ -21,8 +21,8 @@ description := "Extracts text, metadata, and key image from web articles."
 
 licenses += "Apache2" -> url("http://www.apache.org/licenses/")
 
-//scalaVersion := "2.11.1"
-scalaVersion := "2.10.2"
+scalaVersion := "2.11.1"
+//scalaVersion := "2.10.2"
 
 crossScalaVersions := Seq("2.11.1", "2.11.0", "2.10.4")
 
@@ -37,7 +37,7 @@ resolvers ++= Seq(
   "Oracle Maven 2 Repository" at "http://download.oracle.com/maven",
   "JBoss Maven 2 Repository" at "http://repository.jboss.com/maven2",
   "JLangDetect Maven repository" at "https://jlangdetect.googlecode.com/svn/repo",
-  "raisercostin repository" at "svn://raisercostin.synology.me/repo/maven/releases"
+  "raisercostin repository" at "http://raisercostin.googlecode.com/svn/maven2"
 )
 
 credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
@@ -54,8 +54,8 @@ libraryDependencies ++= {
     ,"net.liftweb" % "lift-json_2.10" % "2.5"
     ,"log4j" % "log4j" % "1.2.14"
     ,"com.typesafe" % "config" % "1.0.2"
-    ,"com.jsuereth" %% "scala-arm" % "1.2"
-    ,"org.specs2" %% "specs2" % "1.13"
+    ,"com.jsuereth" %% "scala-arm" % "1.4"
+    ,"org.specs2" %% "specs2" % "2.3.11"
     ,"org.jsoup" % "jsoup" % "1.7.3"
     ,"com.chenlb.mmseg4j" % "mmseg4j-core" % "1.9.1"
 	,"com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
@@ -65,8 +65,8 @@ libraryDependencies ++= {
 	,"com.google.appengine" % "appengine-testing" % "1.7.1"
 	,"com.google.appengine" % "appengine-api-1.0-sdk" % "1.7.1"
 	//add json service
-	,"com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2"
-	,"com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.2.2"
+	,"com.fasterxml.jackson.core" % "jackson-databind" % "2.4.3"
+	,"com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.3"
 	,"org.simpleframework" % "simple" % "4.1.21"
 	//add cassandra
 	//,"com.netflix.astyanax" % "astyanax-core" % "1.56.43"
