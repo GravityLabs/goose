@@ -260,6 +260,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
 
       private[network] var emptyList: ArrayList[Cookie] = new ArrayList[Cookie]
     }
+    httpParams.setParameter("http.protocol.single-cookie-header", true)
     httpParams.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY)
     httpParams.setParameter("http.User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8")
     httpParams.setParameter("http.language.Accept-Language", "en-us")
