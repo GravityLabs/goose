@@ -75,7 +75,7 @@ class Crawler(config: Configuration) {
       article.rawDoc = doc.clone
 
       article.title = extractor.getTitle(article)
-      article.publishDate = config.publishDateExtractor.extract(doc)
+      article.publishDate = config.publishDateExtractor.extract(doc).toDate
       article.additionalData = config.getAdditionalDataExtractor.extract(doc)
       article.metaDescription = extractor.getMetaDescription(article)
       article.metaKeywords = extractor.getMetaKeywords(article)

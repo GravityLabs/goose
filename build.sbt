@@ -46,9 +46,9 @@ credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 libraryDependencies ++= {
   Seq(
     "org.slf4j"			% "slf4j-api"		% "1.7.7"
-    ,"org.slf4j"		% "slf4j-simple"	% "1.7.7"
+    //,"org.slf4j"		% "slf4j-simple"	% "1.7.7"
     ,"org.slf4j"		% "slf4j-log4j12"	% "1.7.7" % Test
-    //,"log4j" % "log4j" % "1.2.14"
+    ,"log4j" % "log4j" % "1.2.14"
     ,"commons-io" % "commons-io" % "2.4"
     ,"org.apache.httpcomponents" % "httpclient" % "4.3.3"
     ,"commons-lang" % "commons-lang" % "2.6"
@@ -94,22 +94,20 @@ pomIncludeRepository := { _ => true}
 //publishTo := Some(Resolver.file("Github Pages", Path.userHome /"repo" / "maven" asFile)(Patterns(true, Resolver.mavenStyleBasePattern)))
 //publishTo := Some(Resolver.file("goose",  new File("d:/Dropbox/public/libs"))(Patterns(true, Resolver.mavenStyleBasePattern)) )
 publishTo := Some(Resolver.file("goose",  new File("./target/publish"))(Patterns(true, Resolver.mavenStyleBasePattern)) )
-/*
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
+//publishTo := {
+//  val nexus = "https://oss.sonatype.org/"
+//  if (isSnapshot.value)
+//    Some("snapshots" at nexus + "content/repositories/snapshots")
+//  else
+//    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+//}
 
 pomExtra := (
   <scm>
-    <url>git@github.com:warrd/goose-fork.git</url>
-    <connection>scm:git:git@github.com:warrd/goose-fork.git</connection>
+    <url>git@github.com:raisercostin/goose.git</url>
+    <connection>scm:git:git@github.com:raisercostin/goose.git</connection>
   </scm>
 )
-*/
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
 
