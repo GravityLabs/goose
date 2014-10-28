@@ -7,7 +7,7 @@ import com.typesafe.sbteclipse.plugin.EclipsePlugin.EclipseKeys
 //assembly: seq(StandardProject.newSettings: _*)
 
 //organization := "GravityLabs"
-organization := "com.gravity.goose"
+organization := "com.gravity"
 
 name := "goose"
 
@@ -74,9 +74,9 @@ libraryDependencies ++= {
 	//,"com.netflix.astyanax" % "astyanax-cassandra" % "1.56.43"
 	//tests
 	,"junit" % "junit" % "4.11" % "test"
-    ,"org.scalatest" %% "scalatest" % "2.1.6" % "test"
+    ,"org.scalatest" %% "scalatest" % "2.2.1" % "test"
     ,"org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test"
-    ,"com.novocode" % "junit-interface" % "0.10-M4" % "test"
+    ,"com.novocode" % "junit-interface" % "0.10" % "test"
     //"org.scala-lang" % "scala-compiler" % "2.9.0-1",
     //"org.scala-lang" % "scala-library" % "2.9.0-1",
     //"org.scala-lang" % "scala-reflect" % "2.10.0",

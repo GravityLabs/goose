@@ -21,7 +21,7 @@ package com.gravity.goose
 import network.{ HtmlFetcher, AbstractHtmlFetcher }
 import org.jsoup.nodes.Element
 import java.util.Date
-import beans.BeanProperty
+import scala.beans.BeanProperty
 import com.gravity.goose.extractors._
 import java.net.URL
 import org.apache.http.util.EntityUtils
