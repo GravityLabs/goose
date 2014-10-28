@@ -267,7 +267,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     httpParams.setParameter("http.protocol.content-charset", "UTF-8")
     httpParams.setParameter("Accept", "application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5")
     httpParams.setParameter("Cache-Control", "max-age=0")
-    httpParams.setParameter("http.connection.stalecheck", false)
+    httpParams.setParameter("http.connection.stalecheck", true)
     val schemeRegistry: SchemeRegistry = new SchemeRegistry
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
     schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
