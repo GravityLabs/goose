@@ -291,7 +291,7 @@ trait ContentExtractor {
     var startingBoost: Double = 1.0
     var cnt: Int = 0
     var i: Int = 0
-    val parentNodes = mutable.HashSet[Element]()
+    val parentNodes = mutable.LinkedHashSet[Element]()
     val nodesWithText = mutable.Buffer[Element]()
     for (node <- nodesToCheck) {
       val nodeText: String = node.text
