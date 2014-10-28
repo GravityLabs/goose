@@ -15,6 +15,9 @@ Copyright [2014] Robby Pond
  */
 package com.gravity.goose.opengraph;
 
+import scala.collection.mutable.Set
+import com.github.nscala_time.time.Imports._
+
 case class OpenGraphData() {
   var title: String = ""
   var siteName: String = ""
@@ -22,7 +25,11 @@ case class OpenGraphData() {
   var description: String = ""
   var image: String = ""
   var ogType: String = ""
-  var locale: String = "en_US"
+  var locale: String = ""
   var author: String = ""
   var publisher: String = ""
+  var publishedTime : DateTime = null
+  var modifiedTime : DateTime = null
+  var tags : Set[String] = Set()
+  var section : String = ""
 }

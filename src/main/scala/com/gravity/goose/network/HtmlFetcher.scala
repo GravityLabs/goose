@@ -50,8 +50,8 @@ import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.URLConnection
 import java.util.ArrayList
-import java.util.Date
 import java.util.List
+import java.util.Date
 import com.gravity.goose.utils.Logging
 import com.gravity.goose.Configuration
 import org.apache.http.impl.client.{DefaultHttpRequestRetryHandler, AbstractHttpClient, DefaultHttpClient}

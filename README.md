@@ -2,6 +2,18 @@
 
 [Goose](https://github.com/GravityLabs/goose) fork published on Maven Central.
 
+## This is a fork
+
+If you haven't guessed already, this is a fork of the wonderful [Goose library](http://github.com/GravityLabs/goose) by Gravity Labs. The original repo hasn't been updated for 2 years now, and there have been quite [a few nice pull requests](https://github.com/GravityLabs/goose/pulls) that are lying dormant.
+
+The project now uses sbt, and is hosted on Sonatype. Add the following to to your `build.sbt` to pull it in:
+
+```
+libraryDependencies ++= Seq("com.gravity" %% "goose" % "2.1.25-SNAPSHOT")
+
+resolvers += Resolver.sonatypeRepo("public")
+```
+
 ##Intro
 
 Goose was originally an article extractor written in Java that has most recently (aug2011) converted to a Scala project. It's mission is to take any news article or article type web page and not only extract what is the main body of the article but also all meta data and most probable image candidate.

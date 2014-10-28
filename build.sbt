@@ -15,13 +15,14 @@ version := "2.2.2-SNAPSHOT"
 
 organizationHomepage := Some(url("http://gravity.com/"))
 
-homepage := Some(url("https://github.com/GravityLabs/goose"))
+homepage := Some(url("https://github.com/raisercostin/goose"))
 
 description := "Extracts text, metadata, and key image from web articles."
 
 licenses += "Apache2" -> url("http://www.apache.org/licenses/")
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.2"
+//scalaVersion := "2.11.1"
 //scalaVersion := "2.10.2"
 
 crossScalaVersions := Seq("2.11.1", "2.11.0", "2.10.4")
@@ -44,7 +45,10 @@ credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 
 libraryDependencies ++= {
   Seq(
-    "org.slf4j" % "slf4j-api" % "1.7.7"
+    "org.slf4j"			% "slf4j-api"		% "1.7.7"
+    ,"org.slf4j"		% "slf4j-simple"	% "1.7.7"
+    ,"org.slf4j"		% "slf4j-log4j12"	% "1.7.7" % Test
+    //,"log4j" % "log4j" % "1.2.14"
     ,"commons-io" % "commons-io" % "2.4"
     ,"org.apache.httpcomponents" % "httpclient" % "4.3.3"
     ,"commons-lang" % "commons-lang" % "2.6"
@@ -52,8 +56,8 @@ libraryDependencies ++= {
     ,"me.champeau.jlangdetect" % "jlangdetect-extra" % "0.4"
     ,"org.jsoup" % "jsoup" % "1.7.3"
     ,"net.liftweb" % "lift-json_2.10" % "2.5"
-    ,"log4j" % "log4j" % "1.2.14"
-    ,"com.typesafe" % "config" % "1.0.2"
+	,"com.github.nscala-time"   %% "nscala-time"     % "1.4.0"
+	,"com.typesafe" % "config" % "1.0.2"
     ,"com.jsuereth" %% "scala-arm" % "1.4"
     ,"org.specs2" %% "specs2" % "2.3.11"
     ,"org.jsoup" % "jsoup" % "1.7.3"
@@ -73,10 +77,10 @@ libraryDependencies ++= {
 	//,"com.netflix.astyanax" % "astyanax-thrift" % "1.56.43"
 	//,"com.netflix.astyanax" % "astyanax-cassandra" % "1.56.43"
 	//tests
-	,"junit" % "junit" % "4.11" % "test"
-    ,"org.scalatest" %% "scalatest" % "2.2.1" % "test"
-    ,"org.slf4j" % "slf4j-log4j12" % "1.7.7" % "test"
-    ,"com.novocode" % "junit-interface" % "0.10" % "test"
+	,"junit" % "junit" % "4.11" % Test
+    ,"org.scalatest" %% "scalatest" % "2.2.1" % Test
+	// Testing dependencies
+	,"com.novocode" % "junit-interface" % "0.10" % Test
     //"org.scala-lang" % "scala-compiler" % "2.9.0-1",
     //"org.scala-lang" % "scala-library" % "2.9.0-1",
     //"org.scala-lang" % "scala-reflect" % "2.10.0",
@@ -90,6 +94,22 @@ pomIncludeRepository := { _ => true}
 //publishTo := Some(Resolver.file("Github Pages", Path.userHome /"repo" / "maven" asFile)(Patterns(true, Resolver.mavenStyleBasePattern)))
 //publishTo := Some(Resolver.file("goose",  new File("d:/Dropbox/public/libs"))(Patterns(true, Resolver.mavenStyleBasePattern)) )
 publishTo := Some(Resolver.file("goose",  new File("./target/publish"))(Patterns(true, Resolver.mavenStyleBasePattern)) )
+/*
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
+
+pomExtra := (
+  <scm>
+    <url>git@github.com:warrd/goose-fork.git</url>
+    <connection>scm:git:git@github.com:warrd/goose-fork.git</connection>
+  </scm>
+)
+*/
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
 

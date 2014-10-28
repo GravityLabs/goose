@@ -19,31 +19,32 @@ import org.jsoup.nodes.Element
 
 import scala.collection.JavaConversions._
 import com.gravity.goose.opengraph.OpenGraphData
+import org.joda.time.format.ISODateTimeFormat
 
 class OpenGraphDataExtractor extends Extractor[OpenGraphData] {
 
   def extract(rootElement: Element): OpenGraphData = {
     val openGraphData: OpenGraphData = new OpenGraphData
-    val elements : scala.collection.mutable.Buffer[Element] = rootElement.select("meta")
-    for(el <- elements) {
-      if(el.attr("property") == "og:title")
-        openGraphData.title = el.attr("content")
-      if(el.attr("property") == "og:site_name")
-        openGraphData.siteName = el.attr("content")
-      if(el.attr("property") == "og:url")
-        openGraphData.url = el.attr("content")
-      if(el.attr("property") == "og:description")
-        openGraphData.description = el.attr("content")
-      if(el.attr("property") == "og:image")
-        openGraphData.image = el.attr("content")
-      if(el.attr("property") == "og:type")
-        openGraphData.ogType = el.attr("content")
-      if(el.attr("property") == "og:locale")
-        openGraphData.locale = el.attr("content")
-      if(el.attr("property") == "article:author")
-        openGraphData.author = el.attr("content")
-      if(el.attr("property") == "article:publisher")
-        openGraphData.publisher = el.attr("content")
+    val dateParser = ISODateTimeFormat.dateTimeParser
+    for(el <- rootElement.select("meta")) {
+      val property = el.attr("property")
+      val value = el.attr("content")
+      property match {
+        case "og:title" => openGraphData.title = value
+        case "og:site_name" => openGraphData.siteName = value
+        case "og:url" => openGraphData.url = value
+        case "og:description" => openGraphData.description = value
+        case "og:image" => openGraphData.image = value
+        case "og:type" => openGraphData.ogType = value
+        case "og:locale" => openGraphData.locale = value
+        case "article:author" => openGraphData.author = value
+        case "article:publisher" => openGraphData.publisher = value
+        case "article:section" => openGraphData.section = value
+        case "article:tag" => openGraphData.tags ++= value.split(",").map(_.trim)
+        case "article:published_time" => openGraphData.publishedTime = dateParser.parseDateTime(value)
+        case "article:modified_time" => openGraphData.modifiedTime = dateParser.parseDateTime(value)
+        case _ => ()
+      }
     }
     openGraphData
   }
