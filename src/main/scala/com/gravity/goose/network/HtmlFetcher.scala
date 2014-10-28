@@ -168,8 +168,8 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
         return None
       }
       case e: Exception => {
-        trace("FAILURE FOR LINK: " + cleanUrl + " " + e.toString)
-        return None
+        warn("FAILURE FOR LINK: " + cleanUrl + " " + e.toString)
+        throw e
       }
     }
     finally {
