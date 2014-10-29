@@ -21,6 +21,8 @@ package com.gravity.goose.text
 import java.util.ArrayList
 import java.util.List
 
+import scala.collection.JavaConversions._
+
 /**
 * User: Jim Plush
 * Date: Oct 29, 2010
@@ -30,23 +32,23 @@ object WordStats {
   var EMPTY: WordStats = new WordStats
 }
 
-class WordStats {
-
-
+class WordStats(_stopWords:List[String], _wordCount:Int) {
   import WordStats._
-
+  def this() = this(new ArrayList(), 0)
   /**
   * total number of stopwords or good words that we can calculate
   */
-  var stopWordCount: Int = 0
+  var stopWordCount : Int = _stopWords.size()
+
   /**
   * total number of words on a node
   */
-  var wordCount: Int = 0
+  var wordCount: Int = _wordCount
+
   /**
   * holds an actual list of the stop words we found
   */
-  var stopWords: List[String] = new ArrayList[String]
+  var stopWords: List[String] = _stopWords
 
   def getStopWords: List[String] = {
     stopWords
@@ -72,6 +74,8 @@ class WordStats {
     wordCount = cnt
   }
 
-
+  override def toString: String =
+      "Word statistics: words = " + wordCount + ", stop words = " +
+      stopWordCount + " (" + stopWords.mkString(", ") + ")"
 }
 

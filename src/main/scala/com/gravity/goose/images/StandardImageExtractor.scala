@@ -40,7 +40,6 @@ import org.apache.http.client.methods.HttpGet
 * Date: 8/18/11
 */
 
-case class DepthTraversal(node: Element, parentDepth: Int, siblingDepth: Int)
 
 /**
 * This image extractor will attempt to find the best image nearest the article.
@@ -77,7 +76,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
 
   var sb: StringBuilder = new StringBuilder
   // create negative elements
-  sb.append(".html|.gif|.ico|button|twitter.jpg|facebook.jpg|ap_buy_photo|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com")
+  sb.append(".html|.ico|button|twitter.jpg|facebook.jpg|ap_buy_photo|digg.jpg|digg.png|delicious.png|facebook.png|reddit.jpg|doubleclick|diggthis|diggThis|adserver|/ads/|ec.atdmt.com")
   sb.append("|mediaplex.com|adsatt|view.atdmt")
   matchBadImageNames = Pattern.compile(sb.toString()).matcher(string.empty)
 
@@ -111,6 +110,8 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
     }
     image
   }
+
+  def getAllImages(topNode: Element, parentDepthLevel: Int = 0, siblingDepthLevel: Int = 0): List[Image] = List[Image]()
 
   private def checkForMetaTag: Boolean = {
     if (this.checkForLinkTag) {

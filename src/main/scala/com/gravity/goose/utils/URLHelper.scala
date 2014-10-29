@@ -21,6 +21,7 @@ package com.gravity.goose.utils
 import com.gravity.goose.text.{StringReplacement, HashUtils}
 import java.net.{URI, MalformedURLException, URL}
 import org.apache.http.client.methods.HttpGet
+import java.io.{StringWriter,PrintWriter}
 
 /**
  * Created by Jim Plush
@@ -57,12 +58,20 @@ object URLHelper extends Logging {
           urlToCrawl,
           unknown.getClass.getCanonicalName,
           unknown.getMessage,
-          unknown.getStackTraceString)
+          getStackTraceString(unknown))
 
         None
       }
     }
   }
+
+  def getStackTraceString(e: Exception) = {
+    val stringWriter = new StringWriter
+    val printWriter = new PrintWriter(stringWriter)
+    e.printStackTrace(printWriter)
+    stringWriter.toString
+  }
+
 
   def tryToURL(url: String): Option[URL] = {
     val finalUrl = if (url.contains("#!")) {

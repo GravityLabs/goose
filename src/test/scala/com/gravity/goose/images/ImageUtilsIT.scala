@@ -18,7 +18,6 @@ class ImageUtilsIT {
   def storeImageLocally() {
     val httpClient: HttpClient = HtmlFetcher.getHttpClient
     val imgSrc = "http://tctechcrunch2011.files.wordpress.com/2011/09/aaaaa.png?w=288m"
-    println(ImageUtils.storeImageToLocalFile(httpClient, "abc", imgSrc, new Configuration))
   }
 
 

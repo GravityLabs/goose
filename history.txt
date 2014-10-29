@@ -1,0 +1,2 @@
+cat *de.txt|sort|uniq >stopwords-de2.txt
+cat *.txt|sort|uniq >stopwords-all.txt2

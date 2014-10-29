@@ -37,7 +37,8 @@ object FileHelper extends Logging {
       filedata = IOUtils.toString(is, "UTF-8")
     }
     catch {
-      case e: IOException => warn(e, e.toString)
+      case e: IOException => warn(s"Error while reading $filename: "+e, e.toString)
+      case e: NullPointerException => warn(s"Error while reading $filename: "+e, e.toString)
     }
     filedata
   }

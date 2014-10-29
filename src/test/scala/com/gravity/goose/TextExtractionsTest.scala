@@ -15,7 +15,7 @@ import java.util.Date
  * Date: 8/19/11
  */
 
-class TextExtractions {
+class TextExtractionsTest {
 
   def getHtml(filename: String): String = {
     FileHelper.loadResourceFile(TestUtils.staticHtmlDir + filename, Goose.getClass)
@@ -41,7 +41,6 @@ class TextExtractions {
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "At Home Depot, we first realized we needed to have a real conversation with",
       expectedImage = null)
-    TestUtils.printReport()
   }
 
   @Test
@@ -53,7 +52,6 @@ class TextExtractions {
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "Get ready, America, because by Christmas 2012 you will have an Apple TV in your living room",
       expectedImage = null)
-    TestUtils.printReport()
   }
 
   @Test
@@ -174,22 +172,22 @@ class TextExtractions {
   def wiredPubDate() {
     val url = "http://www.wired.com/playbook/2010/08/stress-hormones-boxing/";
     val html = getHtml("wired1.txt")
-    val fmt = new SimpleDateFormat("yyyy-MM-dd")
-
+    //val fmt = new SimpleDateFormat("yyyy-MM-dd")
+	import com.github.nscala_time.time.Imports._
+	val dateParser = DateTimeFormat.forPattern("yyyy-MM-dd")
     // example of a custom PublishDateExtractor
     implicit val config = new Configuration();
     config.enableImageFetching = false
     config.setPublishDateExtractor(new PublishDateExtractor() {
       @Override
-      def extract(rootElement: Element): Date = {
+      def extract(rootElement: Element): DateTime = {
         // look for this guy: <meta name="DisplayDate" content="2010-08-18" />
         val elements = Selector.select("meta[name=DisplayDate]", rootElement);
         if (elements.size() == 0) return null;
         val metaDisplayDate = elements.get(0);
         if (metaDisplayDate.hasAttr("content")) {
           val dateStr = metaDisplayDate.attr("content");
-
-          return fmt.parse(dateStr);
+          return dateParser.parseDateTime(dateStr);
         }
         null;
       }
@@ -204,9 +202,7 @@ class TextExtractions {
 
     val expectedDateString = "2010-08-18";
     assertNotNull("publishDate should not be null!", article.publishDate);
-    assertEquals("Publish date should equal: \"2010-08-18\"", expectedDateString, fmt.format(article.publishDate));
-    System.out.println("Publish Date Extracted: " + fmt.format(article.publishDate));
-
+    assertEquals("Publish date should equal: \"2010-08-18\"", expectedDateString, dateParser.print(new DateTime(article.publishDate)));
   }
 
   @Test
@@ -313,8 +309,6 @@ class TextExtractions {
     val article = TestUtils.getArticle(url, html)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = "As everyone in the world was transfixed on the Fed")
-
-    println(article.cleanedArticleText)
   }
 
   @Test
@@ -388,5 +382,15 @@ class TextExtractions {
       expectedImage = null)
   }
 
-
+  @Test
+  def bug1() {
+    // html is not parsed properly
+    implicit val config = TestUtils.NO_IMAGE_CONFIG
+    val html = getHtml("bug1.html")
+    val url: String = "http://www.tulsaworld.com/site/articlepath.aspx?articleid=20111118_61_A16_Opposi344152&rss_lnk=7"
+    val article = TestUtils.getArticle(url, html)
+    TestUtils.runArticleAssertions(article = article,
+      expectedStart = "            Produsele naturale şi ecologice au devenit u",
+      expectedImage = null)
+  }
 }

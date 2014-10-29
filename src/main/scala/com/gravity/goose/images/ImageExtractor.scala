@@ -33,6 +33,8 @@ trait ImageExtractor extends CanLog {
 
   def getBestImage(doc: Document, topNode: Element): Image
 
+  def getAllImages(topNode: Element, parentDepthLevel: Int = 0, siblingDepthLevel: Int = 0): List[Image]
+
   def logPrefix: String = ImageExtractor.loggingPrefix
 
   def critical(msg: String, refs: Any*) {

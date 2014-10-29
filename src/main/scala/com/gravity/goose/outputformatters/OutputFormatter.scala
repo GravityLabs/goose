@@ -24,6 +24,7 @@ import org.jsoup.select.Elements
 import com.gravity.goose.text.StopWords
 import scala.collection.JavaConversions._
 import org.slf4j.Logger
+import com.gravity.goose.Language._
 
 /**
 * Created by Jim Plush
@@ -49,11 +50,13 @@ trait OutputFormatter {
   * @param topNode the top most node to format
   * @return the prepared Element
   */
-  @Deprecated def getFormattedElement(topNode: Element): Element = {
+//  @Deprecated def getFormattedElement(topNode: Element, language: Language): Element = {
+  @Deprecated def getFormattedElement(topNode: Element, lang: String): Element = {
     removeNodesWithNegativeScores(topNode)
     convertLinksToText(topNode)
     replaceTagsWithText(topNode)
-    removeParagraphsWithFewWords(topNode)
+//    removeParagraphsWithFewWords(topNode, language)
+    removeParagraphsWithFewWords(topNode, lang)
     topNode
   }
 
@@ -62,12 +65,17 @@ trait OutputFormatter {
   * @param topNode the top most node to format
   * @return a formatted string with all HTML removed
   */
-  def getFormattedText(topNode: Element): String = {
-    removeNodesWithNegativeScores(topNode)
-    convertLinksToText(topNode)
-    replaceTagsWithText(topNode)
-    removeParagraphsWithFewWords(topNode)
-    convertToText(topNode)
+//  def getFormattedText(topNode: Element, language: Language): String = {
+  def getFormattedText(topNode: Element, lang: String): String = {
+    //with clonning replacing text cannot happen since nodes don't have a parent and this trigger exceptions in jsoup: convertLinksToText/item.replaceWith(tn)
+    //var node = topNode.clone
+		  val node = topNode
+    removeNodesWithNegativeScores(node)
+    convertLinksToText(node)
+    replaceTagsWithText(node)
+//    removeParagraphsWithFewWords(node, language)
+    removeParagraphsWithFewWords(node, lang)
+    convertToText(node)
   }
 
   /**
@@ -80,10 +88,37 @@ trait OutputFormatter {
     case null => ""
     case node => {
       (node.children().map((e: Element) => {
-        StringEscapeUtils.unescapeHtml(e.text).trim
+        var text = StringEscapeUtils.unescapeHtml(e.text).trim
+        text
       })).toList.mkString("\n\n")
     }
 
+  }
+
+  /**
+  * Scape the node content and return the html
+  * @param topNode the top most node to format
+  * @return a formatted string with all HTML
+  */
+  //def cleanupHtml(topNode: Element, language: Language): String = {
+  def cleanupHtml(topNode: Element, language: String): String = {
+    //with clonning replacing text cannot happen since nodes don't have a parent and this trigge
+    //val node = topNode.clone
+    val node = topNode
+    removeParagraphsWithFewWords(node, language)
+    convertToHtml(node)
+  }
+
+  private def convertToHtml(topNode: Element): String = topNode match {
+    case null => ""
+    case node => {
+      StringEscapeUtils.unescapeHtml(node.html).trim
+
+    (node.children().map((e: Element) => {
+      // FIXTHIS - Use some jsoup class to do this
+        "<p>" + StringEscapeUtils.unescapeHtml(e.html).trim + "</p>"
+      })).mkString
+    }
   }
 
   /**
@@ -173,18 +208,21 @@ trait OutputFormatter {
   /**
   * remove paragraphs that have less than x number of words, would indicate that it's some sort of link
   */
-  private def removeParagraphsWithFewWords(topNode: Element) {
+//  private def removeParagraphsWithFewWords(topNode: Element, language: Language) {
+  private def removeParagraphsWithFewWords(topNode: Element, lang: String) {
     if (topNode != null) {
       if (logger.isDebugEnabled) {
         logger.debug("removeParagraphsWithFewWords starting...")
       }
 
-      val allNodes = topNode.getAllElements
+      val paragraphs = topNode.getElementsByTag("p")
 
-      for (el <- allNodes) {
+      for (el <- paragraphs) {
         try {
-          val stopWords = StopWords.getStopWordCount(el.text)
-          if (stopWords.getStopWordCount < 3 && el.getElementsByTag("object").size == 0 && el.getElementsByTag("embed").size == 0) {
+//          val stopWords = StopWords.getStopWordCount(el.text, language)
+//        if (el.text.size < 8 && stopWords.getStopWordCount < 3 && el.getElementsByTag("object").size == 0 && el.getElementsByTag("embed").size == 0) {
+          val stopWords = StopWords.getStopWordCount(el.text, lang)
+          if (el.text.size < 8 && stopWords.getStopWordCount < 3 && el.getElementsByTag("object").size == 0 && el.getElementsByTag("embed").size == 0) {
             logger.debug("removeParagraphsWithFewWords - swcnt: %d removing text: %s".format(stopWords.getStopWordCount, el.text()))
             el.remove()
           }

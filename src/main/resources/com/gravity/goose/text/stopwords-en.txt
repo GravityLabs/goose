@@ -104,6 +104,7 @@ corresponding
 could
 couldn't
 course
+criticized
 currently
 definitely
 described
@@ -126,8 +127,8 @@ eight
 either
 else
 elsewhere
-enough
 endorsed
+enough
 entirely
 especially
 et
@@ -146,8 +147,8 @@ except
 far
 few
 fifth
-first
 financial
+first
 five
 followed
 following
@@ -236,8 +237,8 @@ keep
 keeps
 kept
 know
-knows
 known
+knows
 last
 lately
 later
@@ -302,6 +303,7 @@ nowhere
 obviously
 of
 off
+official
 often
 oh
 ok
@@ -337,9 +339,9 @@ possible
 presumably
 probably
 provides
+quarterly
 quite
 quote
-quarterly
 rather
 really
 reasonably
@@ -373,6 +375,7 @@ seriously
 seven
 several
 shall
+sharply
 she
 should
 shouldn't
@@ -527,7 +530,6 @@ without
 won't
 wonder
 would
-would
 wouldn't
 yes
 yet
@@ -541,6 +543,3 @@ yours
 yourself
 yourselves
 zero
-official
-sharply
-criticized

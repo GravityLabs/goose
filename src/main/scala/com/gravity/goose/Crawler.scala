@@ -18,15 +18,16 @@
 
 package com.gravity.goose
 
-import cleaners.{StandardDocumentCleaner, DocumentCleaner}
+import cleaners.{ StandardDocumentCleaner, DocumentCleaner }
 import extractors.ContentExtractor
-import images.{Image, UpgradedImageIExtractor, ImageExtractor}
+import images.{ Image, UpgradedImageIExtractor, ImageExtractor }
 import org.apache.http.client.HttpClient
-import org.jsoup.nodes.{Document, Element}
+import org.jsoup.nodes.{ Document, Element }
 import org.jsoup.Jsoup
 import java.io.File
-import utils.{ParsingCandidate, URLHelper, Logging}
-import com.gravity.goose.outputformatters.{StandardOutputFormatter, OutputFormatter}
+import utils.{ ParsingCandidate, URLHelper, Logging }
+import com.gravity.goose.outputformatters.{ StandardOutputFormatter, OutputFormatter }
+import scala.collection.JavaConversions._
 
 /**
  * Created by Jim Plush
@@ -34,7 +35,19 @@ import com.gravity.goose.outputformatters.{StandardOutputFormatter, OutputFormat
  * Date: 8/18/11
  */
 
-case class CrawlCandidate(config: Configuration, url: String, rawHTML: String = null)
+/**
+ * Represents the information we may know of a page we crawl.
+ *
+ * @param config the configuration.
+ * @param url the URL of the page.
+ * @param rawHTML the raw HTML page source -- optional. If not specified, and
+ *                fetching is configured in {@code config}, the page will be
+ *                downloaded.
+ * @param lang the surmised language of the page -- optional. Used as a fallback
+ *             when the page does not report its language.
+ */
+case class CrawlCandidate(config: Configuration, url: String,
+  rawHTML: String = null, lang: String = null)
 
 class Crawler(config: Configuration) {
 
@@ -46,6 +59,7 @@ class Crawler(config: Configuration) {
       parseCandidate <- URLHelper.getCleanedUrl(crawlCandidate.url)
       rawHtml <- getHTML(crawlCandidate, parseCandidate)
       doc <- getDocument(parseCandidate.url.toString, rawHtml)
+      lang = crawlCandidate.lang
     } {
       trace("Crawling url: " + parseCandidate.url)
 
@@ -58,24 +72,28 @@ class Crawler(config: Configuration) {
       article.linkhash = parseCandidate.linkhash
       article.rawHtml = rawHtml
       article.doc = doc
-      article.rawDoc = doc.clone()
+      article.rawDoc = doc.clone
 
       article.title = extractor.getTitle(article)
-      article.publishDate = config.publishDateExtractor.extract(doc)
+      article.publishDate = Option(config.publishDateExtractor.extract(doc)).map(_.toDate).getOrElse(null)
       article.additionalData = config.getAdditionalDataExtractor.extract(doc)
       article.metaDescription = extractor.getMetaDescription(article)
       article.metaKeywords = extractor.getMetaKeywords(article)
       article.canonicalLink = extractor.getCanonicalLink(article)
       article.tags = extractor.extractTags(article)
+      article.openGraphData = config.getOpenGraphDataExtractor.extract(doc)
       // before we do any calcs on the body itself let's clean up the document
       article.doc = docCleaner.clean(article)
 
+      if (article.publishDate == null) {
+        article.publishDate = extractor.getDateFromURL(article.canonicalLink)
+      }
 
-
-      extractor.calculateBestNodeBasedOnClustering(article) match {
+      //      extractor.calculateBestNodeBasedOnClustering(article, config.language) match {
+      extractor.calculateBestNodeBasedOnClustering(article, lang) match {
         case Some(node: Element) => {
-          article.topNode = node
-          article.movies = extractor.extractVideos(article.topNode)
+          article.movies = extractor.extractVideos(node)
+          article.links = extractor.extractLinks(node)
 
           if (config.enableImageFetching) {
             trace(logPrefix + "Image fetching enabled...")
@@ -83,28 +101,31 @@ class Crawler(config: Configuration) {
             try {
               if (article.rawDoc == null) {
                 article.topImage = new Image
+                article.allImages = Nil
               } else {
-                article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+                if (config.enableAllImagesFetching) {
+                  article.topImage = imageExtractor.getBestImage(article.rawDoc, node)
+                  article.allImages = imageExtractor.getAllImages(node)
+                }
               }
             } catch {
               case e: Exception => {
-                warn(e, e.toString)
+                warn(e, e.getMessage)
+                throw e
               }
             }
           }
-          article.topNode = extractor.postExtractionCleanup(article.topNode)
 
+          article.topNode = extractor.postExtractionCleanup(node, lang)
+          article.cleanedArticleText = outputFormatter.getFormattedText(node, lang)
+          article.htmlArticle = outputFormatter.cleanupHtml(node, lang)
 
-
-
-          article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
         }
         case _ => trace("NO ARTICLE FOUND")
       }
       releaseResources(article)
       article
     }
-
     article
   }
 
@@ -120,7 +141,6 @@ class Crawler(config: Configuration) {
       }
     }
   }
-
 
   def getImageExtractor(article: Article): ImageExtractor = {
     val httpClient: HttpClient = config.getHtmlFetcher.getHttpClient
@@ -138,7 +158,7 @@ class Crawler(config: Configuration) {
   def getDocument(url: String, rawlHtml: String): Option[Document] = {
 
     try {
-      Some(Jsoup.parse(rawlHtml))
+      Some(Jsoup.parse(rawlHtml, url))
     } catch {
       case e: Exception => {
         trace("Unable to parse " + url + " properly into JSoup Doc")
@@ -152,22 +172,28 @@ class Crawler(config: Configuration) {
   }
 
   /**
-  * cleans up any temp files we have laying around like temp images
-  * removes any image in the temp dir that starts with the linkhash of the url we just parsed
-  */
+   * cleans up any temp files we have laying around like temp images
+   * removes any image in the temp dir that starts with the linkhash of the url we just parsed
+   */
   def releaseResources(article: Article) {
     trace(logPrefix + "STARTING TO RELEASE ALL RESOURCES")
-
-    val dir: File = new File(config.localStoragePath)
-
-    dir.list.foreach(filename => {
-      if (filename.startsWith(article.linkhash)) {
-        val f: File = new File(dir.getAbsolutePath + "/" + filename)
-        if (!f.delete) {
-          warn("Unable to remove temp file: " + filename)
+    if (config.getEnableImageFetching) {
+      val dir: File = new File(config.localStoragePath)
+      if (dir.isDirectory && dir.exists) {
+        val list = dir.list
+        if (list == null) {
+          throw new RuntimeException(s"Can't list dir ${dir.getAbsolutePath}")
         }
+        list.foreach(filename => {
+          if (filename.startsWith(article.linkhash)) {
+            val f: File = new File(dir.getAbsolutePath + "/" + filename)
+            if (!f.delete) {
+              warn("Unable to remove temp file: " + filename)
+            }
+          }
+        })
       }
-    })
+    }
   }
 
 }

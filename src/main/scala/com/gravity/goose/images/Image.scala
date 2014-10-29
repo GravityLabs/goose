@@ -36,12 +36,15 @@ class Image {
   /**
    * holds the src of the image
    */
-  var imageSrc: String = "";
+  var imageSrc: String = ""
+  
+  /** Raw score of image. */
+  var imageScore: Float = 0
 
   /**
    * how confident are we in this image extraction? the most images generally the less confident
    */
-  var confidenceScore: Double = 0.0;
+  var confidenceScore: Double = 0.0
 
   /**
   * Height of the image in pixels
@@ -56,16 +59,28 @@ class Image {
   /**
    * what kind of image extraction was used for this? bestGuess, linkTag, openGraph tags?
    */
-  var imageExtractionType: String = "NA";
+  var imageExtractionType: String = "NA"
 
 
   /**
    * stores how many bytes this image is.
    */
-  var bytes: Long = 0;
+  var bytes: Long = 0
 
 
   def getImageSrc = {
     imageSrc
   }
+  
+  
+  
+  override def toString =
+    s"""Image{
+  imageSrc=$imageSrc,
+  imageScore=$imageScore,
+  height=$height,
+  width=$width,
+  imageExtractionType=$imageExtractionType
+}"""
+
 }

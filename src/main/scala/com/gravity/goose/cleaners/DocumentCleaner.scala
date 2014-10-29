@@ -43,9 +43,12 @@ trait DocumentCleaner {
   def clean(article: Article): Document = {
 
     trace("Starting cleaning phase with DefaultDocumentCleaner")
+    var docToClean: Document = article.doc.clone
+    trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    trace(docToClean.html)
+    trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
-    var docToClean: Document = article.doc
-    docToClean = cleanEmTags(docToClean)
+    docToClean = cleanTextTags(docToClean)
     docToClean = removeDropCaps(docToClean)
     docToClean = removeScriptsAndStyles(docToClean)
     docToClean = cleanBadTags(docToClean)
@@ -59,25 +62,32 @@ trait DocumentCleaner {
 //    docToClean = convertDivsToParagraphs(docToClean, "div")
 //    docToClean = convertDivsToParagraphs(docToClean, "span")
 
-    //    docToClean = convertDivsToParagraphs(docToClean, "span")
+    trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    trace(docToClean.html)
+    trace("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER CLEAN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     docToClean
   }
 
   /**
-  * replaces <em> tags with textnodes
+  * replaces various tags with textnodes
   */
-  private def cleanEmTags(doc: Document): Document = {
-    val ems: Elements = doc.getElementsByTag("em")
-
+  private def cleanTextTags(doc: Document): Document = {
+    var ems: Elements = doc.getElementsByTag("em")
+    ems ++= doc.getElementsByTag("strong")
+    ems ++= doc.getElementsByTag("b")
+    ems ++= doc.getElementsByTag("i")
+    ems ++= doc.getElementsByTag("strike")
+    ems ++= doc.getElementsByTag("del")
+    ems ++= doc.getElementsByTag("ins")
     for {
       node <- ems
       images: Elements = node.getElementsByTag("img")
       if (images.size == 0)
     } {
-      val tn: TextNode = new TextNode(node.text, doc.baseUri)
+      val tn: TextNode = new TextNode(node.text.trim+" ", doc.baseUri)
       node.replaceWith(tn)
     }
-    trace(ems.size + " EM tags modified")
+    trace(ems.size + " EM/strong/b/i/strike/del/ins tags modified")
     doc
   }
 
@@ -129,40 +139,46 @@ trait DocumentCleaner {
   }
 
   private def cleanBadTags(doc: Document): Document = {
-    val children: Elements = doc.body.children
-    val naughtyList: Elements = children.select(queryNaughtyIDs)
-    trace(naughtyList.size + " naughty ID elements found")
+    /* jsoup 1.7.3 can return pages without a body. */
+    if (doc.body != null) {
+      val children: Elements = doc.body.children
+      val naughtyList: Elements = children.select(queryNaughtyIDs)
+      trace(naughtyList.size + " naughty ID elements found")
 
-    import scala.collection.JavaConversions._
-    for (node <- naughtyList) {
-      trace("Removing node with id: " + node.id)
-      removeNode(node)
+      import scala.collection.JavaConversions._
+      for (node <- naughtyList) {
+        trace("Removing node with id: " + node.id)
+        removeNode(node)
+      }
+
+      val naughtyList2: Elements = children.select(queryNaughtyIDs)
+      trace(naughtyList2.size + " naughty ID elements found after removal")
+
+      val naughtyClasses: Elements = children.select(queryNaughtyClasses)
+
+      trace(naughtyClasses.size + " naughty CLASS elements found")
+
+      for (node <- naughtyClasses) {
+        trace("Removing node with class: " + node.className)
+        removeNode(node)
+      }
+
+      val naughtyClasses2: Elements = children.select(queryNaughtyClasses)
+      trace(naughtyClasses2.size + " naughty CLASS elements found after removal")
+
+      val naughtyList5: Elements = children.select(queryNaughtyNames)
+
+      trace(naughtyList5.size + " naughty Name elements found")
+
+      for (node <- naughtyList5) {
+
+        trace("Removing node with class: " + node.attr("class") + " id: " + node.id + " name: " + node.attr("name"))
+
+        removeNode(node)
+      }
     }
-
-    val naughtyList2: Elements = children.select(queryNaughtyIDs)
-    trace(naughtyList2.size + " naughty ID elements found after removal")
-
-    val naughtyClasses: Elements = children.select(queryNaughtyClasses)
-
-    trace(naughtyClasses.size + " naughty CLASS elements found")
-
-    for (node <- naughtyClasses) {
-      trace("Removing node with class: " + node.className)
-      removeNode(node)
-    }
-
-    val naughtyClasses2: Elements = children.select(queryNaughtyClasses)
-    trace(naughtyClasses2.size + " naughty CLASS elements found after removal")
-
-    val naughtyList5: Elements = children.select(queryNaughtyNames)
-
-    trace(naughtyList5.size + " naughty Name elements found")
-
-    for (node <- naughtyList5) {
-
-      trace("Removing node with class: " + node.attr("class") + " id: " + node.id + " name: " + node.attr("name"))
-
-      removeNode(node)
+    else {
+      trace("Document has no body.")
     }
     doc
   }
@@ -379,10 +395,9 @@ object DocumentCleaner extends Logging {
   var sb: StringBuilder = new StringBuilder
 
   // create negative elements
-  sb.append("^side$|combx|retweet|mediaarticlerelated|menucontainer|navbar|comment|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll|shoutbox|sponsor")
+  sb.append("^side$|combx|retweet|mediaarticlerelated|menucontainer|navbar|comment(?!ed)|PopularQuestions|contact|foot|footer|Footer|footnote|cnn_strycaptiontxt|links|meta$|scroll(?!able)|shoutbox|sponsor")
   sb.append("|tags|socialnetworking|socialNetworking|cnnStryHghLght|cnn_stryspcvbx|^inset$|pagetools|post-attributes|welcome_form|contentTools2|the_answers|remember-tool-tip")
-  sb.append("|communitypromo|runaroundLeft|subscribe|vcard|articleheadings|date|^print$|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text")
-
+  sb.append("|communitypromo|promo_holder|runaroundLeft|subscribe|vcard|articleheadings|date|^print$|popup|author-dropdown|tools|socialtools|byline|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text")
   /**
   * this regex is used to remove undesirable nodes from our doc
   * indicate that something maybe isn't content but more of a comment, footer or some other undesirable node

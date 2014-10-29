@@ -18,10 +18,13 @@ class LoggableException(msg: String, innerEx: Exception = null) extends Exceptio
   }
 }
 
+class NoArticleException(url: String) extends LoggableException("Couldn't find article for url: " + url)
+class ArticleParseException(url: String) extends LoggableException("Couldn't parse article for url: " + url)
 class NotFoundException(url: String) extends LoggableException("SERVER RETURNED 404 FOR LINK: " + url)
 class BadRequestException(url: String) extends LoggableException("Bad Request for URL: " + url)
 class NotAuthorizedException(url: String, statusCode: Int = 403) extends LoggableException("Not authorized (statusCode: %d) to access URL: %s".format(statusCode, url))
 class ServerErrorException(url: String, statusCode: Int = 500) extends LoggableException("Server Error! Status code returned: %d for URL: %s".format(statusCode, url))
+class GatewayTimeoutException(url: String) extends LoggableException("Server Error! Timeout reading URL: %s".format(url))
 class UnhandledStatusCodeException(url: String, statusCode: Int)  extends LoggableException("Received HTTP statusCode: %d from URL: %s and did not know how to handle it!".format(statusCode, url))
 
 object HttpStatusValidator {
