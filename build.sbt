@@ -25,7 +25,7 @@ scalaVersion := "2.11.2"
 //scalaVersion := "2.11.1"
 //scalaVersion := "2.10.2"
 
-crossScalaVersions := Seq("2.11.1", "2.11.0", "2.10.4")
+crossScalaVersions := Seq("2.11.2")//, "2.11.0", "2.10.4")
 
 testFrameworks += TestFrameworks.ScalaTest
 
@@ -55,7 +55,7 @@ libraryDependencies ++= {
     ,"com.ibm.icu" % "icu4j" % "53.1"
     ,"me.champeau.jlangdetect" % "jlangdetect-extra" % "0.4"
     ,"org.jsoup" % "jsoup" % "1.7.3"
-    ,"net.liftweb" % "lift-json_2.10" % "2.5"
+    ,"net.liftweb" %% "lift-json" % "2.6-RC1"
 	,"com.github.nscala-time"   %% "nscala-time"     % "1.4.0"
 	,"com.typesafe" % "config" % "1.0.2"
     ,"com.jsuereth" %% "scala-arm" % "1.4"
@@ -130,7 +130,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 def svnPublish = Command.args("svnPublish", "<tag>") { (state, args) =>
 	val ver = "2.2.2-SNAPSHOT"
     val svnUrl = """https://raisercostin.googlecode.com/svn/maven2"""
-	val command = s"""svn import -m "binary release" target\\publish\\com\\gravity\\goose\\goose_2.10\\$ver $svnUrl/com/gravity/goose/goose_2.10/$ver """
+	val command = s"""svn import -m "binary release" target\\publish\\com\\gravity\\goose\\goose_2.11\\$ver $svnUrl/com/gravity/goose/goose_2.11/$ver """
 	println(s"\nexecute $command")
 	command.!
 	state
