@@ -12,7 +12,7 @@
 	</prerequisites>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gravity.goose</groupId>
-	<artifactId>goose_2.10</artifactId>
+	<artifactId>goose_2.11</artifactId>
 	<version>2.2.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>goose</name>
@@ -75,30 +75,67 @@ Goose was originally an article extractor written in Java that has most recently
 			<organizationUrl>http://www.gravity.com/GravityLabs</organizationUrl>
 			<url>http://robbie.robnrob.com/</url>
 		</developer>
+		<developer>
+			<id>raisercostin</id>
+			<name>Costin Grigore</name>
+			<organization>brainlight</organization>
+			<url>http://blog.raisercostin.org/</url>
+		</developer>
 	</developers>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.5</maven.compiler.source>
 		<maven.compiler.target>1.5</maven.compiler.target>
 		<source.version>1.7</source.version>
-		<scala.version>2.10.4</scala.version>
+		<scala.version>2.11.2</scala.version>
+		<scala.prefix>2.11</scala.prefix>
 		<!--<scala.version>2.9.0-1</scala.version>-->
 		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
 		<gae.version>1.7.1</gae.version>
 		<gae.home>${appengine.sdk.root}</gae.home>
+		<slf4j.version>1.7.7</slf4j.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.6</version>
+			<version>${slf4j.version}</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.6.1</version>
+			<version>${slf4j.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>
@@ -106,10 +143,16 @@ Goose was originally an article extractor written in Java that has most recently
 			<version>1.7.3</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+			<groupId>com.chenlb.mmseg4j</groupId>
+			<artifactId>mmseg4j-core</artifactId>
+			<version>1.9.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.nscala-time</groupId>
+			<artifactId>nscala-time_${scala.prefix}</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		<!--scala-->
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-compiler</artifactId>
@@ -120,25 +163,11 @@ Goose was originally an article extractor written in Java that has most recently
 			<artifactId>scala-library</artifactId>
 			<version>${scala.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.3.3</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
-		</dependency>
+
 		<dependency>
 			<groupId>com.googlecode.juniversalchardet</groupId>
 			<artifactId>juniversalchardet</artifactId>
 			<version>1.0.3</version>
-		</dependency>
-		<dependency>
-			<groupId>com.chenlb.mmseg4j</groupId>
-			<artifactId>mmseg4j-core</artifactId>
-			<version>1.9.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.ibm.icu</groupId>
@@ -151,18 +180,7 @@ Goose was originally an article extractor written in Java that has most recently
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.6</version>
-			<scope>test</scope>
-		</dependency>
 <!--gae-->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
-		</dependency>
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-labs</artifactId>
@@ -188,12 +206,12 @@ Goose was originally an article extractor written in Java that has most recently
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.2.2</version>
+			<version>2.4.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.module</groupId>
-			<artifactId>jackson-module-scala_2.10</artifactId>
-			<version>2.2.2</version>
+			<artifactId>jackson-module-scala_${scala.prefix}</artifactId>
+			<version>2.4.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.simpleframework</groupId>
@@ -225,8 +243,8 @@ Goose was originally an article extractor written in Java that has most recently
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
 		<testSourceDirectory>${basedir}/src/test/scala</testSourceDirectory>
-		<outputDirectory>${project.basedir}/target/scala-2.10/classes</outputDirectory>
-		<testOutputDirectory>${project.basedir}/target/scala-2.10/test-classes</testOutputDirectory>
+		<outputDirectory>${project.basedir}/target/scala-out/classes</outputDirectory>
+		<testOutputDirectory>${project.basedir}/target/scala-out/test-classes</testOutputDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

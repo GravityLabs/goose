@@ -50,8 +50,8 @@ libraryDependencies ++= {
     ,"org.slf4j"		% "slf4j-log4j12"	% "1.7.7" % Test
     ,"log4j" % "log4j" % "1.2.14"
     ,"commons-io" % "commons-io" % "2.4"
-    ,"org.apache.httpcomponents" % "httpclient" % "4.3.3"
     ,"commons-lang" % "commons-lang" % "2.6"
+    ,"org.apache.httpcomponents" % "httpclient" % "4.3.3"
     ,"com.ibm.icu" % "icu4j" % "53.1"
     ,"me.champeau.jlangdetect" % "jlangdetect-extra" % "0.4"
     ,"org.jsoup" % "jsoup" % "1.7.3"
