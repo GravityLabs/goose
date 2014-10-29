@@ -19,7 +19,6 @@ package com.gravity.goose.images
 
 import org.jsoup.nodes.{Element, Document}
 import com.gravity.goose.utils.{Logging, CanLog}
-import java.util.ArrayList
 
 /**
 * Created by Jim Plush

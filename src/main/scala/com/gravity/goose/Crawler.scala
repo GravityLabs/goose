@@ -101,11 +101,17 @@ class Crawler(config: Configuration) {
             try {
               if (article.rawDoc == null) {
                 article.topImage = new Image
+                article.images = Nil
               } else {
+<<<<<<< HEAD
                 article.topImage = imageExtractor.getBestImage(article.rawDoc, node)
                 if (config.enableAllImagesFetching) {
                   article.allImages = imageExtractor.getAllImages(node)
                 }
+=======
+                article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
+                article.images = imageExtractor.getAllImages(article.topNode)
+>>>>>>> remotes/pickl-it/master
               }
             } catch {
               case e: Exception => {

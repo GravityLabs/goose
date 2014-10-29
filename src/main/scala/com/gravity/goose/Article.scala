@@ -88,7 +88,7 @@ class Article {
   var topImage: Image = new Image
 
   /**
-   * holds all cadidate images from article
+   * all article images in the order they were found
    */
   @BeanProperty
   var allImages: List[Image] = Nil

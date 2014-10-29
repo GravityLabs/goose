@@ -202,7 +202,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
         throw e
       }
       case e: Exception => {
-        trace("FAILURE FOR LINK: " + cleanUrl + " " + e.toString)
+        warn("FAILURE FOR LINK: " + cleanUrl + " " + e.toString)
         throw e
       }
     }
@@ -303,7 +303,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
 
       private[network] var emptyList: ArrayList[Cookie] = new ArrayList[Cookie]
     }
-    
+    httpParams.setParameter("http.protocol.single-cookie-header", true)
     httpParams.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY)
     httpParams.setParameter("http.User-Agent", "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8")
     httpParams.setParameter("http.language.Accept-Language", "en-us")
@@ -432,7 +432,7 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     matched.getLanguage
     matched.getString
   }
-  
+
   def createConnectionManager:ClientConnectionManager = createDefaultConnectionManager
   //enable gae connection manager
   //def createConnectionManager:ClientConnectionManager = createGaeConnectionManager
@@ -443,7 +443,8 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
     val schemeRegistry: SchemeRegistry = new SchemeRegistry
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
     schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
-
+	//gae??
+	//    val cm = new ThreadSafeClientConnManager(schemeRegistry)
     val cm = new PoolingClientConnectionManager(schemeRegistry)
     cm.setMaxTotal(4000)
     cm.setDefaultMaxPerRoute(20)

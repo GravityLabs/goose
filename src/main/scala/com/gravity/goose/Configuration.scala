@@ -80,13 +80,19 @@ case class Configuration(
   /**
    * path to your imagemagick convert executable, on the mac using mac ports this is the default listed
    */
-  @BeanProperty //var imagemagickConvertPath: String = "/usr/local/bin/convert"
-  var imagemagickConvertPath: String = "convert",
+  @BeanProperty
+	//var imagemagickConvertPath: String = "/usr/local/bin/convert"
+	//var imagemagickConvertPath: String = sys.env.get("GOOSE_IMGMAGICK_CONVERT_PATH").getOrElse("/opt/local/bin/convert")
+	var imagemagickConvertPath: String = sys.env.get("GOOSE_IMGMAGICK_CONVERT_PATH").getOrElse("convert")
   /**
    *  path to your imagemagick identify executable
    */
-  @BeanProperty //var imagemagickIdentifyPath: String = "/usr/local/bin/identify"
-  var imagemagickIdentifyPath: String = "identify",
+	@BeanProperty
+	//var imagemagickIdentifyPath: String = "/usr/local/bin/identify"
+	//var imagemagickIdentifyPath: String = "identify",
+	@BeanProperty
+	//var imagemagickIdentifyPath: String = sys.env.get("GOOSE_IMGMAGICK_IDENTIFY_PATH").getOrElse("/opt/local/bin/identify")
+	var imagemagickIdentifyPath: String = sys.env.get("GOOSE_IMGMAGICK_IDENTIFY_PATH").getOrElse("identify")
 
   @BeanProperty var connectionTimeout: Int = 10000 // 10 seconds
   ,

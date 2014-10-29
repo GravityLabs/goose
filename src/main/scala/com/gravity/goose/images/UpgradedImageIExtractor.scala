@@ -19,6 +19,8 @@ import io.Source
  * Date: 9/22/11
  */
 
+case class DepthTraversal(node: Element, parentDepth: Int, siblingDepth: Int)
+
 class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: Configuration) extends ImageExtractor {
 
   import UpgradedImageIExtractor._
@@ -72,6 +74,18 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     new Image
   }
 
+  def getAllImages(node: Element): List[Image] = {
+    getImageCandidates(node) match {
+      case Some(goodImages) => {
+        val scoredImages = downloadImagesAndGetResults(goodImages, 0)
+        scoredImages.map((scoredImage: (LocallyStoredImage, Float)) => scoredImageToResultImage(scoredImage._1, scoredImages.size)).toList
+      }
+      case None => {
+        Nil
+      }
+    }
+  }
+
   /**
    * Prefer Twitter images (as they tend to have the right size for us), then Open Graph images
    * (which seem to be smaller), and finally linked images.
@@ -117,15 +131,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         // get the high score image in a tuple
         scoredImages.sortBy(-_._2).take(1).headOption match {
           case Some(highScoreImage) => {
-            val mainImage = new Image
-            // mainImage.topImageNode = highScoreImage
-            mainImage.imageSrc = highScoreImage._1.imgSrc
-            mainImage.imageExtractionType = "bigimage"
-            mainImage.bytes = highScoreImage._1.bytes
-            mainImage.width = highScoreImage._1.width
-            mainImage.height = highScoreImage._1.height
-            mainImage.confidenceScore = if (scoredImages.size > 0) (100 / scoredImages.size) else 0
-            mainImage.imageScore = highScoreImage._2
+            val mainImage = scoredImageToResultImage(highScoreImage._1, scoredImages.size)
             trace("IMAGE COMPLETE: High Score Image is: " + mainImage.imageSrc + " Score is: " + highScoreImage._2)
             return Some(mainImage)
           }
@@ -152,6 +158,18 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     }
 
     None
+  }
+
+  private def scoredImageToResultImage(scoredImage: LocallyStoredImage, scoredImagesLength: Int): Image = {
+    val mainImage = new Image
+    // mainImage.topImageNode = highScoreImage
+    mainImage.imageSrc = scoredImage.imgSrc
+    mainImage.imageExtractionType = "bigimage"
+    mainImage.bytes = scoredImage.bytes
+    mainImage.width = scoredImage.width
+    mainImage.height = scoredImage.height
+    mainImage.confidenceScore = if (scoredImagesLength > 0) (100 / scoredImagesLength) else 0
+    mainImage
   }
 
   def getDepthLevel(node: Element, parentDepth: Int, siblingDepth: Int): Option[DepthTraversal] = {
@@ -197,8 +215,9 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         height = locallyStoredImage.height
         if (height > MIN_HEIGHT)
         fileExtension = locallyStoredImage.fileExtension
+        //why not gif?:  if (fileExtension != ".gif" && fileExtension != "NA")
         if (fileExtension != "NA")
-        imageSrc = locallyStoredImage.imgSrc
+        	imageSrc = locallyStoredImage.imgSrc
         if ((depthLevel >= 1 && locallyStoredImage.width > 300) || depthLevel < 1)
         if (!isBannerDimensions(width, height))
       } {
