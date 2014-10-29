@@ -40,7 +40,6 @@ import org.apache.http.client.methods.HttpGet
 * Date: 8/18/11
 */
 
-case class DepthTraversal(node: Element, parentDepth: Int, siblingDepth: Int)
 
 /**
 * This image extractor will attempt to find the best image nearest the article.

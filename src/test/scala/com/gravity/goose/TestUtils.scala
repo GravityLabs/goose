@@ -54,7 +54,7 @@ object TestUtils {
     articleReport.append("IMAGE:          ").append(TAB).append(article.topImage.getImageSrc).append(NL)
     articleReport.append("All_IMGS:       ").append(TAB).append(article.allImages).append(NL)
     articleReport.append("IMGKIND:        ").append(TAB).append(article.topImage.imageExtractionType).append(NL)
-    articleReport.append("ALL_IMAGES:    ").append(TAB).append(article.images.map((i: Image) => i.getImageSrc)).append(NL)
+    articleReport.append("ALL_IMAGES:    ").append(TAB).append(article.allImages.map((i: Image) => i.getImageSrc)).append(NL)
     articleReport.append("CONTENT:        ").append(TAB).append(article.cleanedArticleText.replace("\n", "    ")).append(NL)
     articleReport.append("HTML CONTENT:   ").append(TAB).append(article.htmlArticle).append(NL)
     articleReport.append("METAKW:         ").append(TAB).append(article.metaKeywords).append(NL)
@@ -93,7 +93,7 @@ object TestUtils {
       assertEquals("Image src was not as expected!", expectedImage, src)
     }
     if (expectedImages != null) {
-      val images: List[Image] = article.images
+      val images: List[Image] = article.allImages
       assertNotNull("Images was NULL!", images)
       assertEquals("Different number of images then expected!", expectedImages.size, images.size)
       images.zip(expectedImages).foreach{ case (i: Image, ei: String) =>
