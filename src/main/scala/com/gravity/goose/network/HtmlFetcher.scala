@@ -228,14 +228,20 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
          * initial junk, before giving up and saying it is not HTML.
          */
 
-        val excerpt = htmlResult.substring(0, 1024).toLowerCase()
+        val excerpt = htmlResult.substring(0, Math.min(htmlResult.length(), 1024)).toLowerCase()
 
-        if (excerpt.contains("<!doctype html")) {
-          return Some(htmlResult.substring(excerpt.indexOf("<!doctype html")))
+        val idx1 = excerpt.indexOf("<!doctype html")
+        if (idx1 != -1) {
+          return Some(htmlResult.substring(idx1))
         }
 
-        if (excerpt.contains("<html") && excerpt.contains("<body")) {
-          return Some(htmlResult.substring(excerpt.indexOf("<html")))
+        val idx2 = excerpt.indexOf("<html")
+        if (idx2 != -1) {
+          val temp = htmlResult.substring(idx2)
+
+          if (temp.contains("<body")) {
+            return Some(temp)
+          }
         }
 
         throw new NotHtmlException(cleanUrl)
