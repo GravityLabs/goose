@@ -221,6 +221,23 @@ object HtmlFetcher extends AbstractHtmlFetcher with Logging {
         }
       }
       else {
+        /*
+         * Sometimes guessContentTypeFromStream() fails because there is junk before the start of the HTML.
+         *
+         * This code looks at the first 1k characters to see if there is something that looks like HTML lurking beyond some
+         * initial junk, before giving up and saying it is not HTML.
+         */
+
+        val excerpt = htmlResult.substring(0, 1024).toLowerCase()
+
+        if (excerpt.contains("<!doctype html")) {
+          return Some(htmlResult.substring(excerpt.indexOf("<!doctype html")))
+        }
+
+        if (excerpt.contains("<html") && excerpt.contains("<body")) {
+          return Some(htmlResult.substring(excerpt.indexOf("<html")))
+        }
+
         throw new NotHtmlException(cleanUrl)
       }
     }
