@@ -18,6 +18,8 @@
 
 package com.gravity.goose.text
 
+import java.util
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.ArrayList
@@ -121,7 +123,7 @@ class ReplaceSequence {
     replacements.add(pair)
   }
 
-  var replacements: List[StringReplacement] = new ArrayList[StringReplacement]
+  var replacements: util.List[StringReplacement] = new util.ArrayList[StringReplacement]
 }
 
 

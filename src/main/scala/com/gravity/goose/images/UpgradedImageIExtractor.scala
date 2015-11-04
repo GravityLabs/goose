@@ -1,5 +1,7 @@
 package com.gravity.goose.images
 
+import java.util
+
 import org.apache.http.client.HttpClient
 import com.gravity.goose.{Configuration, Article}
 import org.jsoup.nodes.{Element, Document}
@@ -52,16 +54,14 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     trace("Starting to Look for the Most Relavent Image")
     checkForKnownElements() match {
       case Some(image) => return image
-      case None => {
+      case None =>
         trace("No known images found")
-      }
     }
 
     checkForLargeImages(topNode, 0, 0) match {
       case Some(image) => return image
-      case None => {
+      case None =>
         trace("No big images found")
-      }
     }
 
     checkForMetaTag match {
@@ -102,42 +102,34 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     trace("Checking for large images - parent depth " + parentDepthLevel + " sibling depth: " + siblingDepthLevel)
 
     getImageCandidates(node) match {
-      case Some(goodImages) => {
+      case Some(goodImages) =>
         trace("checkForLargeImages: After findImagesThatPassByteSizeTest we have: " + goodImages.size + " at parent depth: " + parentDepthLevel)
         val scoredImages = downloadImagesAndGetResults(goodImages, parentDepthLevel)
         // get the high score image in a tuple
         scoredImages.sortBy(-_._2).take(1).headOption match {
-          case Some(highScoreImage) => {
+          case Some(highScoreImage) =>
             val mainImage = new Image
             // mainImage.topImageNode = highScoreImage
             mainImage.imageSrc = highScoreImage._1.imgSrc
             mainImage.imageExtractionType = "bigimage"
             mainImage.bytes = highScoreImage._1.bytes
-            mainImage.confidenceScore = if (scoredImages.size > 0) (100 / scoredImages.size) else 0
+            mainImage.confidenceScore = if (scoredImages.size > 0) 100 / scoredImages.size else 0
             trace("IMAGE COMPLETE: High Score Image is: " + mainImage.imageSrc + " Score is: " + highScoreImage._2)
             return Some(mainImage)
-          }
-          case None => {
+          case None =>
             trace("No good images found after filtering")
             getDepthLevel(node, parentDepthLevel, siblingDepthLevel) match {
-              case Some(depthObj) => {
+              case Some(depthObj) =>
                 return checkForLargeImages(depthObj.node, depthObj.parentDepth, depthObj.siblingDepth)
-              }
               case None => trace("Image iteration is over!")
             }
-          }
         }
-
-
-      }
-      case None => {
+      case None =>
         getDepthLevel(node, parentDepthLevel, siblingDepthLevel) match {
-          case Some(depthObj) => {
+          case Some(depthObj) =>
             return checkForLargeImages(depthObj.node, depthObj.parentDepth, depthObj.siblingDepth)
-          }
           case None => trace("Image iteration is over!")
         }
-      }
     }
 
     None
@@ -171,7 +163,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   * @param images
   * @return
   */
-  private def downloadImagesAndGetResults(images: ArrayList[Element], depthLevel: Int): ListBuffer[(LocallyStoredImage, Float)] = {
+  private def downloadImagesAndGetResults(images: util.ArrayList[Element], depthLevel: Int): ListBuffer[(LocallyStoredImage, Float)] = {
     val imageResults = new ListBuffer[(LocallyStoredImage, Float)]()
     var initialArea: Float = 0
     var cnt = 1.0f
@@ -182,14 +174,14 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       for {
         locallyStoredImage <- getLocallyStoredImage(buildImagePath(image.attr("src")))
         width = locallyStoredImage.width
-        if (width > MIN_WIDTH)
+        if width > MIN_WIDTH
         height = locallyStoredImage.height
-        if (height > MIN_HEIGHT)
+        if height > MIN_HEIGHT
         fileExtension = locallyStoredImage.fileExtension
-        if (fileExtension != ".gif" && fileExtension != "NA")
+        if fileExtension != ".gif" && fileExtension != "NA"
         imageSrc = locallyStoredImage.imgSrc
-        if ((depthLevel >= 1 && locallyStoredImage.width > 300) || depthLevel < 1)
-        if (!isBannerDimensions(width, height))
+        if (depthLevel >= 1 && locallyStoredImage.width > 300) || depthLevel < 1
+        if !isBannerDimensions(width, height)
       } {
         val sequenceScore: Float = 1.0f / cnt
         val area: Float = width * height
@@ -216,7 +208,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     imageResults
   }
 
-  def getAllImages: ArrayList[Element] = {
+  def getAllImages: util.ArrayList[Element] = {
     null
   }
 
@@ -232,7 +224,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       return false
     }
     if (width > height) {
-      val diff: Float = (width.asInstanceOf[Float] / height.asInstanceOf[Float])
+      val diff: Float = width.asInstanceOf[Float] / height.asInstanceOf[Float]
       if (diff > 5) {
         return true
       }
@@ -262,8 +254,8 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   * @param images
   * @return
   */
-  private def filterBadNames(images: Elements): Option[ArrayList[Element]] = {
-    val goodImages: ArrayList[Element] = new ArrayList[Element]
+  private def filterBadNames(images: Elements): Option[util.ArrayList[Element]] = {
+    val goodImages: util.ArrayList[Element] = new util.ArrayList[Element]
     for (image <- images) {
       if (this.isOkImageFileName(image)) {
         goodImages.add(image)
@@ -295,7 +287,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     true
   }
 
-  def getImageCandidates(node: Element): Option[ArrayList[Element]] = {
+  def getImageCandidates(node: Element): Option[util.ArrayList[Element]] = {
 
     for {
       n <- getNode(node)
@@ -315,10 +307,10 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
   * @param images
   * @return
   */
-  private def findImagesThatPassByteSizeTest(images: ArrayList[Element]): Option[ArrayList[Element]] = {
+  private def findImagesThatPassByteSizeTest(images: util.ArrayList[Element]): Option[util.ArrayList[Element]] = {
     var cnt: Int = 0
     val MAX_BYTES_SIZE: Int = 15728640
-    val goodImages: ArrayList[Element] = new ArrayList[Element]
+    val goodImages: util.ArrayList[Element] = new util.ArrayList[Element]
     images.foreach(image => {
       try {
         if (cnt > 30) {
@@ -327,7 +319,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         }
         val imageSrc = image.attr("src")
         getLocallyStoredImage(buildImagePath(imageSrc)) match {
-          case Some(locallyStoredImage) => {
+          case Some(locallyStoredImage) =>
 
             val bytes = locallyStoredImage.bytes
             if ((bytes == 0 || bytes > minBytesForImages) && bytes < MAX_BYTES_SIZE) {
@@ -337,8 +329,6 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
               trace("Removing image: " + image.attr("src"))
               image.remove()
             }
-
-          }
           case None => trace(imageSrc + " unable to fetch")
         }
 
@@ -379,11 +369,10 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         mainImage.confidenceScore = 100
 
         getLocallyStoredImage(mainImage.imageSrc) match {
-          case Some(locallyStoredImage) => {
+          case Some(locallyStoredImage) =>
             mainImage.bytes = locallyStoredImage.bytes
             mainImage.height = locallyStoredImage.height
             mainImage.width = locallyStoredImage.width
-          }
           case None =>
         }
         trace("link tag found, using it")
@@ -393,10 +382,9 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       None
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         warn("Unexpected exception caught in checkForLinkTag. Handled by returning None.", e)
         None
-      }
     }
 
   }
@@ -420,11 +408,10 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
         mainImage.imageExtractionType = "opengraph"
         mainImage.confidenceScore = 100
         getLocallyStoredImage(mainImage.imageSrc) match {
-          case Some(locallyStoredImage) => {
+          case Some(locallyStoredImage) =>
             mainImage.bytes = locallyStoredImage.bytes
             mainImage.height = locallyStoredImage.height
             mainImage.width = locallyStoredImage.width
-          }
           case None =>
         }
         trace("open graph tag found, using it: %s".format(imagePath))
@@ -434,10 +421,9 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       None
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         warn(e, e.toString)
         None
-      }
     }
   }
 
@@ -469,7 +455,7 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     var knownImage: Element = null
     trace("Checking for known images from large sites")
 
-    for (knownName <- KNOWN_IMG_DOM_NAMES; if (knownImage == null)) {
+    for (knownName <- KNOWN_IMG_DOM_NAMES; if knownImage == null) {
       var known: Element = article.rawDoc.getElementById(knownName)
       if (known == null) {
         known = article.rawDoc.getElementsByClass(knownName).first
@@ -514,9 +500,8 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       return new URL(pageURL, ImageUtils.cleanImageSrcString(imageSrc)).toString
     }
     catch {
-      case e: MalformedURLException => {
+      case e: MalformedURLException =>
         warn("Unable to get Image Path: " + imageSrc)
-      }
     }
 
     imageSrc

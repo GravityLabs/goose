@@ -32,9 +32,8 @@ object TalkToMeGoose {
       println(article.cleanedArticleText)
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         System.out.println("Make sure you pass in a valid URL: " + e.toString)
-      }
     }
   }
 }

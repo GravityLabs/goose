@@ -72,7 +72,7 @@ trait DocumentCleaner {
     for {
       node <- ems
       images: Elements = node.getElementsByTag("img")
-      if (images.size == 0)
+      if images.size == 0
     } {
       val tn: TextNode = new TextNode(node.text, doc.baseUri)
       node.replaceWith(tn)
@@ -190,9 +190,8 @@ trait DocumentCleaner {
       }
     }
     catch {
-      case e: IllegalArgumentException => {
+      case e: IllegalArgumentException =>
         warn(e, e.toString)
-      }
     }
     doc
   }
@@ -249,9 +248,9 @@ trait DocumentCleaner {
     for (div <- divs) {
       try {
         val divToPElementsMatcher: Matcher = divToPElementsPattern.matcher(div.html.toLowerCase)
-        if (divToPElementsMatcher.find == false) {
+        if (!divToPElementsMatcher.find) {
           replaceElementsWithPara(doc, div)
-          badDivs += 1;
+          badDivs += 1
         }
         else {
           val replaceNodes = getReplacementNodes(doc, div)
@@ -269,9 +268,8 @@ trait DocumentCleaner {
         }
       }
       catch {
-        case e: NullPointerException => {
+        case e: NullPointerException =>
           logger.error(e.toString)
-        }
       }
       divIndex += 1
     }

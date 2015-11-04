@@ -31,7 +31,7 @@ object StringReplacement {
   def compile(pattern: String, replaceWith: String): StringReplacement = {
     if (string.isNullOrEmpty(pattern)) throw new IllegalArgumentException("Patterns must not be null or empty!")
     var p: Pattern = Pattern.compile(pattern)
-    return new StringReplacement(p, replaceWith)
+    new StringReplacement(p, replaceWith)
   }
 }
 
@@ -44,7 +44,7 @@ class StringReplacement {
 
   def replaceAll(input: String): String = {
     if (string.isNullOrEmpty(input)) return string.empty
-    return pattern.matcher(input).replaceAll(replaceWith)
+    pattern.matcher(input).replaceAll(replaceWith)
   }
 
   private var pattern: Pattern = null

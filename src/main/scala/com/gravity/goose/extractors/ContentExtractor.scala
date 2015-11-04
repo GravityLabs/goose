@@ -17,6 +17,8 @@
  */
 package com.gravity.goose.extractors
 
+import java.util
+
 import com.gravity.goose.Article
 import com.gravity.goose.text._
 import com.gravity.goose.utils.Logging
@@ -39,7 +41,7 @@ object ContentExtractor extends Logging {
 trait ContentExtractor {
   import ContentExtractor._
 
-  def getLogger() = logger
+  def getLogger = logger
 
   // PRIVATE PROPERTIES BELOW
 
@@ -91,10 +93,9 @@ trait ContentExtractor {
 
     }
     catch {
-      case e: NullPointerException => {
+      case e: NullPointerException =>
         warn(e.toString)
         string.empty
-      }
     }
 
   }
@@ -390,9 +391,8 @@ trait ContentExtractor {
       currentScore = if (string.isNullOrEmpty(scoreString)) 0 else Integer.parseInt(scoreString)
     }
     catch {
-      case e: NumberFormatException => {
+      case e: NumberFormatException =>
         currentScore = 0
-      }
     }
     val newScore: Int = currentScore + addToScore
     node.attr("gravityScore", Integer.toString(newScore))
@@ -411,9 +411,8 @@ trait ContentExtractor {
       currentScore = if (string.isNullOrEmpty(countString)) 0 else Integer.parseInt(countString)
     }
     catch {
-      case e: NumberFormatException => {
+      case e: NumberFormatException =>
         currentScore = 0
-      }
     }
     val newScore: Int = currentScore + addToCount
     node.attr("gravityNodes", Integer.toString(newScore))
@@ -425,13 +424,13 @@ trait ContentExtractor {
   * @return
   */
   def extractVideos(node: Element): List[Element] = {
-    val candidates: ArrayList[Element] = new ArrayList[Element]
+    val candidates: util.ArrayList[Element] = new util.ArrayList[Element]
     val goodMovies = mutable.Buffer[Element]()
     val youtubeStr = "youtube"
     val vimdeoStr = "vimeo"
     try {
-      node.parent.getElementsByTag("embed").foreach(candidates.add(_))
-      node.parent.getElementsByTag("object").foreach(candidates.add(_))
+      node.parent.getElementsByTag("embed").foreach(candidates.add)
+      node.parent.getElementsByTag("object").foreach(candidates.add)
 
       trace(logPrefix + "extractVideos: Starting to extract videos. Found: " + candidates.size)
 
@@ -445,20 +444,17 @@ trait ContentExtractor {
             }
           }
           catch {
-            case e: Exception => {
+            case e: Exception =>
               info(logPrefix + "Error extracting movies: " + e.toString)
-            }
           }
         }
       }
     }
     catch {
-      case e: NullPointerException => {
+      case e: NullPointerException =>
         warn(e.toString, e)
-      }
-      case e: Exception => {
+      case e: Exception =>
         warn(e.toString, e)
-      }
     }
     trace(logPrefix + "extractVideos:  done looking videos")
     goodMovies.toList
@@ -494,7 +490,7 @@ trait ContentExtractor {
     val node = addSiblings(targetNode)
     for {
       e <- node.children
-      if (e.tagName != "p")
+      if e.tagName != "p"
     } {
       trace(logPrefix + "CLEANUP  NODE: " + e.id + " class: " + e.attr("class"))
       if (isHighLinkDensity(e) || isTableTagAndNoParagraphsExist(e) || !isNodeScoreThreshholdMet(node, e)) {
@@ -545,11 +541,11 @@ trait ContentExtractor {
 
         Some((for {
           firstParagraph <- potentialParagraphs
-          if (firstParagraph.text.length() > 0)
+          if firstParagraph.text.length() > 0
           wordStats: WordStats = StopWords.getStopWordCount(firstParagraph.text)
           paragraphScore: Int = wordStats.getStopWordCount
           siblingBaseLineScore: Double = .30
-          if ((baselineScoreForSiblingParagraphs * siblingBaseLineScore).toDouble < paragraphScore)
+          if (baselineScoreForSiblingParagraphs * siblingBaseLineScore) < paragraphScore
         } yield {
 
           trace(logPrefix + "This node looks like a good sibling, adding it")
@@ -610,7 +606,7 @@ trait ContentExtractor {
       val wordStats: WordStats = StopWords.getStopWordCount(nodeText)
       val highLinkDensity: Boolean = isHighLinkDensity(node)
       if (wordStats.getStopWordCount > 2 && !highLinkDensity) {
-        numberOfParagraphs += 1;
+        numberOfParagraphs += 1
         scoreOfParagraphs += wordStats.getStopWordCount
       }
     }

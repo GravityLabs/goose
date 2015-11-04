@@ -73,7 +73,7 @@ class Crawler(config: Configuration) {
 
 
       extractor.calculateBestNodeBasedOnClustering(article) match {
-        case Some(node: Element) => {
+        case Some(node: Element) =>
           article.topNode = node
           article.movies = extractor.extractVideos(article.topNode)
 
@@ -87,9 +87,8 @@ class Crawler(config: Configuration) {
                 article.topImage = imageExtractor.getBestImage(article.rawDoc, article.topNode)
               }
             } catch {
-              case e: Exception => {
+              case e: Exception =>
                 warn(e, e.toString)
-              }
             }
           }
           article.topNode = extractor.postExtractionCleanup(article.topNode)
@@ -98,7 +97,6 @@ class Crawler(config: Configuration) {
 
 
           article.cleanedArticleText = outputFormatter.getFormattedText(article.topNode)
-        }
         case _ => trace("NO ARTICLE FOUND")
       }
       releaseResources(article)
@@ -113,9 +111,8 @@ class Crawler(config: Configuration) {
       Some(crawlCandidate.rawHTML)
     } else {
       config.getHtmlFetcher.getHtml(config, parsingCandidate.url.toString) match {
-        case Some(html) => {
+        case Some(html) =>
           Some(html)
-        }
         case _ => None
       }
     }
@@ -140,10 +137,9 @@ class Crawler(config: Configuration) {
     try {
       Some(Jsoup.parse(rawlHtml))
     } catch {
-      case e: Exception => {
+      case e: Exception =>
         trace("Unable to parse " + url + " properly into JSoup Doc")
         None
-      }
     }
   }
 

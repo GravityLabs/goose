@@ -23,6 +23,7 @@ package com.gravity.goose.images
  * Date: 8/18/11
  */
 
+import java.util
 import javax.imageio.ImageIO
 import java.awt.color.CMMException
 import java.awt.image.BufferedImage
@@ -61,7 +62,7 @@ object ImageUtils extends Logging {
     val infoParts = spaceRegex.split(imageInfo)
     val mimeType = infoParts.lift(1).getOrElse(string.empty)
     val (width, height) = infoParts.lift(2) match {
-      case Some(dimensions) => {
+      case Some(dimensions) =>
         val pair = xRegex.split(dimensions)
         if (pair.length > 1) {
           val wStr = pair(0)
@@ -71,7 +72,6 @@ object ImageUtils extends Logging {
         } else {
           (0, 0)
         }
-      }
       case None => (0, 0)
     }
     imageDetails.setMimeType(mimeType)
@@ -86,30 +86,28 @@ object ImageUtils extends Logging {
   * @param filePath
   * @return
   */
-  def getImageDimensionsJava(filePath: String): HashMap[String, Integer] = {
+  def getImageDimensionsJava(filePath: String): util.HashMap[String, Integer] = {
     var image: BufferedImage = null
     try {
       val f: File = new File(filePath)
       image = ImageIO.read(f)
-      val results: HashMap[String, Integer] = new HashMap[String, Integer]
+      val results: util.HashMap[String, Integer] = new util.HashMap[String, Integer]
       results.put("height", image.getHeight)
       results.put("width", image.getWidth)
       results
     }
     catch {
-      case e: CMMException => {
+      case e: CMMException =>
         logger.error("ERROR READING FILE: " + filePath + " \n", e)
         throw new IOException("Unable to read file: " + filePath)
-      }
     }
     finally {
       if (image != null) {
         try {
-          image.flush
+          image.flush()
         }
         catch {
-          case e: Exception => {
-          }
+          case e: Exception =>
         }
       }
     }
@@ -134,13 +132,11 @@ object ImageUtils extends Logging {
       return line
     }
     catch {
-      case e: IOException => {
+      case e: IOException =>
         logger.error(e.toString, e)
-      }
-      case e: InterruptedException => {
+      case e: InterruptedException =>
         logger.error(e.toString, e)
         throw new RuntimeException(e)
-      }
     }
     finally {
       if (in != null) {
@@ -148,8 +144,7 @@ object ImageUtils extends Logging {
           in.close()
         }
         catch {
-          case e: IOException => {
-          }
+          case e: IOException =>
         }
       }
       if (p != null) {
@@ -168,29 +163,26 @@ object ImageUtils extends Logging {
     try {
       // check for a cache hit already on disk
       readExistingFileInfo(linkhash, imageSrc, config) match {
-        case Some(locallyStoredImage) => {
+        case Some(locallyStoredImage) =>
           trace("Image already cached on disk: " + imageSrc)
           return Some(locallyStoredImage)
-        }
         case None =>
       }
 
       trace("Not found locally...starting to download image: " + imageSrc)
       fetchEntity(httpClient, imageSrc, config) match {
-        case Some(entity) => {
+        case Some(entity) =>
           trace("Got entity for " + imageSrc)
           writeEntityContentsToDisk(entity, linkhash, imageSrc, config) match {
             case Some(locallyStoredImage) => trace("Img Write successfull to disk"); Some(locallyStoredImage)
             case None => trace("Unable to write contents to disk: " + imageSrc); None
           }
-        }
         case None => trace("Unable to fetch entity for: " + imageSrc); None
       }
     } catch {
-      case e: Exception => {
+      case e: Exception =>
         info(e, e.toString)
         None
-      }
     }
 
 
@@ -221,10 +213,9 @@ object ImageUtils extends Logging {
         val fileExtension = getFileExtensionName(imageDetails)
         Some(LocallyStoredImage(imageSrc, localImageName, linkhash, imageFile.length(), fileExtension, imageDetails.getHeight, imageDetails.getWidth))
       } catch {
-        case e: Exception => {
+        case e: Exception =>
           trace(e, "Unable to get image file dimensions & extension name!")
           None
-        }
       }
     } else {
       None
@@ -241,14 +232,17 @@ object ImageUtils extends Logging {
     try {
       val fileCopyBytes = IOUtils.copy(instream, outstream)
       trace(fileCopyBytes + " bytes copied to disk")
-    } catch {
+    }
+    catch {
       case e: Exception => info(e, e.toString)
-    } finally {
+    }
+    finally {
       try {
         outstream.flush()
         outstream.close()
         instream.close()
-      } catch {
+      }
+      catch {
         case e: Exception => info(e, e.toString)
       }
     }
@@ -270,7 +264,7 @@ object ImageUtils extends Logging {
   def fetchEntity(httpClient: HttpClient, imageSrc: String, config: Configuration): Option[HttpEntity] = {
 
     URLHelper.tryToHttpGet(imageSrc) match {
-      case Some(httpget) => {
+      case Some(httpget) =>
         val localContext: HttpContext = new BasicHttpContext
         localContext.setAttribute(ClientContext.COOKIE_STORE, HtmlFetcher.emptyCookieStore)
         val response = try {
@@ -292,12 +286,9 @@ object ImageUtils extends Logging {
             case e: Exception => warn(e, e.toString); httpget.abort(); None
           }
         }
-
-      }
-      case None => {
+      case None =>
         warn("Unable to parse imageSrc: '" + imageSrc + "' into HttpGet")
         None
-      }
     }
 
   }

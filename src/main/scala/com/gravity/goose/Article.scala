@@ -87,12 +87,12 @@ class Article {
   * stores the final URL that we're going to try and fetch content against, this would be expanded if any
   * escaped fragments were found in the starting url
   */
-  var finalUrl: String = "";
+  var finalUrl: String = ""
 
   /**
   * stores the MD5 hash of the url to use for various identification tasks
   */
-  var linkhash: String = "";
+  var linkhash: String = ""
 
   /**
   * stores the RAW HTML straight from the network connection

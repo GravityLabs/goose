@@ -17,6 +17,8 @@
  */
 package com.gravity.goose.images
 
+import java.util
+
 import org.jsoup.select.Elements
 import org.apache.http.protocol.{BasicHttpContext, HttpContext}
 import org.apache.http.client.protocol.ClientContext
@@ -33,6 +35,8 @@ import com.gravity.goose.network.HtmlFetcher
 import java.io.{IOException, File}
 import java.util.regex.{Pattern, Matcher}
 import org.apache.http.client.methods.HttpGet
+
+import scala.collection.mutable
 
 /**
 * Created by Jim Plush
@@ -150,10 +154,9 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
       false
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         e.printStackTrace()
-        return false
-      }
+        false
     }
   }
 
@@ -181,14 +184,13 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
       false
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         logger.error(e.toString, e)
         false
-      }
     }
   }
 
-  def getAllImages: ArrayList[Element] = {
+  def getAllImages: util.ArrayList[Element] = {
     null
   }
 
@@ -203,7 +205,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   }
 
 
-  def getImageCandidates(node: Element): Option[ArrayList[Element]] = {
+  def getImageCandidates(node: Element): Option[util.ArrayList[Element]] = {
 
     for {
       n <- getNode(node)
@@ -228,14 +230,12 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
         if (siblingNode == null) throw new NullPointerException
         Some(DepthTraversal(siblingNode, parentDepth, siblingDepth + 1))
       } catch {
-        case e: NullPointerException => {
+        case e: NullPointerException =>
           if (node != null) {
             Some(DepthTraversal(node.parent, parentDepth + 1, 0))
           } else {
             None
           }
-
-        }
       }
     }
   }
@@ -256,12 +256,12 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
 
 
     getImageCandidates(node) match {
-      case Some(goodImages) => {
+      case Some(goodImages) =>
         trace(logPrefix + "checkForLargeImages: After findImagesThatPassByteSizeTest we have: " + goodImages.size + " at parent depth: " + parentDepthLevel)
         val scoredImages = downloadImagesAndGetResults(goodImages, parentDepthLevel)
         var highScoreImage: Element = null
         scoredImages.foreach {
-          case (key, value) => {
+          case (key, value) =>
             if (highScoreImage == null) {
               highScoreImage = key
             } else {
@@ -269,7 +269,6 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
                 highScoreImage = key
               }
             }
-          }
         }
 
         if (highScoreImage != null) {
@@ -279,7 +278,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
           this.image.imageExtractionType = "bigimage"
           this.image.bytes = f.length.asInstanceOf[Int]
           if (scoredImages.size > 0) {
-            this.image.confidenceScore = (100 / scoredImages.size)
+            this.image.confidenceScore = 100 / scoredImages.size
           }
           else {
             this.image.confidenceScore = 0
@@ -287,22 +286,18 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
           trace(logPrefix + "High Score Image is: " + buildImagePath(highScoreImage.attr("src")))
         } else {
           getDepthLevel(node, parentDepthLevel, siblingDepthLevel) match {
-            case Some(depthObj) => {
+            case Some(depthObj) =>
               checkForLargeImages(depthObj.node, depthObj.parentDepth, depthObj.siblingDepth)
-            }
             case None => trace("Image iteration is over!")
           }
         }
-      }
-      case None => {
+      case None =>
 
         getDepthLevel(node, parentDepthLevel, siblingDepthLevel) match {
-          case Some(depthObj) => {
+          case Some(depthObj) =>
             checkForLargeImages(depthObj.node, depthObj.parentDepth, depthObj.siblingDepth)
-          }
           case None => trace("Image iteration is over!")
         }
-      }
     }
   }
 
@@ -316,9 +311,9 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @param images
   * @return
   */
-  private def findImagesThatPassByteSizeTest(images: ArrayList[Element]): Option[ArrayList[Element]] = {
+  private def findImagesThatPassByteSizeTest(images: util.ArrayList[Element]): Option[util.ArrayList[Element]] = {
     var cnt: Int = 0
-    val goodImages: ArrayList[Element] = new ArrayList[Element]
+    val goodImages: util.ArrayList[Element] = new util.ArrayList[Element]
 
     images.foreach(image => {
       try {
@@ -353,8 +348,8 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @param images
   * @return
   */
-  private def filterBadNames(images: Elements): Option[ArrayList[Element]] = {
-    val goodImages: ArrayList[Element] = new ArrayList[Element]
+  private def filterBadNames(images: Elements): Option[util.ArrayList[Element]] = {
+    val goodImages: util.ArrayList[Element] = new util.ArrayList[Element]
     for (image <- images) {
       if (this.isOkImageFileName(image)) {
         goodImages.add(image)
@@ -415,11 +410,10 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
 
       }
       catch {
-        case e: NullPointerException => {
+        case e: NullPointerException =>
           if (logger.isDebugEnabled) {
             logger.debug(e.toString, e)
           }
-        }
       }
     }
     if (knownImage != null) {
@@ -453,9 +447,8 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
       newImage = imageURL.toString
     }
     catch {
-      case e: MalformedURLException => {
+      case e: MalformedURLException =>
         logger.error("Unable to get Image Path: " + image)
-      }
     }
     newImage
   }
@@ -487,26 +480,21 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
         }
       }
       catch {
-        case e: NullPointerException => {
+        case e: NullPointerException =>
           warn(e, "SRC: " + src + " " + e.toString)
-
-        }
       }
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         warn(e, "BIG SRC: " + src + " " + e.toString)
-
-      }
     }
     finally {
       try {
         httpget.abort()
       }
       catch {
-        case e: NullPointerException => {
+        case e: NullPointerException =>
           logger.error("HttpGet is null, can't abortz")
-        }
       }
     }
     bytes
@@ -524,8 +512,8 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
   * @return
   */
 
-  private def downloadImagesAndGetResults(images: ArrayList[Element], depthLevel: Int): HashMap[Element, Float] = {
-    val imageResults: HashMap[Element, Float] = new HashMap[Element, Float]
+  private def downloadImagesAndGetResults(images: util.ArrayList[Element], depthLevel: Int): mutable.HashMap[Element, Float] = {
+    val imageResults: mutable.HashMap[Element, Float] = new mutable.HashMap[Element, Float]
     var cnt: Int = 1
     var initialArea: Float = 0
 
@@ -567,9 +555,8 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
             }
           }
           catch {
-            case e: IOException => {
+            case e: IOException =>
               throw e
-            }
           }
         }
         if (continueVar) {
@@ -591,7 +578,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
           }
         }
         if (continueVar) {
-          val sequenceScore: Float = (1).asInstanceOf[Float] / cnt
+          val sequenceScore: Float = 1.asInstanceOf[Float] / cnt
           val area: Int = width * height
           var totalScore: Float = 0
           if (initialArea == 0) {
@@ -604,19 +591,15 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
             totalScore = sequenceScore.asInstanceOf[Float] * areaDifference
           }
           trace(logPrefix + imageSource + " Area is: " + area + " sequence score: " + sequenceScore + " totalScore: " + totalScore)
-          cnt += 1;
+          cnt += 1
 
           imageResults.put(image, totalScore)
         }
       }
       catch {
-        case e: SecretGifException => {
-
-        }
-        case e: Exception => {
+        case e: SecretGifException =>
+        case e: Exception =>
           warn(e, e.toString)
-
-        }
       }
     }
     imageResults
@@ -635,7 +618,7 @@ class StandardImageExtractor(httpClient: HttpClient, article: Article, config: C
       return false
     }
     if (width > height) {
-      val diff: Float = (width.asInstanceOf[Float] / height.asInstanceOf[Float])
+      val diff: Float = width.asInstanceOf[Float] / height.asInstanceOf[Float]
       if (diff > 5) {
         return true
       }

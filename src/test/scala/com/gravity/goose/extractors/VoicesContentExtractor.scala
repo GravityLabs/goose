@@ -27,7 +27,7 @@ class VoicesContentExtractor extends ContentExtractor {
       }
     } catch {
       case ex: Exception => {
-        getLogger().warn(ex.toString)
+        getLogger.warn(ex.toString)
         string.empty
       }
     }

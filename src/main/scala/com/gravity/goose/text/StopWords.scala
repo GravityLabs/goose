@@ -24,7 +24,7 @@ package com.gravity.goose.text
  * Date: 8/16/11
  */
 
-import java.util._
+import java.util
 import com.gravity.goose.utils.FileHelper
 
 object StopWords {
@@ -47,7 +47,7 @@ object StopWords {
 
     val candidateWords: Array[String] = string.SPACE_SPLITTER.split(strippedInput)
 
-    val overlappingStopWords: List[String] = new ArrayList[String]
+    val overlappingStopWords: util.List[String] = new util.ArrayList[String]
 
     candidateWords.foreach(w => {
        if (STOP_WORDS.contains(w.toLowerCase)) overlappingStopWords.add(w.toLowerCase)

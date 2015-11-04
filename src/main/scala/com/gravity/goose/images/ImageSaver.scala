@@ -68,16 +68,13 @@ object ImageSaver extends Logging {
       }
     }
     catch {
-      case e: SecretGifException => {
+      case e: SecretGifException =>
         throw e
-      }
-      case e: FileNotFoundException => {
+      case e: FileNotFoundException =>
         logger.error(e.getMessage)
-      }
-      case e: IOException => {
+      case e: IOException =>
         logger.error(e.getMessage)
         throw e
-      }
     }
     finally {
     }
@@ -134,9 +131,8 @@ object ImageSaver extends Logging {
       newFilename
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         throw e
-      }
     }
     finally {
       //            entity.consumeContent
@@ -147,9 +143,6 @@ object ImageSaver extends Logging {
 
   /**
   * stores an image to disk and returns the path where the file was written
-  *
-  * @param imageSrc
-  * @return
   */
   def storeTempImage(httpClient: HttpClient, linkhash: String, imageSrcMaster: String, config: Configuration): String = {
     var imageSrc = imageSrcMaster
@@ -160,43 +153,34 @@ object ImageSaver extends Logging {
       trace("Starting to download image: " + imageSrc)
 
       fetchEntity(httpClient, imageSrc) match {
-        case Some(entity) => {
+        case Some(entity) =>
 
-            try {
-              return copyInputStreamToLocalImage(entity, linkhash, config)
-            }
-            catch {
-              case e: SecretGifException => {
-                throw e
-              }
-              case e: Exception => {
-                logger.error(e.getMessage); null
-              }
-            }
-
-        }
-        case None => trace("Unable to get entity for: " + imageSrc); null
+          try {
+            return copyInputStreamToLocalImage(entity, linkhash, config)
+          }
+          catch {
+            case e: SecretGifException =>
+              throw e
+            case e: Exception =>
+              logger.error(e.getMessage)
+          }
+        case None => trace("Unable to get entity for: " + imageSrc)
       }
 
     }
     catch {
-      case e: IllegalArgumentException => {
+      case e: IllegalArgumentException =>
         logger.warn(e.getMessage)
-      }
-      case e: SecretGifException => {
+      case e: SecretGifException =>
         raise(e)
-      }
-      case e: ClientProtocolException => {
+      case e: ClientProtocolException =>
         logger.error(e.toString)
-      }
-      case e: IOException => {
+      case e: IOException =>
         logger.error(e.toString)
-      }
-      case e: Exception => {
+      case e: Exception =>
         e.printStackTrace()
         logger.error(e.toString)
         e.printStackTrace()
-      }
     }
     finally {
 

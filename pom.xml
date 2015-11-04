@@ -4,13 +4,13 @@
 
   <groupId>com.gravity</groupId>
   <artifactId>goose</artifactId>
-  <version>2.1.26_2.11</version>
+  <version>2.1.27_2.10</version>
   <packaging>jar</packaging>
   <name>goose</name>
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <scala.version>2.11.4</scala.version>
+    <scala.version>2.10.4</scala.version>
   </properties>
 
   <dependencies>
@@ -155,13 +155,13 @@
         <repository>
             <id>releases</id>
             <name>Nexus release repo</name>
-            <url>http://www.playpen.gravity.com:8081/nexus/content/repositories/releases</url>
+            <url>http://nexus.corp.grv/nexus/content/repositories/releases</url>
             <!-- <url>scp://localhost/home/skuo/repository/</url> -->
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
             <name>Nexus snapshot repo</name>
-            <url>http://www.playpen.gravity.com:8081/nexus/content/repositories/snapshots</url>
+            <url>http://nexus.corp.grv/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
