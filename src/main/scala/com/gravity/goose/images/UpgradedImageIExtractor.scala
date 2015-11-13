@@ -1,17 +1,19 @@
 package com.gravity.goose.images
 
-import org.apache.http.client.HttpClient
-import com.gravity.goose.{Configuration, Article}
-import org.jsoup.nodes.{Element, Document}
-import java.util.regex.{Pattern, Matcher}
-import com.gravity.goose.text.string
 import java.net.{MalformedURLException, URL}
-import org.jsoup.select.Elements
-import scala.collection.JavaConversions._
 import java.util.ArrayList
-import collection.mutable.{ListBuffer, HashMap}
-import com.gravity.goose.utils.FileHelper
-import io.Source
+import java.util.regex.{Matcher, Pattern}
+
+import com.gravity.goose.text.string
+import com.gravity.goose.{Article, Configuration}
+import org.apache.http.client.HttpClient
+import org.jsoup.nodes.{Document, Element}
+import org.jsoup.select.Elements
+
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
+import scala.io.Source
+import scala.util.parsing.json.{JSON, JSONObject}
 
 /**
 * Created by Jim Plush
@@ -70,6 +72,31 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
     }
 
     new Image
+  }
+
+  /**
+   * Scrape thumbnail image metadata from MSN.com's wcvideoplayer.
+   *
+   * @return Option[String] The image url that was found, or None.
+   */
+  private def checkForMsnVideoHeadlineImage: Option[String] = {
+    // This DOM path may be too restrictive but it's performing quite well at time of writing.
+    val dataConfig: String  =
+      article.rawDoc.select("div#maincontent div#main div.primary-playback-region div.wcvideoplayer[data-metadata]").attr("data-metadata")
+
+    JSON.parseRaw(dataConfig) match {
+      case Some(JSONObject(metadataMap)) =>
+        metadataMap.get("headlineImage") match {
+          case Some(JSONObject(headlineImageMap)) =>
+            val imgOpt = headlineImageMap.get("url").map(_.toString)
+            imgOpt.foreach(imgUrl => trace("Got Known MSN Video Headline Image: " + imgUrl))
+            imgOpt
+
+          case _ => None
+        }
+
+      case _ => None
+    }
   }
 
   private def checkForMetaTag: Option[Image] = {
@@ -466,38 +493,48 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
       subDelimRegex.split(classes).foreach(c => KNOWN_IMG_DOM_NAMES += c)
     })
 
-    var knownImage: Element = null
+    var knownImageElem: Element = null
     trace("Checking for known images from large sites")
 
-    for (knownName <- KNOWN_IMG_DOM_NAMES; if (knownImage == null)) {
+    for (knownName <- KNOWN_IMG_DOM_NAMES; if (knownImageElem == null)) {
       var known: Element = article.rawDoc.getElementById(knownName)
       if (known == null) {
         known = article.rawDoc.getElementsByClass(knownName).first
       }
       if (known != null) {
-        val mainImage: Element = known.getElementsByTag("img").first
-        if (mainImage != null) {
-          knownImage = mainImage
-          trace("Got Known Image: " + mainImage.attr("src"))
+        val mainImageElem: Element = known.getElementsByTag("img").first
+
+        if (mainImageElem != null) {
+          knownImageElem = mainImageElem
+          trace("Got Known Image: " + mainImageElem.attr("src"))
         }
       }
     }
 
-    if (knownImage == null) return None
+    val knownImgSrcOpt  =
+      if (knownImageElem != null)
+        Option(knownImageElem.attr("src"))
+      else
+        checkForMsnVideoHeadlineImage
 
-    val knownImgSrc: String = knownImage.attr("src")
-    val mainImage = new Image
-    mainImage.imageSrc = buildImagePath(knownImgSrc)
-    mainImage.imageExtractionType = "known"
-    mainImage.confidenceScore = 90
+    knownImgSrcOpt match {
+      case Some(knownImgSrc) if knownImgSrc != "" =>
+        val mainImage = new Image
+        mainImage.imageSrc = buildImagePath(knownImgSrc)
+        mainImage.imageExtractionType = "known"
+        mainImage.confidenceScore = 90
 
-    getLocallyStoredImage(buildImagePath(mainImage.imageSrc)).foreach(locallyStoredImage => {
-      mainImage.bytes = locallyStoredImage.bytes
-      mainImage.height = locallyStoredImage.height
-      mainImage.width = locallyStoredImage.width
-    })
+        getLocallyStoredImage(buildImagePath(mainImage.imageSrc)).foreach(locallyStoredImage => {
+          mainImage.bytes = locallyStoredImage.bytes
+          mainImage.height = locallyStoredImage.height
+          mainImage.width = locallyStoredImage.width
+        })
 
-    Some(mainImage)
+        Some(mainImage)
+
+      case _ =>
+        None
+    }
   }
 
   /**
