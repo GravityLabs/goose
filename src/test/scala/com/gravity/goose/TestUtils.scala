@@ -56,6 +56,7 @@ object TestUtils {
     articleReport.append("LINKHASH: ").append(TAB).append(article.linkhash).append(NL)
     articleReport.append("MOVIES:   ").append(TAB).append(article.movies).append(NL)
     articleReport.append("TAGS:     ").append(TAB).append(article.tags).append(NL)
+    articleReport.append("PUBDATE:  ").append(TAB).append(article.publishDate).append(NL)
 
     assertNotNull("Resulting article was NULL!", article)
 

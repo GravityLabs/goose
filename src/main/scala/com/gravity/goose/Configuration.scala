@@ -77,10 +77,39 @@ class Configuration {
   var contentExtractor: ContentExtractor = StandardContentExtractor
 
   var publishDateExtractor: PublishDateExtractor = new PublishDateExtractor {
-    def extract(rootElement: Element): Date = {
-      null
+    import PublishDateExtractor._
+
+    def extractCandidate(rootElement: Element, selector: String): Seq[java.util.Date] = {
+      import scala.collection.JavaConversions._
+
+      try {
+        rootElement.select(selector).flatMap(item => safeParseISO8601Date(item.attr("content")))
+      }
+      catch {
+        case e: Exception =>
+          Nil
+      }
+    }
+
+    final val pubSelectors = Seq(
+      "meta[property~=article:published_time]"
+    )
+
+    final val modSelectors = Seq(
+      "meta[property~=article:modified_time]",
+      "meta[property~=og:updated_time]"
+    )
+
+    def extract(rootElement: Element): java.util.Date = {
+      // A few different ways to get a date.
+      def bestPubDate = pubSelectors.flatMap(extractCandidate(rootElement, _)).reduceOption(minDate)
+      def bestModDate = modSelectors.flatMap(extractCandidate(rootElement, _)).reduceOption(minDate)
+
+      // Return the oldest 'published' date, or else the oldest 'modified' date, or null if none.
+      bestPubDate.orElse(bestModDate).getOrElse(null)
     }
   }
+
   var additionalDataExtractor: AdditionalDataExtractor = new AdditionalDataExtractor
 
   def getPublishDateExtractor: PublishDateExtractor = {
@@ -94,7 +123,7 @@ class Configuration {
 
   /**
   * Pass in to extract article publish dates.
-  * @param extractor a concrete instance of {@link PublishDateExtractor}
+    * @param extractor a concrete instance of {@link PublishDateExtractor}
   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
   */
   def setPublishDateExtractor(extractor: PublishDateExtractor) {
@@ -108,7 +137,7 @@ class Configuration {
 
   /**
   * Pass in to extract any additional data not defined within {@link Article}
-  * @param extractor a concrete instance of {@link AdditionalDataExtractor}
+    * @param extractor a concrete instance of {@link AdditionalDataExtractor}
   * @throws IllegalArgumentException if the instance passed in is <code>null</code>
   */
   def setAdditionalDataExtractor(extractor: AdditionalDataExtractor) {

@@ -17,8 +17,11 @@
  */
 package com.gravity.goose.extractors
 
-import org.jsoup.nodes.Element
 import java.util.Date
+import javax.xml.datatype.DatatypeFactory
+
+import com.gravity.goose.utils.Logging
+import org.jsoup.nodes.Element
 
 /**
 * Implement this class to extract the {@link Date} of when this article was published.
@@ -40,5 +43,35 @@ abstract class PublishDateExtractor extends Extractor[Date] {
   def extract(rootElement: Element): Date
 }
 
+object PublishDateExtractor extends Logging {
+  val logPrefix = "PublishDateExtractor: "
 
+  lazy val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
+
+  /**
+    * Helper function to return the minimum of two non-null Java Dates.
+    */
+  def minDate(lhs: java.util.Date, rhs: java.util.Date): java.util.Date = {
+    if (lhs.getTime < rhs.getTime)
+      lhs
+    else
+      rhs
+  }
+
+  /**
+    * Helper function to parse ISO 8601 date/time strings safely.
+    */
+  def safeParseISO8601Date(txt: String): Option[java.util.Date] = {
+    if (txt == null || txt.isEmpty)
+      return None
+
+    try {
+      Option(datatypeFactory.newXMLGregorianCalendar(txt).toGregorianCalendar.getTime)
+    } catch {
+      case ex: Exception =>
+        info(s"`$txt` could not be parsed to date as it did not meet the ISO 8601 spec")
+        None
+    }
+  }
+}
 

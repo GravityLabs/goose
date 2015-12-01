@@ -15,7 +15,7 @@ import java.util.Date
  * Date: 8/19/11
  */
 
-class TextExtractions {
+class ExtractionsTest {
 
   def getHtml(filename: String): String = {
     FileHelper.loadResourceFile(TestUtils.staticHtmlDir + filename, Goose.getClass)
@@ -250,6 +250,11 @@ class TextExtractions {
     val article = TestUtils.getArticle(url, html)
     TestUtils.runArticleAssertions(article = article,
       expectedStart = expected)
+
+    assertNotNull("publishDate should not be null!", article.publishDate)
+    val expDate = new java.util.Date(1321657238000L) // "2011-11-18T23:00:38Z"
+    assertEquals(s"""Publish date should equal: "$expDate"""", expDate, article.publishDate)
+    System.out.println("Publish Date Extracted: " + article.publishDate)
   }
 
 
