@@ -140,6 +140,8 @@ class UpgradedImageIExtractor(httpClient: HttpClient, article: Article, config: 
             mainImage.imageSrc = highScoreImage._1.imgSrc
             mainImage.imageExtractionType = "bigimage"
             mainImage.bytes = highScoreImage._1.bytes
+            mainImage.width = highScoreImage._1.width
+            mainImage.height = highScoreImage._1.height
             mainImage.confidenceScore = if (scoredImages.size > 0) (100 / scoredImages.size) else 0
             trace("IMAGE COMPLETE: High Score Image is: " + mainImage.imageSrc + " Score is: " + highScoreImage._2)
             return Some(mainImage)
