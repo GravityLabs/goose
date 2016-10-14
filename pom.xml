@@ -12,11 +12,31 @@
 	</prerequisites>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gravity.goose</groupId>
-	<artifactId>goose_2.11</artifactId>
-	<version>2.2.5-SNAPSHOT</version>
+	<artifactId>goose_${scala.prefix}</artifactId>
+	<version>2.2.5</version>
 	<packaging>jar</packaging>
 	<name>goose</name>
-	<url>https://github.com/raisercostin/goose</url>
+	<properties>
+ 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.5</maven.compiler.source>
+		<maven.compiler.target>1.5</maven.compiler.target>
+		<source.version>1.7</source.version>
+		<scala.prefix>2.11</scala.prefix>
+		<scala.version>2.11.2</scala.version>
+		<!--<scala.version>2.9.0-1</scala.version>-->
+		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
+		<gae.version>1.7.1</gae.version>
+		<gae.home>${appengine.sdk.root}</gae.home>
+		<slf4j.version>1.7.7</slf4j.version>
+
+	   <github.user>raisercostin</github.user>
+	   <github.repo>goose</github.repo>
+	   <github.url>https://github.com/${github.user}/${github.repo}</github.url>
+	   <bintray.user>${github.user}</bintray.user>
+	   <bintray.repo>maven</bintray.repo>
+	   <bintray.package>${github.repo}</bintray.package>
+	</properties>
+	<url>${github.url}</url>
 	<description>Html Content / Article Extractor in Scala - open sourced from Gravity Labs - http://gravity.com
 Goose was originally an article extractor written in Java that has most recently (aug2011) converted to a scala project. It's mission is to take any news article or article type web page and not only extract what is the main body of the article but also all meta data and most probable image candidate.</description>
 	<licenses>
@@ -26,40 +46,22 @@ Goose was originally an article extractor written in Java that has most recently
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
+	<scm>
+		<connection>scm:git:${github.url}.git</connection>
+		<developerConnection>scm:git:${github.url}.git</developerConnection>
+		<url>${github.url}</url>
+		<tag>${project.artifactId}-${project.version}</tag>
+	</scm>
 	<distributionManagement>
 		<repository>
-			<id>raisercostin-releases</id>
-			<url>svn:https://raisercostin.googlecode.com/svn/maven2/</url>
+			<id>bintray</id>
+			<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}</url>
 		</repository>
-		<snapshotRepository>
-			<id>raisercostin-snapshots</id>
-			<url>svn:https://raisercostin.googlecode.com/svn/maven2-snapshots/</url>
-		</snapshotRepository>
-		<!--
-		<repository>
-			<id>unfold-release</id>
-			<name>Unfold Nexus Release Repository</name>
-			<url>http://nexus.unfold.com:8081/nexus/content/repositories/releases</url>
-		</repository>
-		<repository>
-			<id>nexus-releases</id>
-			<name>Nexus Release Repository</name>
-			<url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-		<snapshotRepository>
-			<id>unfold-snapshot</id>
-			<name>Unfold Nexus Snapshot Repository</name>
-			<url>http://nexus.unfold.com:8081/nexus/content/repositories/snapshots</url>
-		</snapshotRepository>
-		-->
 	</distributionManagement>
-	<scm>
-		<!--https://github.com/raisercostin/goose.git-->
-		<connection>scm:git:https://github.com/raisercostin/goose.git</connection>
-		<developerConnection>scm:git:https://github.com/raisercostin/goose.git</developerConnection>
-		<url>https://github.com/raisercostin/goose.git</url>
-		<tag>HEAD</tag>
-	</scm>
+	<issueManagement>
+		<system>Github</system>
+		<url>https://github.com/raisercostin/${project.artifactId}/issues</url>
+	</issueManagement>
 	<developers>
 		<developer>
 			<id>jiminoc</id>
@@ -78,23 +80,9 @@ Goose was originally an article extractor written in Java that has most recently
 		<developer>
 			<id>raisercostin</id>
 			<name>Costin Grigore</name>
-			<organization>brainlight</organization>
-			<url>http://blog.raisercostin.org/</url>
+			<url>http://raisercostin.org/</url>
 		</developer>
 	</developers>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.5</maven.compiler.source>
-		<maven.compiler.target>1.5</maven.compiler.target>
-		<source.version>1.7</source.version>
-		<scala.version>2.11.2</scala.version>
-		<scala.prefix>2.11</scala.prefix>
-		<!--<scala.version>2.9.0-1</scala.version>-->
-		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
-		<gae.version>1.7.1</gae.version>
-		<gae.home>${appengine.sdk.root}</gae.home>
-		<slf4j.version>1.7.7</slf4j.version>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -492,6 +480,13 @@ Goose was originally an article extractor written in Java that has most recently
         </extensions>
 	</build>
 	<profiles>
+		<profile>
+			<id>scala210</id>
+			<properties>
+				<scala.prefix>2.10</scala.prefix>
+				<scala.version>2.10.4</scala.version>
+			</properties>
+		</profile>
 		<profile>
 			<id>release</id>
 			<build>

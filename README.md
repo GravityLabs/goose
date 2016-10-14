@@ -115,13 +115,20 @@ The stopword lists introduced in the [Python-Goose project](https://github.com/g
 into Goose.
 
 ##Release
-- release with standard maven process at http://raisercostin.googlecode.com/svn/maven2/com/gravity/goose/
 
+### Release with maven
+- to release for scala 2.11
+	    `mvn release:prepare -Prelease -DskipTests -Darguments="-DskipTests -Prelease"`
+- to release for scala 2.10
+	    `mvn release:prepare -Prelease -Pscala210 -DskipTests -Darguments="-DskipTests -Prelease -Pscala210"`
+
+The release is done via bintray
+- release with standard maven process at http://raisercostin.googlecode.com/svn/maven2/com/gravity/goose/
 	    mvn release:prepare -Prelease -DskipTests -Darguments="-DskipTests -Prelease"
-		mvn release:perform -Prelease -DskipTests -Darguments="-DskipTests -Prelease"
+	    mvn release:perform -Prelease -DskipTests -Darguments="-DskipTests -Prelease"
 
 - configure your ~/.m2/settings.xml as
-
+	```
 		<servers>
 		  <server>
 			<id>raisercostin-releases</id>
@@ -129,3 +136,4 @@ into Goose.
 			<password>svn-pass</password>
 		  </server>
 		</servers>
+	```
