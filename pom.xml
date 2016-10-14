@@ -12,8 +12,9 @@
 	</prerequisites>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gravity.goose</groupId>
-	<artifactId>goose_${scala.prefix}</artifactId>
-	<version>2.2.5</version>
+	<artifactId>goose_2.11</artifactId>
+	<!--	<artifactId>goose_${scala.prefix}</artifactId>-->
+	<version>2.2.6</version>
 	<packaging>jar</packaging>
 	<name>goose</name>
 	<properties>
@@ -52,10 +53,11 @@ Goose was originally an article extractor written in Java that has most recently
 		<url>${github.url}</url>
 		<tag>${project.artifactId}-${project.version}</tag>
 	</scm>
+	<!-- https://bintray.com/docs/usermanual/formats/formats_mavenrepositories.html -->
 	<distributionManagement>
 		<repository>
 			<id>bintray</id>
-			<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}</url>
+			<url>https://api.bintray.com/maven/${bintray.user}/${bintray.repo}/${bintray.package}/;publish=1</url>
 		</repository>
 	</distributionManagement>
 	<issueManagement>
