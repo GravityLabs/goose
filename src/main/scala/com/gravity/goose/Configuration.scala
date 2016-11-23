@@ -24,7 +24,6 @@ import java.util.Date
 import scala.beans.BeanProperty
 import com.gravity.goose.extractors.{StandardContentExtractor, ContentExtractor, AdditionalDataExtractor, PublishDateExtractor}
 
-
 /**
  * Created by Jim Plush
  * User: jim
@@ -73,6 +72,12 @@ class Configuration {
   */
   @BeanProperty
   var browserUserAgent: String = "Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8"
+
+  @BeanProperty
+  var connectionTimeout: Int = 10000
+
+  @BeanProperty
+  var socketTimeout : Int = 10000
 
   var contentExtractor: ContentExtractor = StandardContentExtractor
 
