@@ -137,3 +137,9 @@ The release is done via bintray
 		  </server>
 		</servers>
 	```
+
+## Deploy libraries to bintray
+- deploy for scala 2.11
+       `mvn deploy -DskipTests -f pom_scala211.xml -Prelease`
+- deploy for scala 2.10
+       `mvn deploy -DskipTests -f pom_scala210.xml -Prelease`
