@@ -114,6 +114,7 @@ We made sure it was still nice and operable from Java as well so if you're using
 The stopword lists introduced in the [Python-Goose project](https://github.com/grangier/python-goose) have been incorporated
 into Goose.
 
+<!--
 ##Release
 
 ### Release with maven
@@ -126,6 +127,10 @@ The release is done via bintray
 - release with standard maven process at http://raisercostin.googlecode.com/svn/maven2/com/gravity/goose/
 	    mvn release:prepare -Prelease -DskipTests -Darguments="-DskipTests -Prelease"
 	    mvn release:perform -Prelease -DskipTests -Darguments="-DskipTests -Prelease"
+-->
+
+## Deploy libraries to bintray
+
 
 - configure your ~/.m2/settings.xml as
 	```
@@ -138,8 +143,8 @@ The release is done via bintray
 		</servers>
 	```
 
-## Deploy libraries to bintray
 - deploy for scala 2.11
-       `mvn deploy -DskipTests -f pom_scala211.xml -Prelease`
+    ```mvn -f pom_scala211.xml deploy -DskipTests -Prelease```
+
 - deploy for scala 2.10
-       `mvn deploy -DskipTests -f pom_scala210.xml -Prelease`
+    ```mvn -f pom_scala210.xml deploy -DskipTests -Prelease```
