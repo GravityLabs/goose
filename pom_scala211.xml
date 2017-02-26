@@ -14,7 +14,7 @@
 	<groupId>com.gravity.goose</groupId>
 	<artifactId>goose_2.11</artifactId>
 	<!--	<artifactId>goose_${scala.prefix}</artifactId>-->
-	<version>2.2.7</version>
+	<version>2.2.8</version>
 	<packaging>jar</packaging>
 	<name>goose</name>
 	<properties>
@@ -22,10 +22,8 @@
 		<maven.compiler.source>1.5</maven.compiler.source>
 		<maven.compiler.target>1.5</maven.compiler.target>
 		<source.version>1.7</source.version>
-		<!--
 		<scala.prefix>2.11</scala.prefix>
-		<scala.version>2.11.2</scala.version>
-		-->
+		<scala.version>2.11.8</scala.version>
 		<!--<scala.version>2.9.0-1</scala.version>-->
 		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
 		<gae.version>1.7.1</gae.version>
@@ -141,19 +139,19 @@ Goose was originally an article extractor written in Java that has most recently
 		</dependency>
 		<dependency>
 			<groupId>com.github.nscala-time</groupId>
-			<artifactId>nscala-time_2.11</artifactId>
+			<artifactId>nscala-time_${scala.prefix}</artifactId>
 			<version>1.4.0</version>
 		</dependency>
 		<!--scala-->
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-compiler</artifactId>
-			<version>2.11.8</version>
+			<version>${scala.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
-			<version>2.11.8</version>
+			<version>${scala.version}</version>
 		</dependency>
 
 		<dependency>
@@ -202,7 +200,7 @@ Goose was originally an article extractor written in Java that has most recently
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.module</groupId>
-			<artifactId>jackson-module-scala_2.11</artifactId>
+			<artifactId>jackson-module-scala_${scala.prefix}</artifactId>
 			<version>2.4.3</version>
 		</dependency>
 		<dependency>
@@ -489,26 +487,6 @@ Goose was originally an article extractor written in Java that has most recently
         </extensions>
 	</build>
 	<profiles>
-		<profile>
-			<id>scala210</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<scala.prefix>2.10</scala.prefix>
-				<scala.version>2.10.6</scala.version>
-			</properties>
-		</profile>
-		<profile>
-			<id>scala211</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<scala.prefix>2.11</scala.prefix>
-				<scala.version>2.11.8</scala.version>
-			</properties>
-		</profile>
 		<profile>
 			<id>release</id>
 			<build>

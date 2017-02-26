@@ -38,3 +38,5 @@ release/
 *.sw*
 .DS_Store
 bin/
+/.cache-main
+/.cache-tests
